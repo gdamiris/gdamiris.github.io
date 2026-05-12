@@ -164,7 +164,9 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 20px;
     flex-shrink: 0;
+    overflow: hidden;
   }
+  .lift-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
   .lift-name { font-weight: 700; }
   .lift-best { font-size: 12px; color: var(--fg-muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
   .lift-tier-badge {
@@ -786,7 +788,10 @@
 <div class="sheet-overlay" id="sheet-add-exercise" onclick="if(event.target===this) closeSheet()">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <h2>New Exercise</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h2 id="addExTitle" style="margin:0;">New Exercise</h2>
+      <button class="icon-btn" onclick="closeSheet()" style="font-size:16px;">✕</button>
+    </div>
 
     <div class="field">
       <label>Name</label>
@@ -794,8 +799,32 @@
     </div>
 
     <div class="field">
-      <label>Icon</label>
-      <div class="emoji-grid" id="emojiGrid"></div>
+      <label>Icon or Image</label>
+      <div style="display:flex; gap:10px; align-items:flex-start;">
+        <div id="emojiPreview" style="
+          width:56px; height:56px; border-radius:12px; background:var(--bg-sunken);
+          border:1px solid var(--border); display:flex; align-items:center;
+          justify-content:center; font-size:28px; flex-shrink:0; overflow:hidden;
+        ">💪</div>
+        <div style="flex:1;">
+          <div class="emoji-grid" id="emojiGrid"></div>
+          <label style="
+            display:block; margin-top:8px; padding:10px;
+            background:var(--bg-sunken); border:1px dashed var(--border);
+            border-radius:8px; text-align:center; cursor:pointer;
+            font-size:12px; color:var(--fg-muted); transition:border-color .15s;
+          " onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            📷 Upload image
+            <input type="file" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Demo link (YouTube, etc.)</label>
+      <input id="newExLink" type="url" placeholder="https://youtube.com/watch?v=..." autocomplete="off">
+      <div class="field-help">Shown as a 🔗 button on the exercise card.</div>
     </div>
 
     <div class="field">
@@ -826,14 +855,14 @@
           <div class="difficulty-btn-sub">pullup, dip</div>
         </button>
       </div>
-      <div class="field-help">Sets the strength thresholds. You can fine-tune below.</div>
+      <div class="field-help">Sets the strength thresholds.</div>
     </div>
 
     <div class="threshold-preview" id="thresholdPreview"></div>
 
     <div style="display: flex; gap: 8px; margin-top: 16px;">
       <button class="btn btn-ghost" onclick="closeSheet()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveCustomExercise()">Create</button>
+      <button class="btn btn-primary" id="saveExBtn" onclick="saveCustomExercise()">Create</button>
     </div>
   </div>
 </div>
@@ -842,11 +871,18 @@
 <div class="sheet-overlay" id="sheet-lift-detail" onclick="if(event.target===this) closeSheet()">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <div class="lift-icon" id="detailIcon">🏋️</div>
-      <div>
-        <h2 id="detailName">Bench Press</h2>
-        <div class="sub" id="detailSub">No PR yet</div>
+    <div class="sheet-header" style="justify-content: space-between;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="lift-icon" id="detailIcon">🏋️</div>
+        <div>
+          <h2 id="detailName" style="margin:0;">Bench Press</h2>
+          <div class="sub" id="detailSub">No PR yet</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <button class="icon-btn" id="detailLinkBtn" style="display:none; font-size:14px;" onclick="openDetailLink()">🔗</button>
+        <button class="icon-btn" onclick="openEditCurrentExercise()" style="font-size:14px;">✏️</button>
+        <button class="icon-btn" onclick="closeSheet()" style="font-size:16px;">✕</button>
       </div>
     </div>
 
@@ -1281,7 +1317,8 @@ function awardMilestoneBadges(date, addXp) {
 // CUSTOM EXERCISE CREATION
 // ═══════════════════════════════════════════════════════════════════════
 
-let pendingExercise = { emoji: '💪', difficulty: 'upper-comp' };
+let pendingExercise = { emoji: '💪', difficulty: 'upper-comp', link: '', image: null };
+let editingExerciseId = null; // null = new, string = editing existing exercise id
 
 function selectDifficulty(d) {
   pendingExercise.difficulty = d;
@@ -1293,9 +1330,27 @@ function selectDifficulty(d) {
 
 function selectEmoji(emoji) {
   pendingExercise.emoji = emoji;
+  pendingExercise.image = null; // clear any uploaded image when emoji chosen
   document.querySelectorAll('.emoji-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.emoji === emoji);
   });
+  const prev = document.getElementById('emojiPreview');
+  if (prev) prev.innerHTML = emoji;
+}
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 500 * 1024) { alert('Image too large — keep it under 500 KB'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingExercise.image = e.target.result; // base64 data URL
+    pendingExercise.emoji = null;
+    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('active'));
+    const prev = document.getElementById('emojiPreview');
+    if (prev) prev.innerHTML = `<img src="${pendingExercise.image}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
+  };
+  reader.readAsDataURL(file);
 }
 
 function renderThresholdPreview() {
@@ -1325,17 +1380,33 @@ function saveCustomExercise() {
   const name = document.getElementById('newExName').value.trim();
   if (!name) { alert('Give it a name'); return; }
   if (name.length > 40) { alert('Name too long'); return; }
-  const id = `custom-${state.nextCustomId++}`;
-  state.exercises.push({
-    id,
-    name,
-    emoji: pendingExercise.emoji,
-    difficulty: pendingExercise.difficulty,
-    builtIn: false,
-  });
+  const link = document.getElementById('newExLink').value.trim();
+  const icon = pendingExercise.image || pendingExercise.emoji || '💪';
+
+  if (editingExerciseId) {
+    // Edit mode — update in place, preserve data
+    const ex = state.exercises.find(e => e.id === editingExerciseId);
+    if (ex) {
+      ex.name = name;
+      ex.emoji = icon;
+      ex.difficulty = pendingExercise.difficulty;
+      ex.link = link || null;
+    }
+    toast(`✅ ${name} updated`);
+  } else {
+    // Create mode
+    const id = `custom-${state.nextCustomId++}`;
+    state.exercises.push({
+      id, name,
+      emoji: icon,
+      difficulty: pendingExercise.difficulty,
+      link: link || null,
+      builtIn: false,
+    });
+    toast(`✅ ${name} added`);
+  }
   saveState();
   closeSheet();
-  toast(`✅ ${name} added`);
   render();
 }
 
@@ -1448,7 +1519,7 @@ function render() {
 
     card.innerHTML = `
       <div class="lift-row">
-        <div class="lift-icon">${ex.emoji}</div>
+        <div class="lift-icon">${ex.emoji && ex.emoji.startsWith('data:') ? `<img src="${ex.emoji}" style="width:100%;height:100%;object-fit:cover;">` : (ex.emoji || '💪')}</div>
         <div style="flex:1; min-width: 0;">
           <div class="lift-name">${ex.name}</div>
           <div class="lift-best">${best ? `${formatWeight(best.weight)} × ${best.reps} · Est. 1RM ${formatWeight(best.est1rm)}` : 'No lift logged'}</div>
@@ -1504,12 +1575,22 @@ function openLiftDetail(exId) {
   if (!ex) return;
   const best = state.bests[exId];
   const tier = best ? getTierForLift(ex, best.est1rm) : 0;
+  const isImage = ex.emoji && ex.emoji.startsWith('data:');
 
-  document.getElementById('detailIcon').textContent = ex.emoji;
+  const iconEl = document.getElementById('detailIcon');
+  if (isImage) {
+    iconEl.innerHTML = `<img src="${ex.emoji}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
+  } else {
+    iconEl.textContent = ex.emoji || '🏋️';
+  }
   document.getElementById('detailName').textContent = ex.name;
   document.getElementById('detailSub').textContent = best
     ? `Best: ${formatWeight(best.weight)} × ${best.reps} · Est. 1RM ${formatWeight(best.est1rm)}`
     : 'No lift logged yet';
+
+  // Show link button only if a link is set
+  const linkBtn = document.getElementById('detailLinkBtn');
+  linkBtn.style.display = ex.link ? 'inline-flex' : 'none';
 
   // Render large badge cards for each tier
   const labels = ['Bronze','Silver','Gold','Platinum','Epic','Legendary'];
@@ -1772,8 +1853,13 @@ function openSheet(name) {
     setTimeout(() => document.getElementById('logWeight').focus(), 100);
   }
   if (name === 'add-exercise') {
-    pendingExercise = { emoji: '💪', difficulty: 'upper-comp' };
+    editingExerciseId = null;
+    pendingExercise = { emoji: '💪', difficulty: 'upper-comp', link: '', image: null };
+    document.getElementById('addExTitle').textContent = 'New Exercise';
+    document.getElementById('saveExBtn').textContent = 'Create';
     document.getElementById('newExName').value = '';
+    document.getElementById('newExLink').value = '';
+    document.getElementById('emojiPreview').innerHTML = '💪';
     const eg = document.getElementById('emojiGrid');
     eg.innerHTML = EMOJI_PALETTE.map(e =>
       `<button class="emoji-btn" data-emoji="${e}" onclick="selectEmoji('${e}')">${e}</button>`
@@ -1791,6 +1877,50 @@ function openSheet(name) {
     document.getElementById('trainingExOrder').innerHTML = '';
   }
   sheet.classList.add('open');
+}
+
+// Open the add-exercise sheet pre-filled for editing an existing exercise
+function openEditCurrentExercise() {
+  const exId = currentDetailExerciseId;
+  if (!exId) return;
+  const ex = state.exercises.find(e => e.id === exId);
+  if (!ex) return;
+
+  editingExerciseId = exId;
+  const isImage = ex.emoji && ex.emoji.startsWith('data:');
+  pendingExercise = {
+    emoji: isImage ? null : (ex.emoji || '💪'),
+    image: isImage ? ex.emoji : null,
+    difficulty: ex.difficulty || 'upper-comp',
+    link: ex.link || '',
+  };
+
+  document.getElementById('addExTitle').textContent = 'Edit Exercise';
+  document.getElementById('saveExBtn').textContent = 'Save';
+  document.getElementById('newExName').value = ex.name;
+  document.getElementById('newExLink').value = ex.link || '';
+
+  const prev = document.getElementById('emojiPreview');
+  if (isImage) {
+    prev.innerHTML = `<img src="${ex.emoji}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
+  } else {
+    prev.innerHTML = ex.emoji || '💪';
+  }
+
+  const eg = document.getElementById('emojiGrid');
+  eg.innerHTML = EMOJI_PALETTE.map(e =>
+    `<button class="emoji-btn ${(!isImage && ex.emoji === e) ? 'active' : ''}" data-emoji="${e}" onclick="selectEmoji('${e}')">${e}</button>`
+  ).join('');
+
+  selectDifficulty(ex.difficulty || 'upper-comp');
+
+  closeSheet(); // close detail first
+  document.getElementById('sheet-add-exercise').classList.add('open');
+}
+
+function openDetailLink() {
+  const ex = state.exercises.find(e => e.id === currentDetailExerciseId);
+  if (ex && ex.link) window.open(ex.link, '_blank', 'noopener');
 }
 
 function openEditTraining(pi) {
