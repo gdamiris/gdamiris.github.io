@@ -1,0 +1,2052 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Gym Quest</title>
+<style>
+  :root {
+    --bg: #0a0a0c;
+    --bg-raised: #14141a;
+    --bg-sunken: #06060a;
+    --border: #23232a;
+    --border-strong: #3a3a45;
+    --fg: #f0f0f5;
+    --fg-muted: #9a9aa5;
+    --fg-dim: #5a5a65;
+    --accent: #ff5a3c;
+    --accent-glow: #ff8c4a;
+    --xp: #4ade80;
+    --streak: #ff8c2a;
+
+    /* Badge tier colors — match the strength tier they represent */
+    --t-bronze:    #cd7f32;  /* Novice */
+    --t-silver:    #d1d5db;  /* Intermediate */
+    --t-gold:      #ffd700;  /* Advanced */
+    --t-platinum:  #b9f2ff;  /* Elite */
+    --t-epic:      #c084fc;  /* Veteran */
+    --t-legendary: #fb923c;  /* World-class */
+
+    --novice: #94a3b8;
+    --intermediate: #60a5fa;
+    --advanced: #a78bfa;
+    --elite: #f472b6;
+    --world-class: #fbbf24;
+    --danger: #ef4444;
+    --success: #22c55e;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    overscroll-behavior-y: contain;
+    min-height: 100vh;
+  }
+  body {
+    background:
+      radial-gradient(ellipse at top, rgba(255,90,60,0.08), transparent 50%),
+      radial-gradient(ellipse at bottom, rgba(192,132,252,0.05), transparent 50%),
+      var(--bg);
+  }
+  input, button, select { font: inherit; color: inherit; }
+  input { font-size: 16px; }
+  button { cursor: pointer; border: none; background: none; color: inherit; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+  .app { max-width: 480px; margin: 0 auto; padding: 16px 16px 100px; }
+
+  /* ── Level card ──────────────────────────────────────────────────── */
+  .level-card {
+    background: linear-gradient(135deg, rgba(255,90,60,0.15), rgba(192,132,252,0.1));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .level-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 20% 0%, rgba(255,140,74,0.25), transparent 40%);
+    pointer-events: none;
+  }
+  .level-row { display: flex; align-items: baseline; gap: 12px; position: relative; }
+  .level-num {
+    font-size: 48px; font-weight: 900; line-height: 1;
+    background: linear-gradient(180deg, var(--t-gold) 0%, var(--accent) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    letter-spacing: -2px;
+  }
+  .level-meta { flex: 1; }
+  .level-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--fg-muted); font-weight: 600; }
+  .level-tier { font-size: 14px; font-weight: 700; margin-top: 2px; }
+  .icon-btn {
+    width: auto; padding: 8px 12px; min-height: 0; font-size: 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .xp-bar-wrap { margin-top: 14px; position: relative; }
+  .xp-bar-track {
+    height: 10px;
+    background: var(--bg-sunken);
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--xp), #86efac);
+    border-radius: 5px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 12px rgba(74,222,128,0.5);
+  }
+  .xp-text {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--fg-muted); margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Stats row ───────────────────────────────────────────────────── */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-value { font-size: 22px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-muted); margin-top: 4px; }
+  .stat-streak .stat-value { color: var(--streak); }
+  .stat-pr .stat-value { color: var(--t-gold); }
+
+  /* ── Section headers ─────────────────────────────────────────────── */
+  .section-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: 24px 0 10px;
+  }
+  .section-head h2 {
+    margin: 0;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--fg-muted);
+  }
+  .link-btn { color: var(--accent); font-size: 13px; font-weight: 600; }
+  .link-btn:hover { color: var(--accent-glow); }
+
+  /* ── Cards / lifts ───────────────────────────────────────────────── */
+  .card {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 8px;
+  }
+  .lift-card { cursor: pointer; transition: border-color 0.15s; }
+  .lift-card:hover { border-color: var(--border-strong); }
+  .lift-row {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .lift-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--bg-sunken);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .lift-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+  .lift-name { font-weight: 700; }
+  .lift-best { font-size: 12px; color: var(--fg-muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .lift-tier-badge {
+    margin-left: auto;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    background: var(--bg-sunken);
+    border: 1px solid;
+    flex-shrink: 0;
+  }
+  .tier-untrained { color: var(--fg-dim); border-color: var(--border); }
+  .tier-novice { color: var(--novice); border-color: var(--novice); }
+  .tier-intermediate { color: var(--intermediate); border-color: var(--intermediate); }
+  .tier-advanced { color: var(--advanced); border-color: var(--advanced); }
+  .tier-elite { color: var(--elite); border-color: var(--elite); }
+  .tier-world-class { color: var(--world-class); border-color: var(--world-class); }
+
+  /* Per-lift progression chips (bronze→legendary) inside lift card */
+  .badge-chip-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .badge-chip-row::-webkit-scrollbar { display: none; }
+  .badge-chip {
+    flex: 1 1 0;
+    min-width: 50px;
+    aspect-ratio: 1.05;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: var(--bg-sunken);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    position: relative;
+    transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+  }
+  .badge-chip-icon {
+    font-size: 20px;
+    line-height: 1;
+    filter: grayscale(1) opacity(0.35);
+    transition: filter 0.3s;
+  }
+  .badge-chip-label {
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--fg-dim);
+    margin-top: 3px;
+  }
+  .badge-chip.earned .badge-chip-icon { filter: none; }
+  .badge-chip.earned .badge-chip-label { color: var(--fg); }
+  .badge-chip.earned[data-tier="1"] { border-color: var(--t-bronze);    box-shadow: 0 0 0 1px var(--t-bronze), 0 2px 12px rgba(205,127,50,0.25); }
+  .badge-chip.earned[data-tier="2"] { border-color: var(--t-silver);    box-shadow: 0 0 0 1px var(--t-silver), 0 2px 12px rgba(209,213,219,0.25); }
+  .badge-chip.earned[data-tier="3"] { border-color: var(--t-gold);      box-shadow: 0 0 0 1px var(--t-gold), 0 2px 14px rgba(255,215,0,0.35); }
+  .badge-chip.earned[data-tier="4"] { border-color: var(--t-platinum);  box-shadow: 0 0 0 1px var(--t-platinum), 0 2px 14px rgba(185,242,255,0.35); }
+  .badge-chip.earned[data-tier="5"] { border-color: var(--t-epic);      box-shadow: 0 0 0 1px var(--t-epic), 0 2px 16px rgba(192,132,252,0.45); }
+  .badge-chip.earned[data-tier="6"] {
+    border-color: var(--t-legendary);
+    box-shadow: 0 0 0 1px var(--t-legendary), 0 2px 18px rgba(251,146,60,0.55);
+    background: linear-gradient(135deg, rgba(251,146,60,0.18), rgba(255,215,0,0.10));
+    animation: legendaryPulse 2.5s ease-in-out infinite;
+  }
+  @keyframes legendaryPulse {
+    0%, 100% { box-shadow: 0 0 0 1px var(--t-legendary), 0 2px 18px rgba(251,146,60,0.55); }
+    50% { box-shadow: 0 0 0 1px var(--t-legendary), 0 2px 26px rgba(251,146,60,0.75); }
+  }
+  .badge-chip-progress {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: rgba(255,255,255,0.06);
+  }
+  .badge-chip-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.4s;
+  }
+  .badge-chip.earned .badge-chip-progress { display: none; }
+
+  /* Progression text label below chips */
+  .prog-summary {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--fg-muted);
+    display: flex; justify-content: space-between;
+  }
+  .prog-summary .next {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    transition: transform 0.1s, background 0.15s;
+    min-height: 48px;
+    width: 100%;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-glow));
+    color: white;
+    box-shadow: 0 4px 16px rgba(255,90,60,0.3);
+  }
+  .btn-primary:hover { box-shadow: 0 6px 20px rgba(255,90,60,0.4); }
+  .btn-ghost { background: var(--bg-raised); color: var(--fg); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--border); }
+  .btn-danger { background: rgba(239,68,68,0.15); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
+
+  /* Remove button on lift card */
+  .lift-card-actions {
+    display: flex; justify-content: flex-end;
+    margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
+  }
+  .lift-remove-btn {
+    font-size: 12px; font-weight: 600; color: var(--fg-dim);
+    padding: 5px 10px; border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .lift-remove-btn:hover { color: var(--danger); background: rgba(239,68,68,0.1); }
+
+  /* Tabs */
+  .tab-bar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(10,10,12,0.92); backdrop-filter: blur(12px);
+    display: flex; margin: 0 -16px 20px; padding: 0 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab-btn {
+    flex: 1; padding: 14px 4px; font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--fg-muted);
+    border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn.active { color: var(--accent); border-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Training cards */
+  .training-card {
+    background: var(--bg-raised); border: 1px solid var(--border);
+    border-radius: 12px; margin-bottom: 10px; overflow: hidden;
+  }
+  .training-header {
+    display: flex; align-items: center; gap: 12px; padding: 14px;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .training-header:hover { background: rgba(255,255,255,0.03); }
+  .training-color-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .training-info { flex: 1; min-width: 0; }
+  .training-name { font-weight: 700; font-size: 16px; }
+  .training-meta { font-size: 12px; color: var(--fg-muted); margin-top: 2px; }
+  .training-chevron { color: var(--fg-dim); transition: transform 0.25s; font-size: 18px; }
+  .training-card.open .training-chevron { transform: rotate(90deg); }
+  .training-body { display: none; padding: 0 14px 14px; border-top: 1px solid var(--border); }
+  .training-card.open .training-body { display: block; }
+  .training-ex-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .training-ex-row:last-of-type { border-bottom: none; }
+  .training-ex-icon { font-size: 18px; width: 26px; text-align: center; flex-shrink: 0; }
+  .training-ex-info { flex: 1; min-width: 0; }
+  .training-ex-name { font-weight: 600; font-size: 14px; }
+  .training-ex-sets { font-size: 12px; color: var(--fg-muted); }
+  .training-ex-actions { display: flex; gap: 4px; }
+  .ex-action-btn {
+    width: 30px; height: 30px; border-radius: 7px; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.12s, color 0.12s;
+  }
+  .ex-action-btn:hover { background: rgba(255,255,255,0.08); }
+  .ex-action-btn.del:hover { background: rgba(239,68,68,0.15); color: var(--danger); }
+  .training-card-actions {
+    display: flex; gap: 8px; margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .color-swatch {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid transparent; cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .color-swatch.active { border-color: #fff; transform: scale(1.2); }
+  .ex-pick-list {
+    background: var(--bg-sunken); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; max-height: 240px; overflow-y: auto;
+  }
+  .ex-pick-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.12s;
+  }
+  .ex-pick-item:last-child { border-bottom: none; }
+  .ex-pick-item:hover { background: rgba(255,255,255,0.04); }
+  .ex-pick-item input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; }
+  .ex-pick-name { font-weight: 600; font-size: 14px; }
+  .ex-pick-tier { font-size: 11px; color: var(--fg-muted); }
+
+  /* Add-exercise button */
+  .add-exercise-card {
+    background: transparent;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 8px;
+    text-align: center;
+    color: var(--fg-muted);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.15s;
+  }
+  .add-exercise-card:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(255,90,60,0.05);
+  }
+
+  /* ── Modal / sheet ───────────────────────────────────────────────── */
+  .sheet-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 50;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .sheet-overlay.open { display: flex; }
+  .sheet {
+    background: var(--bg-raised);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    width: 100%; max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+    animation: sheetUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .sheet-handle {
+    width: 36px; height: 4px;
+    background: var(--border-strong);
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+  .sheet h2 { margin: 0 0 14px; font-size: 22px; font-weight: 800; }
+  .sheet-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .sheet-header .lift-icon { width: 48px; height: 48px; font-size: 24px; }
+  .sheet-header h2 { margin: 0; }
+  .sheet-header .sub { font-size: 12px; color: var(--fg-muted); margin-top: 2px; }
+
+  /* ── Form ────────────────────────────────────────────────────────── */
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block; margin-bottom: 6px;
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--fg-muted);
+  }
+  .field input, .field select {
+    width: 100%;
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+    min-height: 48px;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .field-help { font-size: 11px; color: var(--fg-dim); margin-top: 4px; line-height: 1.4; }
+
+  /* Difficulty preset buttons (custom exercise sheet) */
+  .difficulty-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+  .difficulty-btn {
+    background: var(--bg-sunken);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .difficulty-btn.active {
+    border-color: var(--accent);
+    background: rgba(255,90,60,0.1);
+  }
+  .difficulty-btn-title { font-size: 13px; font-weight: 700; }
+  .difficulty-btn-sub { font-size: 10px; color: var(--fg-muted); margin-top: 2px; }
+
+  /* Emoji picker grid */
+  .emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px;
+  }
+  .emoji-btn {
+    aspect-ratio: 1;
+    font-size: 22px;
+    border-radius: 6px;
+    transition: background 0.1s;
+  }
+  .emoji-btn:hover { background: rgba(255,255,255,0.08); }
+  .emoji-btn.active { background: rgba(255,90,60,0.2); border: 1px solid var(--accent); }
+
+  /* Threshold preview */
+  .threshold-preview {
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 6px;
+  }
+  .threshold-preview-title {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fg-muted); margin-bottom: 8px;
+  }
+  .threshold-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 0;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  .threshold-row .name {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--fg-muted);
+  }
+  .threshold-row .value { font-weight: 700; }
+  .tier-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* Delete exercise button in detail sheet */
+  .danger-zone { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+  /* ── Toast / celebration ─────────────────────────────────────────── */
+  .toast {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    background: var(--bg-raised);
+    border: 1px solid var(--t-gold);
+    border-radius: 12px;
+    padding: 12px 16px;
+    box-shadow: 0 8px 32px rgba(255,215,0,0.3);
+    z-index: 100;
+    animation: toastIn 0.3s ease-out;
+    font-weight: 700;
+    max-width: 90%;
+  }
+  @keyframes toastIn {
+    from { transform: translate(-50%, -100%); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+  }
+
+  .celebrate {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(12px);
+    z-index: 200;
+    display: none; align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .celebrate.open { display: flex; }
+  .celebrate-inner {
+    text-align: center;
+    animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+  @keyframes pop {
+    from { transform: scale(0.3); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .celebrate-icon {
+    font-size: 96px;
+    margin-bottom: 16px;
+    animation: spinIn 0.8s ease-out;
+    filter: drop-shadow(0 0 24px var(--t-gold));
+  }
+  @keyframes spinIn {
+    from { transform: rotate(-180deg) scale(0.5); }
+    to { transform: rotate(0deg) scale(1); }
+  }
+  .celebrate-tier-label {
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 3px;
+    color: var(--fg-muted);
+    margin-bottom: 8px;
+  }
+  .celebrate-title {
+    font-size: 32px; font-weight: 900;
+    margin-bottom: 8px;
+    line-height: 1.1;
+  }
+  .celebrate-title[data-tier="1"] { color: var(--t-bronze); }
+  .celebrate-title[data-tier="2"] { color: var(--t-silver); }
+  .celebrate-title[data-tier="3"] { color: var(--t-gold); }
+  .celebrate-title[data-tier="4"] { color: var(--t-platinum); }
+  .celebrate-title[data-tier="5"] { color: var(--t-epic); }
+  .celebrate-title[data-tier="6"] {
+    background: linear-gradient(135deg, var(--t-legendary), var(--t-gold), var(--t-epic));
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .celebrate-sub { color: var(--fg-muted); font-size: 16px; margin-bottom: 24px; }
+
+  /* ── Empty state ─────────────────────────────────────────────────── */
+  .empty {
+    text-align: center; padding: 40px 20px; color: var(--fg-muted);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+
+  /* ── PR history ──────────────────────────────────────────────────── */
+  .pr-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .pr-row:last-child { border-bottom: none; }
+  .pr-date { font-size: 11px; color: var(--fg-dim); width: 50px; flex-shrink: 0; }
+  .pr-lift { flex: 1; font-weight: 600; font-size: 14px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pr-value { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--t-gold); font-size: 14px; flex-shrink: 0; }
+  .pr-delta { font-size: 11px; color: var(--success); margin-left: 6px; flex-shrink: 0; }
+
+  .particle {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  @media (max-width: 360px) {
+    .app { padding: 12px 12px 100px; }
+    .level-num { font-size: 40px; }
+    .badge-chip { min-width: 44px; }
+    .badge-chip-icon { font-size: 17px; }
+    .badge-chip-label { font-size: 7px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- TAB BAR ────────────────────────────────────────────────────── -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('lifts')">Lifts</button>
+    <button class="tab-btn" onclick="switchTab('training')">Training</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- TAB: LIFTS                                                    -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-lifts">
+
+  <!-- LEVEL CARD ─────────────────────────────────────────────────── -->
+  <div class="level-card">
+    <div class="level-row">
+      <div class="level-num" id="levelNum">1</div>
+      <div class="level-meta">
+        <div class="level-label">Strength Level</div>
+        <div class="level-tier" id="levelTier">Untrained</div>
+      </div>
+      <button class="icon-btn" onclick="openSheet('settings')">⚙</button>
+    </div>
+    <div class="xp-bar-wrap">
+      <div class="xp-bar-track">
+        <div class="xp-bar-fill" id="xpFill" style="width: 0%"></div>
+      </div>
+      <div class="xp-text">
+        <span id="xpText">0 / 100 XP</span>
+        <span id="xpNext">Lv 2</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS ROW ──────────────────────────────────────────────────── -->
+  <div class="stats-row">
+    <div class="stat-card stat-streak">
+      <div class="stat-value" id="streakVal">0</div>
+      <div class="stat-label">🔥 Streak</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="workoutsVal">0</div>
+      <div class="stat-label">Workouts</div>
+    </div>
+    <div class="stat-card stat-pr">
+      <div class="stat-value" id="prCountVal">0</div>
+      <div class="stat-label">PRs</div>
+    </div>
+  </div>
+
+  <!-- LIFTS ──────────────────────────────────────────────────────── -->
+  <div class="section-head">
+    <h2>Your Lifts</h2>
+    <button class="link-btn" onclick="openSheet('add-exercise')">+ Add</button>
+  </div>
+  <div id="liftsList"></div>
+  <button class="add-exercise-card" onclick="openSheet('add-exercise')">
+    + Add Custom Exercise
+  </button>
+
+  <!-- LOG ────────────────────────────────────────────────────────── -->
+  <button class="btn btn-primary" style="margin: 16px 0;" onclick="openSheet('log')">
+    + Log a Lift
+  </button>
+
+  <!-- RECENT PRS ─────────────────────────────────────────────────── -->
+  <div class="section-head">
+    <h2>Recent PRs</h2>
+  </div>
+  <div class="card" id="prHistory"></div>
+
+  </div><!-- /tab-lifts -->
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- TAB: TRAINING                                                 -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-training">
+
+    <div class="section-head" style="margin-top: 8px;">
+      <h2>Training Plans</h2>
+      <button class="link-btn" onclick="openSheet('add-training')">+ New</button>
+    </div>
+    <div id="trainingList"></div>
+    <button class="add-card" onclick="openSheet('add-training')">+ Create Training Plan</button>
+
+  </div><!-- /tab-training -->
+
+</div>
+
+<!-- ── LOG SHEET ───────────────────────────────────────────────── -->
+<div class="sheet-overlay" id="sheet-log" onclick="if(event.target===this) closeSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2>Log a Lift</h2>
+    <div class="field">
+      <label>Exercise</label>
+      <select id="logExercise"></select>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Weight</label>
+        <input id="logWeight" type="number" inputmode="decimal" step="0.5" placeholder="0" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Reps</label>
+        <input id="logReps" type="number" inputmode="numeric" min="1" max="20" placeholder="5" autocomplete="off">
+      </div>
+    </div>
+    <div class="field-help" style="margin-bottom: 14px;">
+      Estimated 1RM uses the Epley formula. Use 1–10 reps for the best accuracy.
+    </div>
+    <button class="btn btn-primary" onclick="logLift()">Log it</button>
+    <button class="btn btn-ghost" style="margin-top: 8px;" onclick="closeSheet()">Cancel</button>
+  </div>
+</div>
+
+<!-- ── SETTINGS SHEET ─────────────────────────────────────────── -->
+<div class="sheet-overlay" id="sheet-settings" onclick="if(event.target===this) closeSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2>Profile</h2>
+    <div class="field">
+      <label>Units</label>
+      <select id="setUnits">
+        <option value="metric">Metric (kg / cm)</option>
+        <option value="imperial">Imperial (lb / in)</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Bodyweight <span id="bwUnit">(kg)</span></label>
+        <input id="setBodyweight" type="number" inputmode="decimal" step="0.1">
+      </div>
+      <div class="field">
+        <label>Height <span id="htUnit">(cm)</span></label>
+        <input id="setHeight" type="number" inputmode="decimal" step="0.5">
+      </div>
+    </div>
+    <div class="field">
+      <label>Sex (for fair scoring)</label>
+      <select id="setSex">
+        <option value="m">Male</option>
+        <option value="f">Female</option>
+      </select>
+    </div>
+    <div class="field-help" style="margin-bottom: 14px;">
+      Strength tiers and XP use bodyweight-relative thresholds with a height adjustment, so lifters of different builds are scored fairly relative to each other.
+    </div>
+    <button class="btn btn-primary" onclick="saveSettings()">Save</button>
+    <div class="danger-zone">
+      <button class="btn btn-danger" onclick="resetAll()">Reset all data</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD CUSTOM EXERCISE SHEET ──────────────────────────────── -->
+<div class="sheet-overlay" id="sheet-add-exercise" onclick="if(event.target===this) closeSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h2 id="addExTitle" style="margin:0;">New Exercise</h2>
+      <button class="icon-btn" onclick="closeSheet()" style="font-size:16px;">✕</button>
+    </div>
+
+    <div class="field">
+      <label>Name</label>
+      <input id="newExName" type="text" placeholder="e.g. Bulgarian Split Squat" autocomplete="off" maxlength="40">
+    </div>
+
+    <div class="field">
+      <label>Icon or Image</label>
+      <div style="display:flex; gap:10px; align-items:flex-start;">
+        <div id="emojiPreview" style="
+          width:56px; height:56px; border-radius:12px; background:var(--bg-sunken);
+          border:1px solid var(--border); display:flex; align-items:center;
+          justify-content:center; font-size:28px; flex-shrink:0; overflow:hidden;
+        ">💪</div>
+        <div style="flex:1;">
+          <div class="emoji-grid" id="emojiGrid"></div>
+          <label style="
+            display:block; margin-top:8px; padding:10px;
+            background:var(--bg-sunken); border:1px dashed var(--border);
+            border-radius:8px; text-align:center; cursor:pointer;
+            font-size:12px; color:var(--fg-muted); transition:border-color .15s;
+          " onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            📷 Upload image
+            <input type="file" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Demo link (YouTube, etc.)</label>
+      <input id="newExLink" type="url" placeholder="https://youtube.com/watch?v=..." autocomplete="off">
+      <div class="field-help">Shown as a 🔗 button on the exercise card.</div>
+    </div>
+
+    <div class="field">
+      <label>Difficulty preset</label>
+      <div class="difficulty-grid">
+        <button class="difficulty-btn" data-difficulty="upper-iso" onclick="selectDifficulty('upper-iso')">
+          <div class="difficulty-btn-title">Upper iso</div>
+          <div class="difficulty-btn-sub">curls, raises</div>
+        </button>
+        <button class="difficulty-btn" data-difficulty="upper-comp" onclick="selectDifficulty('upper-comp')">
+          <div class="difficulty-btn-title">Upper comp</div>
+          <div class="difficulty-btn-sub">press, row</div>
+        </button>
+        <button class="difficulty-btn" data-difficulty="lower-iso" onclick="selectDifficulty('lower-iso')">
+          <div class="difficulty-btn-title">Lower iso</div>
+          <div class="difficulty-btn-sub">calf, extension</div>
+        </button>
+        <button class="difficulty-btn" data-difficulty="lower-comp" onclick="selectDifficulty('lower-comp')">
+          <div class="difficulty-btn-title">Lower comp</div>
+          <div class="difficulty-btn-sub">squat, lunge</div>
+        </button>
+        <button class="difficulty-btn" data-difficulty="hinge" onclick="selectDifficulty('hinge')">
+          <div class="difficulty-btn-title">Hinge</div>
+          <div class="difficulty-btn-sub">deadlift, RDL</div>
+        </button>
+        <button class="difficulty-btn" data-difficulty="bodyweight" onclick="selectDifficulty('bodyweight')">
+          <div class="difficulty-btn-title">Bodyweight</div>
+          <div class="difficulty-btn-sub">pullup, dip</div>
+        </button>
+      </div>
+      <div class="field-help">Sets the strength thresholds.</div>
+    </div>
+
+    <div class="threshold-preview" id="thresholdPreview"></div>
+
+    <div style="display: flex; gap: 8px; margin-top: 16px;">
+      <button class="btn btn-ghost" onclick="closeSheet()">Cancel</button>
+      <button class="btn btn-primary" id="saveExBtn" onclick="saveCustomExercise()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── LIFT DETAIL SHEET ──────────────────────────────────────── -->
+<div class="sheet-overlay" id="sheet-lift-detail" onclick="if(event.target===this) closeSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header" style="justify-content: space-between;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="lift-icon" id="detailIcon">🏋️</div>
+        <div>
+          <h2 id="detailName" style="margin:0;">Bench Press</h2>
+          <div class="sub" id="detailSub">No PR yet</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <button class="icon-btn" id="detailLinkBtn" style="display:none; font-size:14px;" onclick="openDetailLink()">🔗</button>
+        <button class="icon-btn" onclick="openEditCurrentExercise()" style="font-size:14px;">✏️</button>
+        <button class="icon-btn" onclick="closeSheet()" style="font-size:16px;">✕</button>
+      </div>
+    </div>
+
+    <div id="detailBadges"></div>
+
+    <div class="section-head" style="margin-top: 20px;">
+      <h2>Recent PRs</h2>
+    </div>
+    <div class="card" id="detailHistory"></div>
+
+    <div class="danger-zone" id="detailDangerZone" style="display: none;">
+      <button class="btn btn-danger" onclick="deleteCurrentExercise()">Delete this exercise</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD TRAINING SHEET ─────────────────────────────────────── -->
+<div class="sheet-overlay" id="sheet-add-training" onclick="if(event.target===this) closeSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="addTrainingTitle">New Training Plan</h2>
+    <input type="hidden" id="editTrainingId">
+    <div class="field">
+      <label>Name</label>
+      <input id="trainingName" type="text" placeholder="e.g. Push Day, Full Body A" maxlength="40" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Color tag</label>
+      <div class="color-row" id="trainingColorRow"></div>
+    </div>
+    <div class="field">
+      <label>Exercises</label>
+      <div class="ex-pick-list" id="trainingExPick"></div>
+    </div>
+    <div id="trainingExOrder" style="margin-top: 8px;"></div>
+    <div style="display:flex; gap:8px; margin-top:16px;">
+      <button class="btn btn-ghost" onclick="closeSheet()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTraining()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── EDIT EXERCISE IN TRAINING SHEET ──────────────────────────── -->
+<div class="sheet-overlay" id="sheet-edit-training-ex" onclick="if(event.target===this) closeSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="editTrainingExTitle">Edit Exercise</h2>
+    <input type="hidden" id="editTrainingExId">
+    <input type="hidden" id="editTrainingExIdx">
+    <div class="field-row">
+      <div class="field">
+        <label>Sets</label>
+        <input id="editExSets" type="number" inputmode="numeric" min="1" max="20" value="3">
+      </div>
+      <div class="field">
+        <label>Reps / target</label>
+        <input id="editExReps" type="text" placeholder="e.g. 5, 8-12, AMRAP" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <label>Notes (optional)</label>
+      <input id="editExNotes" type="text" placeholder="e.g. 2 min rest, keep elbows tight" autocomplete="off" maxlength="60">
+    </div>
+    <div style="display:flex; gap:8px; margin-top:16px;">
+      <button class="btn btn-ghost" onclick="closeSheet()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTrainingExEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CELEBRATION ────────────────────────────────────────────── -->
+<div class="celebrate" id="celebrate" onclick="this.classList.remove('open')">
+  <div class="celebrate-inner">
+    <div class="celebrate-icon" id="celebrateIcon">🏆</div>
+    <div class="celebrate-tier-label" id="celebrateTierLabel">Badge Unlocked</div>
+    <div class="celebrate-title" id="celebrateTitle" data-tier="3">Gold</div>
+    <div class="celebrate-sub" id="celebrateSub">Bench Press</div>
+    <button class="btn btn-primary" style="max-width: 200px;" onclick="document.getElementById('celebrate').classList.remove('open')">Nice</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// PROGRESSION FORMULA — bodyweight × height-adjusted thresholds
+// ═══════════════════════════════════════════════════════════════════════
+//
+// We use a 6-tier strength ladder per lift:
+//   Untrained → Bronze (Novice) → Silver (Intermediate) → Gold (Advanced)
+//             → Platinum (Elite) → Epic (Veteran) → Legendary (World-class)
+//
+// Each tier has a threshold expressed as a multiple of bodyweight, separately
+// tuned per sex (sourced from strengthlevel.com's 130M+ logged lifts dataset).
+// Height adjusts the threshold by ±0.5% per cm from a 175 cm baseline, capped
+// at ±15% — taller lifters move the bar further so we credit them appropriately.
+
+// Difficulty presets — five thresholds: Bronze, Silver, Gold, Platinum, Epic, Legendary
+// (the 6th tier is implicit "anything above the 5th threshold + some buffer")
+const DIFFICULTY_PRESETS = {
+  'upper-iso': {
+    label: 'Upper isolation',
+    male:   [0.20, 0.35, 0.50, 0.70, 0.90, 1.15],
+    female: [0.10, 0.20, 0.30, 0.45, 0.60, 0.80],
+  },
+  'upper-comp': {
+    label: 'Upper compound',
+    male:   [0.50, 0.75, 1.10, 1.50, 1.90, 2.30],
+    female: [0.25, 0.45, 0.70, 1.00, 1.35, 1.70],
+  },
+  'lower-iso': {
+    label: 'Lower isolation',
+    male:   [0.40, 0.65, 0.95, 1.30, 1.70, 2.10],
+    female: [0.25, 0.45, 0.70, 1.00, 1.30, 1.65],
+  },
+  'lower-comp': {
+    label: 'Lower compound',
+    male:   [0.75, 1.20, 1.65, 2.20, 2.70, 3.20],
+    female: [0.50, 0.85, 1.25, 1.75, 2.20, 2.65],
+  },
+  'hinge': {
+    label: 'Hip hinge',
+    male:   [1.00, 1.50, 2.10, 2.60, 3.10, 3.60],
+    female: [0.60, 1.05, 1.55, 2.10, 2.55, 3.00],
+  },
+  'bodyweight': {
+    label: 'Bodyweight + added',
+    male:   [0.00, 0.10, 0.30, 0.55, 0.85, 1.20],
+    female: [-0.10, 0.00, 0.15, 0.35, 0.60, 0.90],
+  },
+};
+
+// Six built-in lifts
+const BUILT_IN_EXERCISES = [
+  { id: 'bench',    name: 'Bench Press',     emoji: '🏋️', difficulty: 'upper-comp',
+    customMale: [0.50, 0.75, 1.25, 1.75, 2.10, 2.50], customFemale: [0.25, 0.50, 0.75, 1.10, 1.45, 1.80] },
+  { id: 'squat',    name: 'Back Squat',      emoji: '🦵', difficulty: 'lower-comp',
+    customMale: [0.75, 1.25, 1.75, 2.50, 2.90, 3.30], customFemale: [0.50, 0.90, 1.35, 1.90, 2.30, 2.70] },
+  { id: 'deadlift', name: 'Deadlift',        emoji: '💀', difficulty: 'hinge',
+    customMale: [1.00, 1.50, 2.25, 2.75, 3.20, 3.60], customFemale: [0.60, 1.10, 1.60, 2.25, 2.65, 3.05] },
+  { id: 'ohp',      name: 'Overhead Press',  emoji: '🙌', difficulty: 'upper-comp',
+    customMale: [0.35, 0.55, 0.85, 1.15, 1.40, 1.65], customFemale: [0.20, 0.35, 0.55, 0.80, 1.00, 1.25] },
+  { id: 'row',      name: 'Barbell Row',     emoji: '🚣', difficulty: 'upper-comp',
+    customMale: [0.50, 0.75, 1.00, 1.50, 1.85, 2.20], customFemale: [0.30, 0.50, 0.75, 1.10, 1.40, 1.70] },
+  { id: 'pullup',   name: 'Weighted Pullup', emoji: '🆙', difficulty: 'bodyweight',
+    customMale: [0.00, 0.10, 0.30, 0.60, 0.85, 1.15], customFemale: [-0.10, 0.00, 0.15, 0.40, 0.65, 0.95] },
+];
+
+// Tier names & visual data
+const TIER_NAMES_STRENGTH = ['Untrained', 'Novice', 'Intermediate', 'Advanced', 'Elite', 'Veteran', 'World-class'];
+const TIER_NAMES_BADGE = ['—', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Epic', 'Legendary'];
+const TIER_EMOJIS = ['🌱', '🥉', '🥈', '🥇', '💎', '🔮', '👑'];
+const TIER_VAR_COLORS = ['untrained', 'novice', 'intermediate', 'advanced', 'elite', 'world-class', 'world-class'];
+
+const EMOJI_PALETTE = [
+  '🏋️','💪','🦵','💀','🙌','🚣','🆙','🤸','🤾','🏃',
+  '🚴','🏊','⛹️','🧗','🤼','🥊','🥋','⚡','🔥','💥',
+  '🎯','🏆','⚔️','🛡️','🗡️','🏹','⛓️','🔨','⚙️','🌋',
+  '🐺','🦁','🐅','🐂','🦅','🦍','🐻','🐉','🐊','🦂',
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════
+
+const STORAGE_KEY = 'gymquest_v2';
+
+const DEFAULT_STATE = {
+  profile: {
+    units: 'metric',
+    bodyweight: 75,
+    height: 175,
+    sex: 'm',
+  },
+  exercises: BUILT_IN_EXERCISES.map(e => ({ ...e, builtIn: true, hidden: e.id !== 'bench' })),
+  bests: {},          // exerciseId → { weight, reps, est1rm, date }
+  prHistory: [],      // [{ exerciseId, weight, reps, est1rm, date, prevEst1rm }]
+  lifts: [],          // [{ exerciseId, weight, reps, date }]
+  workoutDates: [],
+  earnedBadges: {},   // "exerciseId:tier" → ISO date
+  earnedMeta: {},     // milestone badge keys → ISO
+  trainings: [],      // [{ id, name, color, exercises: [{exerciseId, sets, reps, notes}] }]
+  xp: 0,
+  level: 1,
+  nextCustomId: 1,
+  nextTrainingId: 1,
+};
+
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return structuredClone(DEFAULT_STATE);
+    const parsed = JSON.parse(raw);
+    // Migrate: ensure all built-in exercises exist
+    const merged = { ...structuredClone(DEFAULT_STATE), ...parsed,
+      profile: { ...DEFAULT_STATE.profile, ...(parsed.profile || {}) },
+      exercises: parsed.exercises || BUILT_IN_EXERCISES.map(e => ({ ...e, builtIn: true, hidden: e.id !== 'bench' })),
+      earnedBadges: parsed.earnedBadges || {},
+      earnedMeta: parsed.earnedMeta || {},
+      trainings: parsed.trainings || [],
+    };
+    return merged;
+  } catch {
+    return structuredClone(DEFAULT_STATE);
+  }
+}
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+// ═══════════════════════════════════════════════════════════════════════
+// FORMULAS
+// ═══════════════════════════════════════════════════════════════════════
+
+function estimated1RM(weightKg, reps) {
+  if (reps <= 0 || weightKg <= 0) return 0;
+  if (reps === 1) return weightKg;
+  if (reps > 12) return weightKg * (1 + 12 / 30);
+  return weightKg * (1 + reps / 30);
+}
+
+function toKg(w) { return state.profile.units === 'imperial' ? w / 2.20462 : w; }
+function fromKg(kg) { return state.profile.units === 'imperial' ? kg * 2.20462 : kg; }
+function formatWeight(kg) {
+  if (kg == null || isNaN(kg)) return '–';
+  const v = fromKg(kg);
+  const unit = state.profile.units === 'imperial' ? 'lb' : 'kg';
+  return `${v.toFixed(v >= 100 ? 0 : 1).replace(/\.0$/, '')} ${unit}`;
+}
+
+function heightFactor(heightCm) {
+  if (!heightCm || heightCm < 100) return 1;
+  const baseline = 175;
+  const delta = heightCm - baseline;
+  const factor = 1 + (delta * 0.005);
+  return Math.max(0.85, Math.min(1.15, factor));
+}
+
+/** Get the 6 thresholds for an exercise (bronze, silver, gold, platinum, epic, legendary) as kg values. */
+function getThresholdsKg(exercise) {
+  const bw = toKg(state.profile.bodyweight);
+  if (!bw) return [];
+  const preset = DIFFICULTY_PRESETS[exercise.difficulty];
+  // customMale/customFemale override the preset if present
+  const ratios = state.profile.sex === 'f'
+    ? (exercise.customFemale || preset.female)
+    : (exercise.customMale || preset.male);
+  const hF = heightFactor(state.profile.height);
+  return ratios.map(r => r * hF * bw);
+}
+
+/** Tier (0–6) reached for an exercise given an estimated 1RM in kg. */
+function getTierForLift(exercise, est1rmKg) {
+  if (!est1rmKg) return 0;
+  const thresholds = getThresholdsKg(exercise);
+  let tier = 0;
+  for (let i = 0; i < thresholds.length; i++) {
+    if (est1rmKg >= thresholds[i]) tier = i + 1;
+    else break;
+  }
+  return tier;
+}
+
+/** Progress (0–1) toward the next tier for this lift. */
+function getTierProgress(exercise, est1rmKg) {
+  if (!est1rmKg) return 0;
+  const thresholds = getThresholdsKg(exercise);
+  if (est1rmKg < thresholds[0]) return est1rmKg / thresholds[0];
+  if (est1rmKg >= thresholds[thresholds.length - 1]) return 1;
+  for (let i = 0; i < thresholds.length - 1; i++) {
+    if (est1rmKg >= thresholds[i] && est1rmKg < thresholds[i + 1]) {
+      return (est1rmKg - thresholds[i]) / (thresholds[i + 1] - thresholds[i]);
+    }
+  }
+  return 0;
+}
+
+/** Weight (in user's preferred units) needed for the next tier on this lift. */
+function nextTierTargetWeight(exercise, currentTier) {
+  if (currentTier >= 6) return null;
+  const thresholds = getThresholdsKg(exercise);
+  return thresholds[currentTier];
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// STREAKS
+// ═══════════════════════════════════════════════════════════════════════
+
+function maxStreak() {
+  if (state.workoutDates.length === 0) return 0;
+  const dates = [...state.workoutDates].sort();
+  let best = 1, cur = 1;
+  for (let i = 1; i < dates.length; i++) {
+    const diff = Math.round((new Date(dates[i]) - new Date(dates[i - 1])) / 86400000);
+    if (diff === 1) { cur++; best = Math.max(best, cur); }
+    else if (diff > 1) cur = 1;
+  }
+  return best;
+}
+
+function currentStreak() {
+  if (state.workoutDates.length === 0) return 0;
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const dates = new Set(state.workoutDates);
+  if (!dates.has(today) && !dates.has(yesterday)) return 0;
+  let cur = 0;
+  let d = new Date(dates.has(today) ? today : yesterday);
+  while (dates.has(d.toISOString().slice(0, 10))) {
+    cur++;
+    d.setDate(d.getDate() - 1);
+  }
+  return cur;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// XP + LEVEL
+// ═══════════════════════════════════════════════════════════════════════
+
+function xpForLevel(level) { return Math.round(100 * Math.pow(level, 1.5)); }
+
+function levelFromXp(xp) {
+  let level = 1, remaining = xp;
+  while (remaining >= xpForLevel(level)) {
+    remaining -= xpForLevel(level);
+    level++;
+  }
+  return { level, intoLevel: remaining, needed: xpForLevel(level) };
+}
+
+function awardXp(amount) {
+  const oldLevel = state.level;
+  state.xp += amount;
+  const info = levelFromXp(state.xp);
+  state.level = info.level;
+  if (state.level > oldLevel) {
+    setTimeout(() => celebrate('🎉', 'LEVEL UP', String(state.level), `You're now level ${state.level}`, 3), 600);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// LOGGING + BADGE AWARDING
+// ═══════════════════════════════════════════════════════════════════════
+
+function logLift() {
+  const exId = document.getElementById('logExercise').value;
+  const w = parseFloat(document.getElementById('logWeight').value);
+  const r = parseInt(document.getElementById('logReps').value, 10);
+  if (!exId || !w || w <= 0 || !r || r <= 0) { alert('Enter both weight and reps'); return; }
+
+  const exercise = state.exercises.find(e => e.id === exId);
+  if (!exercise) return;
+
+  const wKg = toKg(w);
+  const est = estimated1RM(wKg, r);
+  const date = new Date().toISOString().slice(0, 10);
+  let xpEarned = 5;
+  let isPR = false;
+  let prevEst = 0;
+
+  state.lifts.push({ exerciseId: exId, weight: wKg, reps: r, date });
+  if (!state.workoutDates.includes(date)) state.workoutDates.push(date);
+
+  const prev = state.bests[exId];
+  const prevTier = prev ? getTierForLift(exercise, prev.est1rm) : 0;
+  if (!prev || est > prev.est1rm) {
+    isPR = true;
+    prevEst = prev ? prev.est1rm : 0;
+    state.bests[exId] = { weight: wKg, reps: r, est1rm: est, date };
+    state.prHistory.unshift({ exerciseId: exId, weight: wKg, reps: r, est1rm: est, date, prevEst1rm: prevEst });
+    if (state.prHistory.length > 50) state.prHistory.pop();
+    xpEarned += 20 + Math.round((est - prevEst) * 2);
+  }
+
+  const newTier = getTierForLift(exercise, est);
+  const tierUpQueue = [];
+
+  // Award per-lift badges for every tier the user just crossed
+  if (isPR) {
+    for (let t = prevTier + 1; t <= newTier; t++) {
+      const key = `${exId}:${t}`;
+      if (!state.earnedBadges[key]) {
+        state.earnedBadges[key] = date;
+        xpEarned += [0, 25, 50, 100, 200, 400, 800][t];
+        tierUpQueue.push({ exercise, tier: t });
+      }
+    }
+  }
+
+  // Milestone badges (global)
+  awardMilestoneBadges(date, m => xpEarned += m);
+
+  awardXp(xpEarned);
+
+  // Queue celebrations
+  if (tierUpQueue.length > 0) {
+    tierUpQueue.forEach((item, i) => {
+      setTimeout(() => {
+        celebrate(TIER_EMOJIS[item.tier], TIER_NAMES_BADGE[item.tier].toUpperCase(),
+                  item.exercise.name, `${item.exercise.emoji} New strength tier reached`, item.tier);
+      }, 200 + i * 4500);
+    });
+  } else if (isPR) {
+    toast(`✨ New PR! +${xpEarned} XP`);
+  } else {
+    toast(`+${xpEarned} XP`);
+  }
+
+  saveState();
+  closeSheet();
+  render();
+}
+
+function awardMilestoneBadges(date, addXp) {
+  const milestones = [
+    { id: 'firstrep',    when: state.lifts.length >= 1,        xp: 25, icon: '🎯', title: 'First Rep!' },
+    { id: 'ten',         when: state.lifts.length >= 10,       xp: 50, icon: '📈', title: '10 lifts logged' },
+    { id: 'fifty',       when: state.lifts.length >= 50,       xp: 150,icon: '⚡', title: '50 lifts logged' },
+    { id: 'hundred',     when: state.lifts.length >= 100,      xp: 300,icon: '💯', title: '100 lifts logged' },
+    { id: 'streak3',     when: maxStreak() >= 3,               xp: 50, icon: '🔥', title: '3-day streak' },
+    { id: 'streak7',     when: maxStreak() >= 7,               xp: 150,icon: '🔥', title: '7-day streak' },
+    { id: 'streak30',    when: maxStreak() >= 30,              xp: 500,icon: '🌋', title: '30-day streak' },
+  ];
+  for (const m of milestones) {
+    if (!state.earnedMeta[m.id] && m.when) {
+      state.earnedMeta[m.id] = date;
+      addXp(m.xp);
+      setTimeout(() => toast(`${m.icon} ${m.title}`), 100);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CUSTOM EXERCISE CREATION
+// ═══════════════════════════════════════════════════════════════════════
+
+let pendingExercise = { emoji: '💪', difficulty: 'upper-comp', link: '', image: null };
+let editingExerciseId = null; // null = new, string = editing existing exercise id
+
+function selectDifficulty(d) {
+  pendingExercise.difficulty = d;
+  document.querySelectorAll('.difficulty-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.difficulty === d);
+  });
+  renderThresholdPreview();
+}
+
+function selectEmoji(emoji) {
+  pendingExercise.emoji = emoji;
+  pendingExercise.image = null; // clear any uploaded image when emoji chosen
+  document.querySelectorAll('.emoji-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.emoji === emoji);
+  });
+  const prev = document.getElementById('emojiPreview');
+  if (prev) prev.innerHTML = emoji;
+}
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 500 * 1024) { alert('Image too large — keep it under 500 KB'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingExercise.image = e.target.result; // base64 data URL
+    pendingExercise.emoji = null;
+    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('active'));
+    const prev = document.getElementById('emojiPreview');
+    if (prev) prev.innerHTML = `<img src="${pendingExercise.image}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderThresholdPreview() {
+  const preset = DIFFICULTY_PRESETS[pendingExercise.difficulty];
+  if (!preset) return;
+  const bw = toKg(state.profile.bodyweight);
+  const ratios = state.profile.sex === 'f' ? preset.female : preset.male;
+  const hF = heightFactor(state.profile.height);
+  const labels = ['Bronze','Silver','Gold','Platinum','Epic','Legendary'];
+  const colors = ['t-bronze','t-silver','t-gold','t-platinum','t-epic','t-legendary'];
+  const emojis = TIER_EMOJIS.slice(1);
+  let html = `<div class="threshold-preview-title">Thresholds for ${state.profile.sex === 'f' ? 'female' : 'male'} · ${Math.round(fromKg(bw))} ${state.profile.units === 'imperial' ? 'lb' : 'kg'} · ${Math.round(state.profile.height)} cm</div>`;
+  ratios.forEach((r, i) => {
+    const kg = r * hF * bw;
+    html += `<div class="threshold-row">
+      <div class="name">
+        <span class="tier-dot" style="background: var(--${colors[i]})"></span>
+        ${emojis[i]} ${labels[i]}
+      </div>
+      <div class="value">${formatWeight(kg)}</div>
+    </div>`;
+  });
+  document.getElementById('thresholdPreview').innerHTML = html;
+}
+
+function saveCustomExercise() {
+  const name = document.getElementById('newExName').value.trim();
+  if (!name) { alert('Give it a name'); return; }
+  if (name.length > 40) { alert('Name too long'); return; }
+  const link = document.getElementById('newExLink').value.trim();
+  const icon = pendingExercise.image || pendingExercise.emoji || '💪';
+
+  if (editingExerciseId) {
+    // Edit mode — update in place, preserve data
+    const ex = state.exercises.find(e => e.id === editingExerciseId);
+    if (ex) {
+      ex.name = name;
+      ex.emoji = icon;
+      ex.difficulty = pendingExercise.difficulty;
+      ex.link = link || null;
+    }
+    toast(`✅ ${name} updated`);
+  } else {
+    // Create mode
+    const id = `custom-${state.nextCustomId++}`;
+    state.exercises.push({
+      id, name,
+      emoji: icon,
+      difficulty: pendingExercise.difficulty,
+      link: link || null,
+      builtIn: false,
+    });
+    toast(`✅ ${name} added`);
+  }
+  saveState();
+  closeSheet();
+  render();
+}
+
+function deleteCurrentExercise() {
+  if (!currentDetailExerciseId) return;
+  const ex = state.exercises.find(e => e.id === currentDetailExerciseId);
+  if (!ex || ex.builtIn) return;
+  if (!confirm(`Delete "${ex.name}" and all its data?`)) return;
+  state.exercises = state.exercises.filter(e => e.id !== currentDetailExerciseId);
+  delete state.bests[currentDetailExerciseId];
+  state.lifts = state.lifts.filter(l => l.exerciseId !== currentDetailExerciseId);
+  state.prHistory = state.prHistory.filter(p => p.exerciseId !== currentDetailExerciseId);
+  Object.keys(state.earnedBadges).forEach(k => {
+    if (k.startsWith(currentDetailExerciseId + ':')) delete state.earnedBadges[k];
+  });
+  saveState();
+  closeSheet();
+  render();
+  toast('Deleted');
+}
+
+// Remove a lift exercise from the tracker entirely (with data wipe warning)
+function removeLift(exId) {
+  const ex = state.exercises.find(e => e.id === exId);
+  if (!ex) return;
+  const hasData = !!state.bests[exId];
+  const msg = hasData
+    ? `Remove "${ex.name}"? This will delete all its PRs and badge progress.`
+    : `Remove "${ex.name}"?`;
+  if (!confirm(msg)) return;
+  if (!ex.builtIn) {
+    state.exercises = state.exercises.filter(e => e.id !== exId);
+  } else {
+    // Built-in: hide it by marking inactive rather than deleting the definition
+    ex.hidden = true;
+  }
+  delete state.bests[exId];
+  state.lifts = state.lifts.filter(l => l.exerciseId !== exId);
+  state.prHistory = state.prHistory.filter(p => p.exerciseId !== exId);
+  Object.keys(state.earnedBadges).forEach(k => {
+    if (k.startsWith(exId + ':')) delete state.earnedBadges[k];
+  });
+  // Remove from any training plans too
+  state.trainings.forEach(t => {
+    t.exercises = t.exercises.filter(e => e.exerciseId !== exId);
+  });
+  saveState();
+  render();
+  toast(`✕ ${ex.name} removed`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════════════
+
+function render() {
+  // Level card
+  const info = levelFromXp(state.xp);
+  state.level = info.level;
+  document.getElementById('levelNum').textContent = info.level;
+  const allTiers = state.exercises.map(ex => {
+    const b = state.bests[ex.id];
+    return b ? getTierForLift(ex, b.est1rm) : 0;
+  });
+  const maxT = Math.max(0, ...allTiers);
+  document.getElementById('levelTier').textContent = `${TIER_NAMES_STRENGTH[maxT]} ${TIER_EMOJIS[maxT]}`;
+  document.getElementById('levelTier').style.color = `var(--${TIER_VAR_COLORS[maxT]})`;
+  const pct = info.needed > 0 ? (info.intoLevel / info.needed) * 100 : 0;
+  document.getElementById('xpFill').style.width = pct + '%';
+  document.getElementById('xpText').textContent = `${info.intoLevel} / ${info.needed} XP`;
+  document.getElementById('xpNext').textContent = `Lv ${info.level + 1}`;
+
+  // Stats
+  document.getElementById('streakVal').textContent = currentStreak();
+  document.getElementById('workoutsVal').textContent = state.workoutDates.length;
+  document.getElementById('prCountVal').textContent = state.prHistory.length;
+
+  // Lifts list
+  const liftsEl = document.getElementById('liftsList');
+  liftsEl.innerHTML = '';
+  for (const ex of state.exercises.filter(e => !e.hidden)) {
+    const best = state.bests[ex.id];
+    const tier = best ? getTierForLift(ex, best.est1rm) : 0;
+    const next = nextTierTargetWeight(ex, tier);
+
+    const card = document.createElement('div');
+    card.className = 'card lift-card';
+    card.onclick = () => openLiftDetail(ex.id);
+
+    let chipsHtml = '';
+    const tierLabels = ['Bronze','Silver','Gold','Platinum','Epic','Legendary'];
+    for (let t = 1; t <= 6; t++) {
+      const earned = !!state.earnedBadges[`${ex.id}:${t}`];
+      const thresholds = getThresholdsKg(ex);
+      const targetKg = thresholds[t - 1];
+      const curEst = best?.est1rm || 0;
+      const prevTargetKg = t === 1 ? 0 : thresholds[t - 2];
+      let chipProgress = 0;
+      if (earned) chipProgress = 1;
+      else if (curEst >= prevTargetKg) {
+        chipProgress = Math.min(1, (curEst - prevTargetKg) / (targetKg - prevTargetKg));
+      }
+      chipsHtml += `
+        <div class="badge-chip ${earned ? 'earned' : ''}" data-tier="${t}" title="${tierLabels[t-1]}: ${formatWeight(targetKg)} est. 1RM">
+          <div class="badge-chip-icon">${TIER_EMOJIS[t]}</div>
+          <div class="badge-chip-label">${tierLabels[t-1]}</div>
+          ${!earned ? `<div class="badge-chip-progress"><div class="badge-chip-progress-fill" style="width:${chipProgress * 100}%"></div></div>` : ''}
+        </div>`;
+    }
+
+    card.innerHTML = `
+      <div class="lift-row">
+        <div class="lift-icon">${ex.emoji && ex.emoji.startsWith('data:') ? `<img src="${ex.emoji}" style="width:100%;height:100%;object-fit:cover;">` : (ex.emoji || '💪')}</div>
+        <div style="flex:1; min-width: 0;">
+          <div class="lift-name">${ex.name}</div>
+          <div class="lift-best">${best ? `${formatWeight(best.weight)} × ${best.reps} · Est. 1RM ${formatWeight(best.est1rm)}` : 'No lift logged'}</div>
+        </div>
+        <div class="lift-tier-badge tier-${TIER_VAR_COLORS[tier]}">${TIER_NAMES_STRENGTH[tier]}</div>
+      </div>
+      <div class="badge-chip-row">${chipsHtml}</div>
+      <div class="prog-summary">
+        <span>${tier > 0 ? `Current: ${TIER_NAMES_BADGE[tier]}` : 'Not yet ranked'}</span>
+        ${next != null ? `<span class="next">→ ${TIER_NAMES_BADGE[tier + 1]} at ${formatWeight(next)}</span>` : '<span class="next">🎖 MAXED</span>'}
+      </div>
+      <div class="lift-card-actions">
+        <button class="lift-remove-btn" onclick="event.stopPropagation(); removeLift('${ex.id}')">✕ Remove</button>
+      </div>
+    `;
+    liftsEl.appendChild(card);
+  }
+
+  // PR history
+  const prEl = document.getElementById('prHistory');
+  if (state.prHistory.length === 0) {
+    prEl.innerHTML = '<div class="empty"><div class="empty-icon">🏆</div>Log your first lift to start setting PRs.</div>';
+  } else {
+    prEl.innerHTML = state.prHistory.slice(0, 8).map(pr => {
+      const ex = state.exercises.find(e => e.id === pr.exerciseId);
+      if (!ex) return '';
+      const delta = pr.prevEst1rm > 0 ? `+${formatWeight(pr.est1rm - pr.prevEst1rm)}` : 'NEW';
+      return `<div class="pr-row">
+        <div class="pr-date">${pr.date.slice(5)}</div>
+        <div class="pr-lift">${ex.emoji} ${ex.name}</div>
+        <div class="pr-value">${formatWeight(pr.est1rm)}</div>
+        <div class="pr-delta">${delta}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Refresh log dropdown (only visible exercises)
+  const sel = document.getElementById('logExercise');
+  sel.innerHTML = state.exercises.filter(e => !e.hidden).map(e => `<option value="${e.id}">${e.emoji} ${e.name}</option>`).join('');
+
+  renderTraining();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// LIFT DETAIL SHEET
+// ═══════════════════════════════════════════════════════════════════════
+
+let currentDetailExerciseId = null;
+
+function openLiftDetail(exId) {
+  currentDetailExerciseId = exId;
+  const ex = state.exercises.find(e => e.id === exId);
+  if (!ex) return;
+  const best = state.bests[exId];
+  const tier = best ? getTierForLift(ex, best.est1rm) : 0;
+  const isImage = ex.emoji && ex.emoji.startsWith('data:');
+
+  const iconEl = document.getElementById('detailIcon');
+  if (isImage) {
+    iconEl.innerHTML = `<img src="${ex.emoji}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
+  } else {
+    iconEl.textContent = ex.emoji || '🏋️';
+  }
+  document.getElementById('detailName').textContent = ex.name;
+  document.getElementById('detailSub').textContent = best
+    ? `Best: ${formatWeight(best.weight)} × ${best.reps} · Est. 1RM ${formatWeight(best.est1rm)}`
+    : 'No lift logged yet';
+
+  // Show link button only if a link is set
+  const linkBtn = document.getElementById('detailLinkBtn');
+  linkBtn.style.display = ex.link ? 'inline-flex' : 'none';
+
+  // Render large badge cards for each tier
+  const labels = ['Bronze','Silver','Gold','Platinum','Epic','Legendary'];
+  const thresholds = getThresholdsKg(ex);
+  let html = '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">';
+  for (let t = 1; t <= 6; t++) {
+    const earned = !!state.earnedBadges[`${ex.id}:${t}`];
+    const earnedDate = state.earnedBadges[`${ex.id}:${t}`];
+    const targetKg = thresholds[t - 1];
+    html += `<div class="badge-chip ${earned ? 'earned' : ''}" data-tier="${t}" style="min-height: 90px; cursor: default;">
+      <div class="badge-chip-icon" style="font-size: 32px;">${TIER_EMOJIS[t]}</div>
+      <div class="badge-chip-label" style="font-size: 10px;">${labels[t-1]}</div>
+      <div style="font-size: 9px; color: var(--fg-muted); margin-top: 2px; font-variant-numeric: tabular-nums;">${formatWeight(targetKg)}</div>
+    </div>`;
+  }
+  html += '</div>';
+
+  // Progress to next
+  if (tier < 6) {
+    const nextKg = thresholds[tier];
+    const prog = getTierProgress(ex, best?.est1rm || 0);
+    html += `<div class="card" style="margin-top: 16px;">
+      <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-muted); font-weight: 600; margin-bottom: 6px;">Next tier</div>
+      <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px;">
+        <span style="font-size: 24px; font-weight: 800;">${TIER_EMOJIS[tier+1]} ${labels[tier]}</span>
+      </div>
+      <div style="font-size: 13px; color: var(--fg-muted); margin-bottom: 10px;">
+        Need <strong style="color: var(--fg);">${formatWeight(nextKg)}</strong> est. 1RM
+        ${best ? ` · ${formatWeight(nextKg - best.est1rm)} to go` : ''}
+      </div>
+      <div style="height: 8px; background: var(--bg-sunken); border-radius: 4px; overflow: hidden;">
+        <div style="height: 100%; width: ${prog * 100}%; background: linear-gradient(90deg, var(--accent), var(--accent-glow)); transition: width 0.6s;"></div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('detailBadges').innerHTML = html;
+
+  // History
+  const history = state.prHistory.filter(p => p.exerciseId === exId).slice(0, 10);
+  const histEl = document.getElementById('detailHistory');
+  if (history.length === 0) {
+    histEl.innerHTML = '<div class="empty"><div class="empty-icon">📊</div>No PRs yet.</div>';
+  } else {
+    histEl.innerHTML = history.map(pr => {
+      const delta = pr.prevEst1rm > 0 ? `+${formatWeight(pr.est1rm - pr.prevEst1rm)}` : 'NEW';
+      return `<div class="pr-row">
+        <div class="pr-date">${pr.date.slice(5)}</div>
+        <div class="pr-lift">${formatWeight(pr.weight)} × ${pr.reps}</div>
+        <div class="pr-value">${formatWeight(pr.est1rm)}</div>
+        <div class="pr-delta">${delta}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Show delete button only for custom exercises
+  document.getElementById('detailDangerZone').style.display = ex.builtIn ? 'none' : 'block';
+
+  document.getElementById('sheet-lift-detail').classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════════════════════════
+
+function closeSheet() {
+  document.querySelectorAll('.sheet-overlay').forEach(el => el.classList.remove('open'));
+  currentDetailExerciseId = null;
+}
+
+function updateUnitLabels() {
+  const u = document.getElementById('setUnits').value;
+  document.getElementById('bwUnit').textContent = u === 'imperial' ? '(lb)' : '(kg)';
+  document.getElementById('htUnit').textContent = u === 'imperial' ? '(in)' : '(cm)';
+}
+document.getElementById('setUnits').addEventListener('change', updateUnitLabels);
+
+function saveSettings() {
+  const units = document.getElementById('setUnits').value;
+  const bw = parseFloat(document.getElementById('setBodyweight').value);
+  const htRaw = parseFloat(document.getElementById('setHeight').value);
+  if (!bw || bw < 20) { alert('Enter your bodyweight'); return; }
+  if (!htRaw || htRaw < 40) { alert('Enter your height'); return; }
+  state.profile.units = units;
+  state.profile.bodyweight = bw;
+  state.profile.height = units === 'imperial' ? htRaw * 2.54 : htRaw;
+  state.profile.sex = document.getElementById('setSex').value;
+  saveState();
+  closeSheet();
+  render();
+}
+
+function resetAll() {
+  if (!confirm('Reset everything? This deletes all your lifts, PRs, badges, and custom exercises.')) return;
+  state = structuredClone(DEFAULT_STATE);
+  saveState();
+  render();
+  toast('Reset complete');
+}
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => {
+    t.style.transition = 'opacity 0.3s, transform 0.3s';
+    t.style.opacity = '0';
+    t.style.transform = 'translate(-50%, -20px)';
+    setTimeout(() => t.remove(), 300);
+  }, 2500);
+}
+
+function celebrate(icon, tierLabel, title, sub, tierIndex) {
+  document.getElementById('celebrateIcon').textContent = icon;
+  document.getElementById('celebrateTierLabel').textContent = tierLabel;
+  document.getElementById('celebrateTitle').textContent = title;
+  document.getElementById('celebrateTitle').setAttribute('data-tier', tierIndex);
+  document.getElementById('celebrateSub').textContent = sub;
+  const el = document.getElementById('celebrate');
+  el.classList.add('open');
+
+  // Particle colors based on tier
+  const palettes = {
+    1: ['#cd7f32', '#fdba74', '#fbbf24'],
+    2: ['#d1d5db', '#9ca3af', '#f3f4f6'],
+    3: ['#ffd700', '#fbbf24', '#fde047'],
+    4: ['#b9f2ff', '#7dd3fc', '#e0f2fe'],
+    5: ['#c084fc', '#a78bfa', '#e9d5ff'],
+    6: ['#fb923c', '#ffd700', '#c084fc', '#f472b6'],
+  };
+  const colors = palettes[tierIndex] || ['#ffd700', '#ff5a3c', '#c084fc', '#4ade80'];
+  const count = tierIndex === 6 ? 60 : 30;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.background = colors[i % colors.length];
+    p.style.left = '50%';
+    p.style.top = '40%';
+    el.querySelector('.celebrate-inner').appendChild(p);
+    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.2;
+    const dist = 150 + Math.random() * 200;
+    p.animate([
+      { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+      { transform: `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px) scale(0)`, opacity: 0 }
+    ], { duration: 1200 + Math.random() * 800, easing: 'cubic-bezier(0.2, 0.6, 0.2, 1)' })
+      .onfinish = () => p.remove();
+  }
+  if (navigator.vibrate) navigator.vibrate(tierIndex >= 5 ? [50, 30, 80, 30, 120] : [50, 30, 80]);
+  setTimeout(() => el.classList.remove('open'), tierIndex >= 5 ? 5500 : 4500);
+}
+
+// Init
+render();
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════════════
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.toLowerCase().trim() === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'tab-' + name);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TRAINING PLANS — render, create, edit
+// ═══════════════════════════════════════════════════════════════════════
+
+const TRAINING_COLORS = [
+  '#ff5a3c','#ff8c2a','#ffd700','#4ade80',
+  '#22d3ee','#60a5fa','#a78bfa','#f472b6',
+];
+
+function renderTraining() {
+  const list = document.getElementById('trainingList');
+  if (!list) return;
+  if (state.trainings.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>No training plans yet. Create one to group exercises into workouts.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  state.trainings.forEach((plan, pi) => {
+    const exCount = plan.exercises.length;
+    const visibleExercises = plan.exercises.filter(pe => {
+      const ex = state.exercises.find(e => e.id === pe.exerciseId);
+      return ex && !ex.hidden;
+    });
+    const div = document.createElement('div');
+    div.className = 'training-card';
+    div.id = `tplan-${plan.id}`;
+
+    let exRowsHtml = visibleExercises.map((pe, ei) => {
+      const ex = state.exercises.find(e => e.id === pe.exerciseId);
+      if (!ex) return '';
+      const best = state.bests[ex.id];
+      const tier = best ? getTierForLift(ex, best.est1rm) : 0;
+      return `<div class="training-ex-row">
+        <div class="training-ex-icon">${ex.emoji}</div>
+        <div class="training-ex-info">
+          <div class="training-ex-name">${ex.name}</div>
+          <div class="training-ex-sets">${pe.sets} sets × ${pe.reps}${pe.notes ? ' · ' + pe.notes : ''}
+            ${tier > 0 ? `<span style="color:var(--t${tier});margin-left:4px">${TIER_EMOJIS[tier]}</span>` : ''}
+          </div>
+        </div>
+        <div class="training-ex-actions">
+          <button class="ex-action-btn" title="Edit" onclick="openEditTrainingEx(${pi}, ${ei})">✏️</button>
+          <button class="ex-action-btn del" title="Remove from plan" onclick="removeTrainingEx(${pi}, ${ei})">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    div.innerHTML = `
+      <div class="training-header" onclick="toggleTraining('tplan-${plan.id}')">
+        <div class="training-color-dot" style="background:${plan.color}"></div>
+        <div class="training-info">
+          <div class="training-name">${plan.name}</div>
+          <div class="training-meta">${exCount} exercise${exCount !== 1 ? 's' : ''}</div>
+        </div>
+        <span class="training-chevron">›</span>
+      </div>
+      <div class="training-body">
+        ${exRowsHtml || '<div style="padding:12px 0;color:var(--fg-dim);font-size:13px">No exercises in this plan.</div>'}
+        <div class="training-card-actions">
+          <button class="btn btn-ghost" style="font-size:13px;min-height:36px;padding:8px 12px;" onclick="openEditTraining(${pi})">✏️ Edit plan</button>
+          <button class="btn btn-ghost" style="font-size:13px;min-height:36px;padding:8px 12px;color:var(--err);border-color:rgba(239,68,68,.3)" onclick="deleteTraining(${pi})">Delete</button>
+        </div>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function toggleTraining(id) {
+  const card = document.getElementById(id);
+  if (card) card.classList.toggle('open');
+}
+
+// ─── Add / Edit Training ────────────────────────────────────────────
+
+let editingTrainingIdx = null; // null = new, number = editing existing
+
+function openSheet(name) {
+  document.querySelectorAll('.sheet-overlay').forEach(el => el.classList.remove('open'));
+  const sheet = document.getElementById('sheet-' + name);
+  if (!sheet) return;
+
+  if (name === 'settings') {
+    document.getElementById('setUnits').value = state.profile.units;
+    document.getElementById('setBodyweight').value = state.profile.bodyweight;
+    document.getElementById('setHeight').value = state.profile.units === 'imperial' ? (state.profile.height / 2.54).toFixed(1) : state.profile.height;
+    document.getElementById('setSex').value = state.profile.sex;
+    updateUnitLabels();
+  }
+  if (name === 'log') {
+    document.getElementById('logWeight').value = '';
+    document.getElementById('logReps').value = '';
+    setTimeout(() => document.getElementById('logWeight').focus(), 100);
+  }
+  if (name === 'add-exercise') {
+    editingExerciseId = null;
+    pendingExercise = { emoji: '💪', difficulty: 'upper-comp', link: '', image: null };
+    document.getElementById('addExTitle').textContent = 'New Exercise';
+    document.getElementById('saveExBtn').textContent = 'Create';
+    document.getElementById('newExName').value = '';
+    document.getElementById('newExLink').value = '';
+    document.getElementById('emojiPreview').innerHTML = '💪';
+    const eg = document.getElementById('emojiGrid');
+    eg.innerHTML = EMOJI_PALETTE.map(e =>
+      `<button class="emoji-btn" data-emoji="${e}" onclick="selectEmoji('${e}')">${e}</button>`
+    ).join('');
+    selectEmoji('💪');
+    selectDifficulty('upper-comp');
+  }
+  if (name === 'add-training') {
+    editingTrainingIdx = null;
+    document.getElementById('addTrainingTitle').textContent = 'New Training Plan';
+    document.getElementById('editTrainingId').value = '';
+    document.getElementById('trainingName').value = '';
+    renderColorRow(TRAINING_COLORS[0]);
+    renderExPickList([]);
+    document.getElementById('trainingExOrder').innerHTML = '';
+  }
+  sheet.classList.add('open');
+}
+
+// Open the add-exercise sheet pre-filled for editing an existing exercise
+function openEditCurrentExercise() {
+  const exId = currentDetailExerciseId;
+  if (!exId) return;
+  const ex = state.exercises.find(e => e.id === exId);
+  if (!ex) return;
+
+  editingExerciseId = exId;
+  const isImage = ex.emoji && ex.emoji.startsWith('data:');
+  pendingExercise = {
+    emoji: isImage ? null : (ex.emoji || '💪'),
+    image: isImage ? ex.emoji : null,
+    difficulty: ex.difficulty || 'upper-comp',
+    link: ex.link || '',
+  };
+
+  document.getElementById('addExTitle').textContent = 'Edit Exercise';
+  document.getElementById('saveExBtn').textContent = 'Save';
+  document.getElementById('newExName').value = ex.name;
+  document.getElementById('newExLink').value = ex.link || '';
+
+  const prev = document.getElementById('emojiPreview');
+  if (isImage) {
+    prev.innerHTML = `<img src="${ex.emoji}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
+  } else {
+    prev.innerHTML = ex.emoji || '💪';
+  }
+
+  const eg = document.getElementById('emojiGrid');
+  eg.innerHTML = EMOJI_PALETTE.map(e =>
+    `<button class="emoji-btn ${(!isImage && ex.emoji === e) ? 'active' : ''}" data-emoji="${e}" onclick="selectEmoji('${e}')">${e}</button>`
+  ).join('');
+
+  selectDifficulty(ex.difficulty || 'upper-comp');
+
+  closeSheet(); // close detail first
+  document.getElementById('sheet-add-exercise').classList.add('open');
+}
+
+function openDetailLink() {
+  const ex = state.exercises.find(e => e.id === currentDetailExerciseId);
+  if (ex && ex.link) window.open(ex.link, '_blank', 'noopener');
+}
+
+function openEditTraining(pi) {
+  editingTrainingIdx = pi;
+  const plan = state.trainings[pi];
+  document.getElementById('addTrainingTitle').textContent = 'Edit Training Plan';
+  document.getElementById('editTrainingId').value = plan.id;
+  document.getElementById('trainingName').value = plan.name;
+  renderColorRow(plan.color);
+  renderExPickList(plan.exercises.map(e => e.exerciseId));
+  document.getElementById('sheet-add-training').classList.add('open');
+}
+
+function renderColorRow(selectedColor) {
+  document.getElementById('trainingColorRow').innerHTML = TRAINING_COLORS.map(c =>
+    `<div class="color-swatch ${c === selectedColor ? 'active' : ''}"
+      style="background:${c}" title="${c}"
+      onclick="selectTrainingColor('${c}')"></div>`
+  ).join('');
+}
+
+function selectTrainingColor(color) {
+  renderColorRow(color);
+}
+
+function renderExPickList(selectedIds) {
+  const visible = state.exercises.filter(e => !e.hidden);
+  document.getElementById('trainingExPick').innerHTML = visible.map(ex => {
+    const checked = selectedIds.includes(ex.id);
+    const best = state.bests[ex.id];
+    const tier = best ? getTierForLift(ex, best.est1rm) : 0;
+    return `<label class="ex-pick-item">
+      <input type="checkbox" value="${ex.id}" ${checked ? 'checked' : ''}>
+      <span style="font-size:18px">${ex.emoji}</span>
+      <span>
+        <div class="ex-pick-name">${ex.name}</div>
+        <div class="ex-pick-tier">${tier > 0 ? TIER_EMOJIS[tier] + ' ' + TIER_NAMES_BADGE[tier] : 'Not yet ranked'}</div>
+      </span>
+    </label>`;
+  }).join('');
+}
+
+function saveTraining() {
+  const name = document.getElementById('trainingName').value.trim();
+  if (!name) { alert('Give the plan a name'); return; }
+  const activeSwatch = document.querySelector('#trainingColorRow .color-swatch.active');
+  const color = activeSwatch ? activeSwatch.style.background : TRAINING_COLORS[0];
+  const checked = [...document.querySelectorAll('#trainingExPick input[type=checkbox]:checked')].map(c => c.value);
+  if (checked.length === 0) { alert('Select at least one exercise'); return; }
+
+  if (editingTrainingIdx !== null) {
+    // Preserve existing set/reps/notes for exercises already in the plan;
+    // add defaults for newly added exercises.
+    const old = state.trainings[editingTrainingIdx];
+    const oldMap = {};
+    old.exercises.forEach(e => { oldMap[e.exerciseId] = e; });
+    state.trainings[editingTrainingIdx] = {
+      ...old,
+      name, color,
+      exercises: checked.map(id => oldMap[id] || { exerciseId: id, sets: 3, reps: '5', notes: '' }),
+    };
+  } else {
+    state.trainings.push({
+      id: state.nextTrainingId++,
+      name, color,
+      exercises: checked.map(id => ({ exerciseId: id, sets: 3, reps: '5', notes: '' })),
+    });
+  }
+  saveState();
+  closeSheet();
+  render();
+  // Switch to training tab after creating
+  switchTab('training');
+  toast(`✅ "${name}" saved`);
+}
+
+function deleteTraining(pi) {
+  const plan = state.trainings[pi];
+  if (!confirm(`Delete "${plan.name}"?`)) return;
+  state.trainings.splice(pi, 1);
+  saveState();
+  render();
+  toast('Plan deleted');
+}
+
+// ─── Edit individual exercise within a plan ─────────────────────────
+
+let editingPlanIdx = null;
+let editingExIdx = null;
+
+function openEditTrainingEx(pi, ei) {
+  editingPlanIdx = pi;
+  editingExIdx = ei;
+  const pe = state.trainings[pi].exercises[ei];
+  const ex = state.exercises.find(e => e.id === pe.exerciseId);
+  document.getElementById('editTrainingExTitle').textContent = ex ? `Edit ${ex.name}` : 'Edit Exercise';
+  document.getElementById('editExSets').value = pe.sets;
+  document.getElementById('editExReps').value = pe.reps;
+  document.getElementById('editExNotes').value = pe.notes || '';
+  document.getElementById('sheet-edit-training-ex').classList.add('open');
+}
+
+function saveTrainingExEdit() {
+  const sets = parseInt(document.getElementById('editExSets').value, 10);
+  const reps = document.getElementById('editExReps').value.trim();
+  const notes = document.getElementById('editExNotes').value.trim();
+  if (!sets || sets < 1) { alert('Enter valid sets'); return; }
+  if (!reps) { alert('Enter reps or target'); return; }
+  state.trainings[editingPlanIdx].exercises[editingExIdx] = {
+    ...state.trainings[editingPlanIdx].exercises[editingExIdx],
+    sets, reps, notes,
+  };
+  saveState();
+  closeSheet();
+  render();
+}
+
+function removeTrainingEx(pi, ei) {
+  const plan = state.trainings[pi];
+  const pe = plan.exercises[ei];
+  const ex = state.exercises.find(e => e.id === pe.exerciseId);
+  if (!confirm(`Remove ${ex ? ex.name : 'this exercise'} from "${plan.name}"?`)) return;
+  plan.exercises.splice(ei, 1);
+  saveState();
+  render();
+}
+</script>
+</body>
+</html>
