@@ -955,6 +955,7 @@ function renderList(){
     const hdr=document.createElement('div');hdr.className='chdr';
     hdr.innerHTML=`<span>${CATS[cat]||cat}</span><span class="cct">${techs.length} <span class="carr">▾</span></span>`;
     const items=document.createElement('div');items.className='citems';
+    hdr.classList.add('col');items.style.display='none';
     hdr.onclick=()=>{hdr.classList.toggle('col');items.style.display=hdr.classList.contains('col')?'none':'flex';};
     for(const t of techs){
       const dimmed=def!=='none'&&t.by&&!t.by.includes(def);
