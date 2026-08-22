@@ -1,1 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Board — layout prototype</title>
+<link rel="stylesheet" href="./styles/tokens.css">
+<link rel="stylesheet" href="./styles/base.css">
+<link rel="stylesheet" href="./styles/board.css">
+<link rel="stylesheet" href="./styles/panel.css">
+</head>
+<body>
 
+<svg id="sprites" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg>
+
+<div class="stage"><svg id="board" aria-label="Board"></svg></div>
+
+<aside>
+  <div><div class="eyebrow">Layout prototype</div><h1 id="title">—</h1></div>
+
+  <div class="stack">
+    <select id="size" aria-label="Board size"></select>
+    <input id="seed" type="text" value="halcyon" spellcheck="false" aria-label="Seed">
+    <div class="row2"><button id="reroll">New map</button><button id="copy">Copy JSON</button></div>
+  </div>
+
+  <div class="rule"></div>
+  <div class="eyebrow">Setup</div>
+  <div class="stack">
+    <select id="players" aria-label="Player count"></select>
+    <div class="row2"><button id="start">Start game</button><button id="reset" class="ghost">Reset</button></div>
+  </div>
+  <div id="chips" class="chips"></div>
+  <div id="status" class="status"></div>
+
+  <div class="rule"></div>
+  <div class="eyebrow">Roll · keep one, give one</div>
+  <div class="turnbar" id="turnbar"></div>
+  <div class="dice" id="dice"></div>
+  <button class="wide" id="roll">Roll dice</button>
+  <div class="log" id="log"></div>
+
+  <div class="rule"></div>
+  <table id="legend"></table>
+  <div class="counts" id="counts"></div>
+</aside>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+/* Side panel: controls, player chips, dice, legend, log. */
+aside { display: flex; flex-direction: column; gap: 16px; }
+
+input[type=text], select {
+  width: 100%; background: var(--panel); border: 1px solid var(--line);
+  color: var(--chalk); font: inherit; padding: 7px 9px; border-radius: 2px;
+}
+button {
+  background: transparent; border: 1px solid var(--brass); color: var(--brass); font: inherit;
+  font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  padding: 8px 10px; cursor: pointer; border-radius: 2px;
+}
+button:hover { background: rgba(228,179,99,.1); }
+button.wide { width: 100%; }
+button.ghost { border-color: var(--line); color: var(--mute); }
+button:disabled { opacity: .35; cursor: default; }
+button:disabled:hover { background: transparent; }
+#roll:not(:disabled) { border-color: var(--turn, var(--brass)); color: var(--turn, var(--brass)); }
+
+.stack { display: flex; flex-direction: column; gap: 7px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+/* players */
+.chips { display: flex; flex-direction: column; gap: 5px; }
+.chip { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--mute); }
+.chip .dot { width: 11px; height: 11px; border-radius: 50%; border: 1px solid rgba(0,0,0,.5); flex: none; }
+.chip.active { color: var(--chalk); }
+.chip.active .dot { box-shadow: 0 0 0 2px var(--void), 0 0 0 4px var(--turn, var(--brass)); }
+.chip .done { margin-left: auto; font-size: 11px; color: var(--mute); }
+
+.hand { display: flex; flex-wrap: wrap; gap: 4px 7px; margin: 1px 0 7px 19px; }
+.hand span { display: inline-flex; align-items: center; gap: 3px; font-size: 11px;
+  color: var(--chalk); font-variant-numeric: tabular-nums; }
+.hand span.zero { opacity: .3; }
+.hand svg { width: 12px; height: 12px; display: block; }
+
+.status { font-size: 12px; color: var(--turn, var(--brass)); min-height: 17px; }
+.status.bad { color: var(--bad); }
+
+.turnbar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--chalk); }
+.turnbar .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--turn, var(--mute));
+  border: 1px solid rgba(0,0,0,.5); flex: none; }
+.turnbar .who { color: var(--turn, var(--mute)); }
+
+/* dice */
+.dice { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.die { aspect-ratio: 1; border: 1px solid var(--line); background: var(--panel); display: grid;
+  place-content: center; gap: 6px; justify-items: center; border-radius: 4px; padding: 6px; text-align: center; }
+.die[data-armed] { cursor: pointer; }
+.die[data-armed]:hover { border-color: var(--turn, var(--brass)); }
+.die .face { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(0,0,0,.4);
+  display: grid; place-items: center; }
+.die .face svg { width: 23px; height: 23px; display: block; }
+.die .nm { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+.die .tag { font-size: 9px; letter-spacing: .1em; color: var(--mute); text-transform: uppercase; }
+
+/* legend + stats + log */
+table { width: 100%; border-collapse: collapse; }
+td { padding: 2px 0; color: var(--mute); font-size: 12px; }
+td.n { text-align: right; color: var(--chalk); font-variant-numeric: tabular-nums; }
+.sw { display: inline-flex; width: 17px; height: 17px; margin-right: 8px; border-radius: 2px;
+  align-items: center; justify-content: center; vertical-align: -4px; }
+.sw svg { width: 14px; height: 14px; display: block; }
+
+.counts { color: var(--mute); line-height: 1.7; font-size: 12px; }
+.counts b { color: var(--brass); font-weight: 400; }
+
+.log { font-size: 11px; color: var(--mute); line-height: 1.6; max-height: 110px; overflow: auto; }
+.log b { color: var(--chalk); font-weight: 400; }

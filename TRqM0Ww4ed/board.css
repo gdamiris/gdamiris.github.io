@@ -1,0 +1,14 @@
+/* The map surface. */
+.stage {
+  background: var(--stage);
+  border: 1px solid var(--line);
+  padding: 6px;
+  position: sticky;
+  top: 20px;
+}
+@media (max-width: 800px) { .stage { position: static; } }
+
+.stage svg { display: block; width: 100%; height: auto; }
+polygon.tile { stroke: var(--stage); stroke-width: 1.2; }
+polygon.tile:hover { stroke: var(--brass); stroke-width: 4; }
+.stage.placing polygon.tile { cursor: pointer; }

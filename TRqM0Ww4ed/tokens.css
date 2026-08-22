@@ -1,0 +1,25 @@
+/* Design tokens: palette, terrain colours, type stacks. */
+:root {
+  --void:  #06101A;
+  --stage: #071824;
+  --panel: #0E1D2A;
+  --line:  #1C3345;
+  --brass: #E4B363;
+  --chalk: #DCE4E8;
+  --mute:  #708796;
+  --bad:   #D98A6A;
+
+  --sea:      #0C3247;
+  --fish:     #2E8C99;
+  --wood:     #3E6B4A;
+  --deer:     #8E5A3B;
+  --wheat:    #C9A227;
+  --wool:     #B9C4B0;
+  --ore:      #7C8A99;
+  --desert:   #C2A46B;
+  --plain:    #6B7A56;
+  --mountain: #46515E;
+
+  --display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}

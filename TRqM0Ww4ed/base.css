@@ -1,0 +1,22 @@
+/* Page shell and shared typography. */
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--void); color: var(--chalk); }
+
+body {
+  font-family: var(--data);
+  font-size: 13px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 20px;
+  padding: 20px;
+  min-height: 100vh;
+  align-items: start;
+}
+@media (max-width: 800px) { body { grid-template-columns: 1fr; padding: 12px; } }
+
+h1 { font-family: var(--display); font-size: 21px; font-weight: 400; margin: 2px 0 0; }
+.eyebrow { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--mute); }
+.rule { height: 1px; background: var(--line); }
+.muted { color: var(--mute); }
+.bad { color: var(--bad); }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
