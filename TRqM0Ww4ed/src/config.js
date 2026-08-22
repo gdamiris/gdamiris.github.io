@@ -36,6 +36,14 @@ export const TUNING = {
   edgeFrame:   0,   // rings of forced ocean around the board (0 = land may reach the edge)
 };
 
+/* What things cost. Edge type is decided by terrain, not by the player: an edge touching
+   sea or fish is a bridge, anything else is a road. */
+export const COSTS = {
+  road:   { ore: 2 },
+  bridge: { wood: 2 },
+  town:   { wheat: 1, ore: 1, wood: 1, fish: 1, deer: 1 },
+};
+
 /* Placement rules. Set a minimum to 1 to disable it. */
 export const RULES = {
   MIN_TOWN_GAP:  2,   // no two towns within this many tiles

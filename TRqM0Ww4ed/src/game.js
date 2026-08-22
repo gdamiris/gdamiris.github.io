@@ -1,7 +1,7 @@
 /* All game state and rules. No DOM access lives here, which is what lets the
    whole rule set be driven headlessly from tests (and later from netcode). */
 
-import { PLAYERS, DIE_FACES, RULES } from "./config.js";
+import { PLAYERS, DIE_FACES, RULES, COSTS } from "./config.js";
 import { TERRAIN, settleable, isWater, isBlocked } from "./terrain.js";
 import { hexDist, neighbours } from "./hex.js";
 
@@ -22,6 +22,8 @@ export const game = {
   keptIndex: null,
   doubles: false,           // both faces matched, so there was no choice to make
   award: null,              // what the last roll actually paid, for the panel to show
+  rolled: false,            // the current player has rolled, so building is open to them
+  roads: new Map(),         // edge id -> { owner, bridge }
   notice: "",               // transient feedback for the status line
   varietyReq: RULES.MIN_VARIETY,
   events: [],               // newest-first log, rendered by the panel
@@ -70,16 +72,110 @@ export function ensureSites() {
   }
 }
 
+/* ---------- roads, bridges, and the network ---------- */
+
+/* Vertex-pair -> edge id, rebuilt whenever the board changes. */
+let EDGE_AT = new Map();
+function indexEdges() {
+  EDGE_AT = new Map();
+  if (game.board) for (const e of game.board.edges) EDGE_AT.set(`${e.a}-${e.b}`, e.id);
+}
+export const edgeBetween = (u, v) => EDGE_AT.get(u < v ? `${u}-${v}` : `${v}-${u}`);
+export const edgeById = id => game.board.edges[id];
+export const edgeCost = e => e.water ? COSTS.bridge : COSTS.road;
+
+export const canAfford = (pi, cost) => Object.entries(cost).every(([k, n]) => game.hands[pi][k] >= n);
+const pay = (pi, cost) => { for (const [k, n] of Object.entries(cost)) game.hands[pi][k] -= n; };
+
+/* The 6 edges of a tile's own hexagon — the perimeter a town blocks. */
+export const tileEdges = t => {
+  const c = game.board.corners[t.id], out = [];
+  for (let i = 0; i < 6; i++) {
+    const id = edgeBetween(c[i], c[(i + 1) % 6]);
+    if (id !== undefined) out.push(id);
+  }
+  return out;
+};
+
+/* Where a player may build from: the corners of their towns plus the ends of everything
+   they have already built. Since every new edge must touch this set, the network stays
+   connected by construction and never needs a traversal. */
+export function networkVerts(pi) {
+  const v = new Set();
+  for (const t of townsOf(pi)) for (const c of game.board.corners[t.id]) v.add(c);
+  for (const [id, r] of game.roads) if (r.owner === pi) { const e = edgeById(id); v.add(e.a); v.add(e.b); }
+  return v;
+}
+
+export const canBuild = () => game.phase === "play" && game.rolled && !game.awaiting;
+
+export function legalEdge(pi, id, net = networkVerts(pi)) {
+  const e = edgeById(id);
+  if (!e || game.roads.has(id)) return false;
+  for (const tid of e.tiles) if (game.towns.has(tid)) return false;   // a town blocks its perimeter
+  if (!net.has(e.a) && !net.has(e.b)) return false;
+  return canAfford(pi, edgeCost(e));
+}
+
+export function whyEdgeIllegal(pi, id, net = networkVerts(pi)) {
+  const e = edgeById(id);
+  if (!e) return "Not a buildable edge";
+  if (game.roads.has(id)) return "Something is built there already";
+  if (e.tiles.some(tid => game.towns.has(tid))) return "A town blocks that edge";
+  if (!net.has(e.a) && !net.has(e.b)) return "Must connect to your network";
+  return `Needs ${costLabel(edgeCost(e))}`;
+}
+
+export const costLabel = cost => Object.entries(cost).map(([k, n]) => `${n} ${k}`).join(" + ");
+
+export function buildEdge(id) {
+  if (!canBuild()) return false;
+  const pi = game.current;
+  if (!legalEdge(pi, id)) { game.notice = whyEdgeIllegal(pi, id); return false; }
+  const e = edgeById(id);
+  pay(pi, edgeCost(e));
+  game.roads.set(id, { owner: pi, bridge: e.water });
+  game.notice = "";
+  emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> builds a ${e.water ? "bridge" : "road"}`);
+  return true;
+}
+
+/* Founding a town after setup: everything legalTown asks, plus the network must already
+   touch one of the tile's corners, plus the cost. */
+export function legalExpansion(pi, t, net = networkVerts(pi)) {
+  if (!legalTown(t)) return false;
+  if (!game.board.corners[t.id].some(c => net.has(c))) return false;
+  return canAfford(pi, COSTS.town);
+}
+
+export function whyExpansionIllegal(pi, t, net = networkVerts(pi)) {
+  if (!legalTown(t)) return whyIllegal(t);
+  if (!game.board.corners[t.id].some(c => net.has(c))) return "Your network does not reach that tile";
+  return `Needs ${costLabel(COSTS.town)}`;
+}
+
+export function buildTown(t) {
+  if (!canBuild()) return false;
+  const pi = game.current;
+  if (!legalExpansion(pi, t)) { game.notice = whyExpansionIllegal(pi, t); return false; }
+  pay(pi, COSTS.town);
+  game.towns.set(t.id, pi);
+  game.notice = "";
+  emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> founds a town on ${TERRAIN[t.terrain].label} at ${t.col},${t.row}`);
+  return true;
+}
+
 /* ---------- lifecycle ---------- */
 function clearRound() {
   game.towns = new Map(); game.turn = 0; game.turnNo = 0; game.current = 0;
   game.roller = null; game.awaiting = false; game.dice = [null, null];
   game.keptIndex = null; game.doubles = false; game.award = null;
+  game.rolled = false; game.roads = new Map();
   game.notice = ""; game.varietyReq = RULES.MIN_VARIETY;
   game.hands = PLAYERS.map(blankHand);
 }
 
-export function setBoard(board) { game.board = board; game.phase = "idle"; clearRound(); }
+export function setBoard(board) { game.board = board; game.phase = "idle"; indexEdges(); clearRound(); }
 export function setPlayers(n)   { game.playerCount = n; game.phase = "idle"; clearRound(); }
 
 export function startGame() {
@@ -109,7 +205,8 @@ export function placeTown(t) {
 }
 
 export function rollDice(rand = Math.random) {
-  if (game.phase !== "play" || game.awaiting) return false;
+  if (game.phase !== "play" || game.awaiting || game.rolled) return false;
+  game.rolled = true;
   game.dice = [DIE_FACES[Math.floor(rand() * 6)], DIE_FACES[Math.floor(rand() * 6)]];
   game.keptIndex = null; game.awaiting = true; game.roller = game.current;
   game.notice = ""; game.award = null;
@@ -143,9 +240,18 @@ export function resolveRoll(keepIdx) {
   game.award = { roller: who, mine, theirs, kept, given, doubles: game.doubles };
   emit(parts.length ? "→ " + parts.join(", ") : "→ nobody produces");
 
+  /* The turn does NOT pass here any more — the roller now gets a build window and
+     ends the turn explicitly. */
   game.awaiting = false;
+  return true;
+}
+
+export function endTurn() {
+  if (game.phase !== "play" || game.awaiting || !game.rolled) return false;
+  game.rolled = false;
   game.turnNo++;
   game.current = (game.current + 1) % game.playerCount;
+  game.notice = "";
   return true;
 }
 

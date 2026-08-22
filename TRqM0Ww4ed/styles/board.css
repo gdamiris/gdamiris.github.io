@@ -12,3 +12,10 @@
 polygon.tile { stroke: var(--stage); stroke-width: 1.2; }
 polygon.tile:hover { stroke: var(--brass); stroke-width: 4; }
 .stage.placing polygon.tile { cursor: pointer; }
+
+/* build window: open edges to click, and the tiles a network can already reach */
+.stage.building polygon.tile { cursor: pointer; }
+line.slot { opacity: .18; cursor: pointer; }
+line.slot.bridge { stroke-dasharray: 5 3; }
+line.slot:hover { opacity: .85; }
+circle.site { opacity: .8; }

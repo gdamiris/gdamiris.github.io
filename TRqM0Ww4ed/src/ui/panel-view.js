@@ -1,9 +1,9 @@
 /* Draws the side panel: turn colour, player chips and hands, dice, legend, stats, log. */
 
-import { PLAYERS, DIE_FACES } from "../config.js";
+import { PLAYERS, DIE_FACES, COSTS } from "../config.js";
 import { TERRAIN } from "../terrain.js";
 import { tileCounts, deadFaces } from "../generate.js";
-import { game } from "../game.js";
+import { game, canBuild, canAfford } from "../game.js";
 import { glyph } from "./icons.js";
 
 const $ = id => document.getElementById(id);
@@ -12,6 +12,7 @@ export function renderPanel() {
   renderChips();
   renderStatus();
   renderDice();
+  renderBuild();
   renderLegend();
   renderStats();
   renderLog();
@@ -50,10 +51,12 @@ function renderStatus() {
   st.textContent = game.notice ? game.notice
     : game.phase === "placing" ? `${PLAYERS[game.turn].name}: click a tile to found your town`
     : game.phase === "play" ? (game.awaiting ? `Turn ${game.turnNo} — ${PLAYERS[game.current].name}: keep one die`
+                            : game.rolled    ? `Turn ${game.turnNo} — ${PLAYERS[game.current].name}: build or end turn`
                                              : `Turn ${game.turnNo} — ${PLAYERS[game.current].name} to roll`)
     : "Pick player count, then start";
 
-  $("roll").disabled = game.phase !== "play" || game.awaiting;
+  $("roll").disabled     = game.phase !== "play" || game.awaiting || game.rolled;
+  $("endturn").disabled  = !canBuild();
 }
 
 function renderDice() {
@@ -78,6 +81,28 @@ function renderDice() {
   }).join("");
 }
 
+/* The three costs, greyed out until the current player can actually pay them.
+   Edge type is not a choice, so road and bridge are shown as information, not buttons. */
+function renderBuild() {
+  const open = canBuild(), pi = game.current;
+  const row = (name, cost, note) => {
+    const ok = open && canAfford(pi, cost);
+    return `<div class="cost ${ok ? "" : "off"}">
+        <span class="what">${name}</span>
+        <span class="price">${Object.entries(cost).map(([k, n]) =>
+          `${n}${glyph(k, TERRAIN[k].color)}`).join("")}</span>
+        <span class="note">${note}</span>
+      </div>`;
+  };
+  $("build").innerHTML =
+    row("Road", COSTS.road, "land edge") +
+    row("Bridge", COSTS.bridge, "sea or fish edge") +
+    row("Town", COSTS.town, "reachable tile") +
+    `<div class="hint">${open
+      ? "Click a highlighted edge or circled tile"
+      : game.phase === "play" ? "Roll first" : "No game running"}</div>`;
+}
+
 function renderLegend() {
   const counts = tileCounts(game.board);
   $("legend").innerHTML = Object.entries(TERRAIN).map(([k, v]) =>
@@ -95,7 +120,7 @@ function renderStats() {
     `<b>${b.per}</b> tiles of each resource<br>
      <b>${got}</b> island${got === 1 ? "" : "s"} — ${b.sizes.join(" / ")} tiles<br>
      <b>${Math.round((N - water) / N * 100)}%</b> land / <b>${Math.round(water / N * 100)}%</b> water<br>
-     <b>${b.buildable}</b> city sites · <b>${b.roadSlots}</b> road slots
+     <b>${b.buildable}</b> town sites · <b>${b.roadSlots}</b> road / <b>${b.bridgeSlots}</b> bridge edges
      ${got < b.islands ? `<br><span class="bad">Board too small for ${b.islands} islands</span>` : ""}
      ${dead.length ? `<br><span class="bad">No tiles for: ${dead.map(f => TERRAIN[f].label).join(", ")}</span>` : ""}`;
 }

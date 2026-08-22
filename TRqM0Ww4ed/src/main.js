@@ -43,13 +43,18 @@ $("start").onclick    = () => { G.startGame(); render(); };
 $("reset").onclick    = () => { G.resetGame(); render(); };
 
 boardSvg.onclick = e => {
+  const edge = e.target.closest("line[data-edge]");
+  if (edge) { G.buildEdge(+edge.dataset.edge); render(); return; }
+
   const el = e.target.closest("polygon.tile");
   if (!el) return;
-  G.placeTown(G.game.board.tiles[+el.dataset.id]);
+  const t = G.game.board.tiles[+el.dataset.id];
+  if (G.game.phase === "placing") G.placeTown(t); else G.buildTown(t);
   render();
 };
 
-$("roll").onclick = () => { G.rollDice(); render(); };
+$("roll").onclick    = () => { G.rollDice(); render(); };
+$("endturn").onclick = () => { G.endTurn(); render(); };
 
 $("dice").onclick = e => {
   const d = e.target.closest(".die[data-armed]");

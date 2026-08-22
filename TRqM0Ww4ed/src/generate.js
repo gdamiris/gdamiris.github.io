@@ -10,7 +10,7 @@
    to break up monocultures while leaving small groves intact. */
 
 import { TUNING, DIE_FACES } from "./config.js";
-import { TERRAIN, passable, settleable } from "./terrain.js";
+import { TERRAIN, isWater, settleable } from "./terrain.js";
 import { hash, mulberry32, lerp, octaves } from "./rng.js";
 import { NB, px, corner, hexDist } from "./hex.js";
 
@@ -143,27 +143,36 @@ export function generateBoard(seed, cols, rows, tuning = TUNING) {
        .sort((a, b) => b.touch - a.touch || a.t.s - b.t.s)
        .slice(0, per).forEach(o => o.t.terrain = "fish");
 
-  /* --- edge graph: roads live between tiles --- */
-  const verts = new Map(), edges = new Map();
+  /* --- edge graph: roads and bridges run along hex edges and meet at corners --- */
+  const verts = new Map(), vertXY = [], edges = new Map(), corners = [];
   for (const t of tiles) {
     const ids = [0, 1, 2, 3, 4, 5].map(n => {
-      const [x, y] = corner(t.col, t.row, n), k = `${Math.round(x * 10) / 10}:${Math.round(y * 10) / 10}`;
-      if (!verts.has(k)) verts.set(k, verts.size);
+      const [x, y] = corner(t.col, t.row, n);
+      const rx = Math.round(x * 10) / 10, ry = Math.round(y * 10) / 10, k = `${rx}:${ry}`;
+      if (!verts.has(k)) { verts.set(k, vertXY.length); vertXY.push([rx, ry]); }
       return verts.get(k);
     });
+    corners[t.id] = ids;                          // a town's 6 ways out
     for (let n = 0; n < 6; n++) {
       const [a, b] = [ids[n], ids[(n + 1) % 6]].sort((p, q) => p - q), k = `${a}-${b}`;
       if (!edges.has(k)) edges.set(k, { a, b, tiles: [] });
       edges.get(k).tiles.push(t.id);
     }
   }
-  const roads = [...edges.values()].filter(e => e.tiles.length === 2 && e.tiles.every(n => passable(tiles[n])));
+  /* Interior edges only (rim edges border a single tile). Open-ocean edges are kept
+     deliberately, so bridge chains can island-hop. */
+  const edgeList = [...edges.values()].filter(e => e.tiles.length === 2).map((e, i) => ({
+    id: i, a: e.a, b: e.b, tiles: e.tiles, water: e.tiles.some(n => isWater(tiles[n])),
+  }));
   const sizes = size.filter(n => n > 0).sort((a, b) => b - a);
 
   tiles.forEach(t => { delete t.e; delete t.m; delete t.g; delete t.s; });
   return {
     seed, cols, rows, islands: N, tuning: { ...T }, tiles, per, sizes,
-    roadSlots: roads.length, buildable: tiles.filter(settleable).length,
+    verts: vertXY, edges: edgeList, corners,
+    roadSlots:   edgeList.filter(e => !e.water).length,
+    bridgeSlots: edgeList.filter(e =>  e.water).length,
+    buildable: tiles.filter(settleable).length,
   };
 }
 

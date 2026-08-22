@@ -3,7 +3,7 @@
 import { S, PLAYERS } from "../config.js";
 import { TERRAIN } from "../terrain.js";
 import { hexPoints, corner } from "../hex.js";
-import { game, legalTown } from "../game.js";
+import { game, legalTown, canBuild, legalEdge, legalExpansion, networkVerts } from "../game.js";
 
 export function renderBoard(svg) {
   const b = game.board;
@@ -12,7 +12,10 @@ export function renderBoard(svg) {
   svg.setAttribute("viewBox", `${-S * 1.9} ${-S * 1.4} ${w + S * 2} ${h + S * 1.6}`);
 
   const placing = game.phase === "placing";
+  const building = canBuild();
+  const net = building ? networkVerts(game.current) : null;
   const kept = game.keptIndex === null ? null : game.dice[game.keptIndex];
+  const canSettle = t => building && legalExpansion(game.current, t, net);
   const dimmed = t => placing && !legalTown(t);
   const W = S * 1.15;
 
@@ -40,6 +43,28 @@ export function renderBoard(svg) {
                     stroke="#0B1620" stroke-width="1.2" pointer-events="none"/>`;
   }).join("");
 
-  svg.innerHTML = terrain + glyphs + marks;
+  const line = (e, extra) => {
+    const [x1, y1] = b.verts[e.a], [x2, y2] = b.verts[e.b];
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${extra}/>`;
+  };
+
+  /* Everything already built. Bridges are dashed so water crossings read at a glance. */
+  const built = [...game.roads].map(([id, r]) => line(b.edges[id],
+    `stroke="${PLAYERS[r.owner].color}" stroke-width="4" stroke-linecap="round"
+     ${r.bridge ? 'stroke-dasharray="5 3"' : ""} pointer-events="none"`)).join("");
+
+  /* Buildable edges for the player whose build window is open. */
+  const slots = !building ? "" : b.edges.filter(e => legalEdge(game.current, e.id, net))
+    .map(e => line(e, `class="slot ${e.water ? "bridge" : ""}" data-edge="${e.id}"
+      stroke="${PLAYERS[game.current].color}" stroke-width="7" stroke-linecap="round"`)).join("");
+
+  /* Tiles the network can reach and the player can pay for. */
+  const sites = !building ? "" : b.tiles.filter(canSettle).map(t =>
+    `<circle class="site" cx="${t.x.toFixed(1)}" cy="${t.y.toFixed(1)}" r="${(S * 0.42).toFixed(1)}"
+       fill="none" stroke="${PLAYERS[game.current].color}" stroke-width="2"
+       stroke-dasharray="3 3" pointer-events="none"/>`).join("");
+
+  svg.innerHTML = terrain + glyphs + slots + built + sites + marks;
   svg.parentElement.classList.toggle("placing", placing);
+  svg.parentElement.classList.toggle("building", building);
 }

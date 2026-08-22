@@ -1,7 +1,7 @@
 /* Headless checks over the pure modules. No DOM, no browser.
    Run with: node tests/run.js */
 
-import { DIE_FACES, TUNING, RULES } from "../src/config.js";
+import { DIE_FACES, TUNING, RULES, COSTS } from "../src/config.js";
 import { TERRAIN, isResource, settleable } from "../src/terrain.js";
 import { NB, hexDist } from "../src/hex.js";
 import { generateBoard, tileCounts } from "../src/generate.js";
@@ -91,6 +91,9 @@ section("game loop");
         const who = G.game.current;
         G.rollDice();
         if (G.game.awaiting) G.resolveRoll(k % 2);
+        check("turn waits for endTurn", G.game.current === who);
+        check("cannot roll twice in a turn", G.rollDice() === false);
+        G.endTurn();
         rolls++;
         check("turn advances", G.game.current === (who + 1) % pc, `${who} -> ${G.game.current}`);
         check("hands stay finite", G.game.hands.slice(0, pc).every(h => DIE_FACES.every(f => Number.isFinite(h[f]) && h[f] >= 0)));
@@ -126,7 +129,7 @@ section("production");
     G.game.hands[i].wood === before[i].wood + 1),
     [0, 1, 2].map(i => G.game.hands[i].wood).join(","));
   check("doubles credit no deliberate keep", G.game.award.doubles === true);
-  check("roller still advances on doubles", G.game.current === (who + 1) % 3);
+  check("doubles still leave a build window", G.game.current === who && G.canBuild());
 }
 
 /* ---- the roller, not whoever is current, receives the kept die ---- */
@@ -149,6 +152,140 @@ section("keep one, give one");
     .every(i => G.game.hands[i][b] === 1 && G.game.hands[i][a] === 0));
   check("award reports what was paid", G.game.award.roller === roller && G.game.award.kept === 1
     && G.game.award.given === 2, JSON.stringify(G.game.award));
+}
+
+/* Settle `n` players inland and as far apart as the board allows, so neither the board
+   rim nor a neighbour's blocked perimeter skews what follows. */
+function seedTowns(n) {
+  const b = G.game.board;
+  const inland = t => t.col > 1 && t.row > 1 && t.col < b.cols - 2 && t.row < b.rows - 2;
+  for (let p = 0; p < n; p++) {
+    const opts = b.tiles.filter(t => G.legalTown(t) && inland(t));
+    const placed = [...G.game.towns.keys()].map(id => b.tiles[id]);
+    const pick = placed.length
+      ? opts.reduce((best, t) => {
+          const d = Math.min(...placed.map(o => hexDist(t, o)));
+          return d > best.d ? { t, d } : best;
+        }, { t: opts[0], d: -1 }).t
+      : opts[Math.floor(opts.length / 2)];
+    G.placeTown(pick);
+  }
+}
+
+/* ---- edge graph: roads on land, bridges on water, oceans crossable ---- */
+section("edge graph");
+{
+  const b = generateBoard("halcyon", 13, 15);
+  const water = t => TERRAIN[b.tiles[t].terrain].water;
+
+  check("every interior edge borders exactly 2 tiles", b.edges.every(e => e.tiles.length === 2));
+  check("edge type follows terrain", b.edges.every(e => e.water === e.tiles.some(water)));
+  check("open-ocean edges are kept", b.edges.some(e => e.tiles.every(water)),
+    "bridges must be able to island-hop");
+  check("slot counts partition the graph", b.roadSlots + b.bridgeSlots === b.edges.length);
+  check("every tile has 6 corners", b.corners.length === b.tiles.length
+    && b.corners.every(c => c.length === 6));
+  check("corners index real vertices", b.corners.flat().every(v => b.verts[v]));
+  check("edges are deterministic",
+    JSON.stringify(generateBoard("halcyon", 13, 15).edges) === JSON.stringify(b.edges));
+}
+
+/* ---- building: cost, connectivity, and the perimeter a town blocks ---- */
+section("building");
+{
+  G.setBoard(generateBoard("halcyon", 13, 15));
+  G.setPlayers(2);
+  G.startGame();
+  /* A rim town has fewer than 6 ways out, because the edges radiating off the board
+     border only one tile and are not part of the graph. Settle inland to test the full six. */
+  seedTowns(2);
+
+  const b = G.game.board, me = G.game.current, home = G.townsOf(me)[0];
+
+  check("nothing is buildable before rolling", G.canBuild() === false);
+  G.rollDice(() => 0.01);
+  check("build window opens after rolling", G.canBuild() === true);
+
+  const net = G.networkVerts(me);
+  check("a town contributes its 6 corners", net.size === 6);
+  check("a town blocks its own perimeter",
+    G.tileEdges(home).every(id => G.legalEdge(me, id) === false));
+
+  /* 6 corners, each with one edge radiating away from the town */
+  G.game.hands[me].ore = 99; G.game.hands[me].wood = 99;
+  const open = b.edges.filter(e => G.legalEdge(me, e.id));
+  check("a town has exactly 6 ways out", open.length === 6, `got ${open.length}`);
+
+  const first = open[0];
+  check("cost matches edge type", JSON.stringify(G.edgeCost(first))
+    === JSON.stringify(first.water ? COSTS.bridge : COSTS.road));
+  const ore = G.game.hands[me].ore, wood = G.game.hands[me].wood;
+  check("building succeeds", G.buildEdge(first.id) === true);
+  check("cost is deducted", first.water ? G.game.hands[me].wood === wood - 2
+                                        : G.game.hands[me].ore === ore - 2);
+  check("edge is occupied once only", G.buildEdge(first.id) === false);
+  check("network grew past the new edge", G.networkVerts(me).size === 7);
+
+  /* poverty must block, even when the geometry is fine */
+  G.game.hands[me].ore = 0; G.game.hands[me].wood = 0;
+  check("cannot build without resources",
+    b.edges.every(e => G.legalEdge(me, e.id) === false));
+
+  /* an unconnected edge is never legal, however rich you are */
+  G.game.hands[me].ore = 99; G.game.hands[me].wood = 99;
+  const reach = G.networkVerts(me);
+  check("disconnected edges stay illegal", b.edges
+    .filter(e => !reach.has(e.a) && !reach.has(e.b))
+    .every(e => G.legalEdge(me, e.id) === false));
+}
+
+/* ---- founding a town needs reach, spacing, and the full cost ---- */
+section("expansion");
+{
+  G.setBoard(generateBoard("halcyon", 13, 15));
+  G.setPlayers(2);
+  G.startGame();
+  seedTowns(2);
+  G.rollDice(() => 0.01);
+
+  const b = G.game.board, me = G.game.current, home = G.townsOf(me)[0];
+  DIE_FACES.forEach(f => G.game.hands[me][f] = 99);
+
+  /* A lone town reaches only its own tile and its 6 neighbours, all of which fail the
+     spacing rule — so nothing is settleable until roads carry the network outward. */
+  check("a lone town can reach nowhere", b.tiles.every(t => G.legalExpansion(me, t) === false));
+
+  let builds = 0;
+  while (builds < 8 && !b.tiles.some(t => G.legalExpansion(me, t))) {
+    const e = b.edges.find(x => G.legalEdge(me, x.id));
+    if (!e) break;
+    G.buildEdge(e.id); builds++;
+  }
+  const sites = b.tiles.filter(t => G.legalExpansion(me, t));
+  check("roads open up a town site", sites.length > 0, `after ${builds} builds`);
+  check("a site is at least 2 tiles out", sites.every(t => hexDist(t, home) >= RULES.MIN_TOWN_GAP));
+  check("reachable tiles touch the network", sites.every(t =>
+    b.corners[t.id].some(c => G.networkVerts(me).has(c))));
+  check("reachable tiles respect the gap", sites.every(t =>
+    [...G.game.towns.keys()].every(id => hexDist(t, b.tiles[id]) >= RULES.MIN_TOWN_GAP)));
+  check("no town on water", sites.every(settleable));
+
+  const before = G.game.towns.size;
+  const cost = { ...G.game.hands[me] };
+  check("founding succeeds", G.buildTown(sites[0]) === true);
+  check("town is recorded", G.game.towns.size === before + 1 && G.game.towns.get(sites[0].id) === me);
+  check("full cost is paid", Object.entries(COSTS.town)
+    .every(([k, n]) => G.game.hands[me][k] === cost[k] - n),
+    JSON.stringify(COSTS.town));
+  check("a second town doubles income", G.yieldOf(me, "wood") === 2);
+
+  /* an unreachable-but-legal tile must still be refused */
+  const far = b.tiles.find(t => G.legalTown(t) && !G.legalExpansion(me, t));
+  if (far) check("unreachable tiles are refused", G.buildTown(far) === false);
+
+  /* and poverty blocks founding outright */
+  DIE_FACES.forEach(f => G.game.hands[me][f] = 0);
+  check("cannot found a town while broke", b.tiles.every(t => G.legalExpansion(me, t) === false));
 }
 
 console.log(failures ? `\n${failures} FAILURES` : "\nall checks passed");
