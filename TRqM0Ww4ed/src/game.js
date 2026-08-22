@@ -20,6 +20,8 @@ export const game = {
   awaiting: false,          // a die still needs choosing
   dice: [null, null],
   keptIndex: null,
+  doubles: false,           // both faces matched, so there was no choice to make
+  award: null,              // what the last roll actually paid, for the panel to show
   notice: "",               // transient feedback for the status line
   varietyReq: RULES.MIN_VARIETY,
   events: [],               // newest-first log, rendered by the panel
@@ -33,9 +35,10 @@ export const tileById = id => game.board.tiles[id];
 export const townsOf = pi => [...game.towns].filter(([, o]) => o === pi).map(([id]) => tileById(id));
 export const footprint = pi => townsOf(pi).flatMap(t => [t, ...around(t)]);
 
-/* A town yields at most 1 of a resource per roll, however many matching tiles it touches. */
-export const yieldOf = (pi, res) =>
-  townsOf(pi).filter(t => t.terrain === res || around(t).some(n => n.terrain === res)).length;
+/* Production is independent of the map: a player gains 1 of the rolled resource per town
+   they hold, whatever terrain that town stands on. Terrain still governs where a town may
+   be founded (see legalTown) — it just no longer decides who gets paid. */
+export const yieldOf = (pi, _res) => townsOf(pi).length;
 
 /* ---------- placement rules ---------- */
 export function legalTown(t) {
@@ -71,7 +74,8 @@ export function ensureSites() {
 function clearRound() {
   game.towns = new Map(); game.turn = 0; game.turnNo = 0; game.current = 0;
   game.roller = null; game.awaiting = false; game.dice = [null, null];
-  game.keptIndex = null; game.notice = ""; game.varietyReq = RULES.MIN_VARIETY;
+  game.keptIndex = null; game.doubles = false; game.award = null;
+  game.notice = ""; game.varietyReq = RULES.MIN_VARIETY;
   game.hands = PLAYERS.map(blankHand);
 }
 
@@ -107,10 +111,15 @@ export function placeTown(t) {
 export function rollDice(rand = Math.random) {
   if (game.phase !== "play" || game.awaiting) return false;
   game.dice = [DIE_FACES[Math.floor(rand() * 6)], DIE_FACES[Math.floor(rand() * 6)]];
-  game.keptIndex = null; game.awaiting = true; game.roller = game.current; game.notice = "";
+  game.keptIndex = null; game.awaiting = true; game.roller = game.current;
+  game.notice = ""; game.award = null;
   const [a, b] = game.dice;
+  game.doubles = a === b;
   emit(`<b>Turn ${game.turnNo}</b> · ${PLAYERS[game.current].name} rolled ${TERRAIN[a].label} + ${TERRAIN[b].label}`);
-  if (a === b) { resolveRoll(0); return true; }   // doubles leave no choice
+  /* Doubles are not a special rule — there is simply nothing to choose between two
+     identical faces, so everybody produces that resource and the turn resolves itself.
+     The panel must say so rather than mark die 0 as a deliberate keep. */
+  if (game.doubles) { emit(`Doubles — no choice, everyone produces ${TERRAIN[a].label}`); resolveRoll(0); }
   return true;
 }
 
@@ -118,16 +127,20 @@ export function rollDice(rand = Math.random) {
 export function resolveRoll(keepIdx) {
   if (!game.awaiting) return false;
   if (game.roller === null) game.roller = game.current;
+  const who = game.roller;                      // the roller keeps, not whoever is current
   const mine = game.dice[keepIdx], theirs = game.dice[1 - keepIdx];
   game.keptIndex = keepIdx;
 
   const parts = [];
+  let kept = 0, given = 0;
   for (let i = 0; i < game.playerCount; i++) {
-    const res = i === game.current ? mine : theirs;
+    const res = i === who ? mine : theirs;
     const n = yieldOf(i, res);
     game.hands[i][res] += n;
+    if (i === who) kept += n; else given += n;
     if (n) parts.push(`<b style="color:${PLAYERS[i].color}">${PLAYERS[i].name}</b> +${n} ${TERRAIN[res].label}`);
   }
+  game.award = { roller: who, mine, theirs, kept, given, doubles: game.doubles };
   emit(parts.length ? "→ " + parts.join(", ") : "→ nobody produces");
 
   game.awaiting = false;

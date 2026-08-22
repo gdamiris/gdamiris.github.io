@@ -58,13 +58,18 @@ function renderStatus() {
 
 function renderDice() {
   const rc = game.roller === null ? "var(--brass)" : PLAYERS[game.roller].color;
+  const a = game.award;
   $("dice").innerHTML = game.dice.map((f, i) => {
     if (!f) return `<div class="die"><div class="nm muted">—</div></div>`;
-    const isKept = game.keptIndex === i;
+    /* On doubles nobody chose, so neither die may be dressed up as a deliberate keep. */
+    const isKept = !game.doubles && game.keptIndex === i;
     const tag = game.awaiting ? "click to keep"
-              : game.keptIndex === null ? "—"
-              : isKept ? (game.roller === null ? "kept" : PLAYERS[game.roller].name) : "everyone else";
-    return `<div class="die ${isKept ? "keep" : ""}" ${game.awaiting ? "data-armed" : ""} data-i="${i}"
+              : !a ? "—"
+              : a.doubles ? `everyone +${a.kept + a.given}`
+              : isKept ? `${PLAYERS[a.roller].name} +${a.kept}`
+              : `everyone else +${a.given}`;
+    return `<div class="die ${isKept ? "keep" : ""} ${!game.awaiting && a && a.doubles ? "dbl" : ""}"
+        ${game.awaiting ? "data-armed" : ""} data-i="${i}"
         style="${isKept ? `border-color:${rc};box-shadow:inset 0 0 0 1px ${rc}` : ""}">
         <div class="face" style="background:${TERRAIN[f].color}">${glyph(f)}</div>
         <div class="nm">${TERRAIN[f].label}</div>

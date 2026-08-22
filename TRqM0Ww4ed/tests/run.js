@@ -102,5 +102,54 @@ section("game loop");
   console.log(`  (${rolls} rolls simulated)`);
 }
 
+/* ---- production is independent of terrain ---- */
+section("production");
+{
+  G.setBoard(generateBoard("halcyon", 13, 15));
+  G.setPlayers(3);
+  G.startGame();
+  for (let p = 0; p < 3; p++) G.placeTown(G.game.board.tiles.filter(G.legalTown)[p * 3 + 1]);
+
+  check("every player produces every resource", [0, 1, 2].every(i =>
+    DIE_FACES.every(f => G.yieldOf(i, f) === 1)),
+    [0, 1, 2].map(i => DIE_FACES.filter(f => !G.yieldOf(i, f)).join("/")).join(" "));
+  check("yield ignores the town's own terrain", new Set([0, 1, 2].flatMap(i =>
+    DIE_FACES.map(f => G.yieldOf(i, f)))).size === 1);
+
+  /* the roller keeps one face, everyone else takes the other */
+  const before = G.game.hands.map(h => ({ ...h }));
+  const who = G.game.current;
+  G.rollDice(() => 0.01);                       // forces wood + wood -> doubles
+  check("matching faces resolve without a click", G.game.awaiting === false);
+  check("doubles are flagged", G.game.doubles === true);
+  check("doubles pay every player", [0, 1, 2].every(i =>
+    G.game.hands[i].wood === before[i].wood + 1),
+    [0, 1, 2].map(i => G.game.hands[i].wood).join(","));
+  check("doubles credit no deliberate keep", G.game.award.doubles === true);
+  check("roller still advances on doubles", G.game.current === (who + 1) % 3);
+}
+
+/* ---- the roller, not whoever is current, receives the kept die ---- */
+section("keep one, give one");
+{
+  G.setBoard(generateBoard("halcyon", 13, 15));
+  G.setPlayers(3);
+  G.startGame();
+  for (let p = 0; p < 3; p++) G.placeTown(G.game.board.tiles.filter(G.legalTown)[p * 3 + 1]);
+
+  let n = 0;
+  const roller = G.game.current;
+  G.rollDice(() => [0.01, 0.9][n++]);            // wood + fish, distinct
+  check("distinct faces await a choice", G.game.awaiting === true && G.game.doubles === false);
+  const [a, b] = G.game.dice;
+  G.resolveRoll(0);                              // keep the LEFT die
+  check("roller receives the kept face", G.game.hands[roller][a] === 1, `${a} -> ${G.game.hands[roller][a]}`);
+  check("roller does not receive the given face", G.game.hands[roller][b] === 0);
+  check("others receive the given face", [0, 1, 2].filter(i => i !== roller)
+    .every(i => G.game.hands[i][b] === 1 && G.game.hands[i][a] === 0));
+  check("award reports what was paid", G.game.award.roller === roller && G.game.award.kept === 1
+    && G.game.award.given === 2, JSON.stringify(G.game.award));
+}
+
 console.log(failures ? `\n${failures} FAILURES` : "\nall checks passed");
 process.exit(failures ? 1 : 0);

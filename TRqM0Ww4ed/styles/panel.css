@@ -48,6 +48,9 @@ button:disabled:hover { background: transparent; }
   place-content: center; gap: 6px; justify-items: center; border-radius: 4px; padding: 6px; text-align: center; }
 .die[data-armed] { cursor: pointer; }
 .die[data-armed]:hover { border-color: var(--turn, var(--brass)); }
+/* doubles: both dice paid out equally, so neither is singled out as a keep */
+.die.dbl { border-style: dashed; border-color: var(--brass); }
+.die.dbl .tag { color: var(--brass); }
 .die .face { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(0,0,0,.4);
   display: grid; place-items: center; }
 .die .face svg { width: 23px; height: 23px; display: block; }
