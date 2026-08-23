@@ -4,7 +4,7 @@ import { S, PLAYERS, UNITS } from "../config.js";
 import { TERRAIN } from "../terrain.js";
 import { hexPoints, corner } from "../hex.js";
 import { game, legalTown, canBuild, legalEdge, legalExpansion, networkVerts,
-         reachable, targetsOf, wallTargetsOf, canAttack, injured, legalRecruit, legalPort,
+         movePlan, targetsOf, wallTargetsOf, canAttack, injured, legalRecruit, legalPort,
          legalWall, canRepairWall, sheltered, isCoastalEdge, edgeKinds } from "../game.js";
 import { WALL } from "../config.js";
 import { ui } from "./state.js";
@@ -87,10 +87,15 @@ export function renderBoard(svg) {
   const ordering = building && sel && sel.owner === game.current;
   const hex = t => hexPoints(t.col, t.row);
 
-  /* where the selected unit may go, and who it may hit */
-  const moves = !ordering ? "" : [...reachable(sel).keys()].map(id =>
-    `<polygon class="move" data-move="${id}" points="${hex(b.tiles[id])}"
-       fill="${PLAYERS[sel.owner].color}"/>`).join("");
+  /* where the selected unit may go, and who it may hit. Tiles that charge a toll to
+     enter are marked, so a desert crossing is never a surprise. */
+  const moves = !ordering ? "" : [...movePlan(sel)].map(([id, p]) => {
+    const priced = Object.keys(p.toll).length > 0;
+    const cost = Object.entries(p.toll).map(([k, n]) => `${n} ${k}`).join(" + ");
+    return `<polygon class="move ${priced ? "toll" : ""}" data-move="${id}"
+        points="${hex(b.tiles[id])}" fill="${PLAYERS[sel.owner].color}"
+        ><title>${p.steps} step${p.steps === 1 ? "" : "s"}${priced ? ` · costs ${cost}` : ""}</title></polygon>`;
+  }).join("");
 
   const attacks = !ordering || !canAttack(sel) ? "" :
     [...targetsOf(sel).map(e => e.tile), ...wallTargetsOf(sel)].map(tid =>

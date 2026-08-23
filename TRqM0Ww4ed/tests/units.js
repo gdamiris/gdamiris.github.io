@@ -4,7 +4,7 @@
    The action economy is the fiddly part — a foot soldier moves OR acts, a horseman may
    spend one of its two steps and still attack, and an injured unit cannot move at all. */
 
-import { RESOURCES, UNITS, COSTS, WALL } from "../src/config.js";
+import { RESOURCES, UNITS, COSTS, WALL, STEP } from "../src/config.js";
 import { settleable, isWater } from "../src/terrain.js";
 import { hexDist } from "../src/hex.js";
 import { generateBoard } from "../src/generate.js";
@@ -126,7 +126,8 @@ section("movement");
 
   const foot = ready("foot", home);
   const reach = G.reachable(foot);
-  check("a foot soldier reaches 1 tile", [...reach.values()].every(s => s === 1));
+  /* movement is counted in half-tiles: an ordinary tile costs STEP */
+  check("a foot soldier reaches 1 tile", [...reach.values()].every(s => s === STEP));
   check("it reaches only neighbours",
     [...reach.keys()].every(id => G.around(home).some(n => n.id === id)));
   check("it never reaches water",
@@ -144,10 +145,12 @@ section("movement");
   check("back to the same player", G.game.current === me);
   const horse = ready("horse", home);
   const far = G.reachable(horse);
-  check("a horseman reaches 2 tiles out", [...far.values()].some(s => s === 2));
-  check("distances are honest", [...far].every(([id, s]) => hexDist(b.tiles[id], home) <= s));
+  check("a horseman reaches 2 ordinary tiles out",
+    [...far.values()].some(s => s === 2 * STEP));
+  check("distances are honest",
+    [...far].every(([id, s]) => hexDist(b.tiles[id], home) <= s));
 
-  const oneStep = [...far].find(([, s]) => s === 1)[0];
+  const oneStep = [...far].find(([, s]) => s === STEP)[0];
   G.moveUnit(horse.id, oneStep);
   check("a horseman may still attack after one step", G.canAttack(horse) === true);
   check("and may still take its second step", G.canMove(horse) === true);
@@ -223,6 +226,213 @@ section("crossing on bridges");
     const boat = place(me, "boat", b.tiles.find(t => isWater(t) && !G.unitAt(t.id)));
     return [...G.reachable(boat).keys()].every(id => isWater(b.tiles[id]));
   })());
+}
+
+/* ---------- merchants are the whole economy ---------- */
+section("merchants");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me, home = G.townsOf(me)[0];
+  rich(me);
+
+  check("production is flat without merchants",
+    RESOURCES.every(f => G.yieldOf(me, f) === 1));
+  check("towns no longer add income", G.townsOf(me).length === 1
+    && RESOURCES.every(f => G.yieldOf(me, f) === 1));
+
+  /* cost and the one-per-town cap */
+  G.game.hands[me] = { wool: 1, wheat: 1, fish: 1, wood: 0, ore: 0 };
+  check("wool, wheat and fish buy a merchant", G.canAffordUnit(me, "merchant") === true);
+  for (const short of ["wool", "wheat", "fish"]) {
+    const keep = G.game.hands[me][short];
+    G.game.hands[me][short] = 0;
+    check(`missing ${short} blocks it`, G.canAffordUnit(me, "merchant") === false);
+    G.game.hands[me][short] = keep;
+  }
+  check("the cap is one per town", G.capOf(me, "merchant") === G.townsOf(me).length);
+  check("soldiers are uncapped", G.capOf(me, "foot") === Infinity);
+
+  rich(me);
+  const trader = ready("merchant", home);
+  check("the merchant musters on a town", trader.tile === home.id);
+  check("a merchant has a single life", trader.lives === 1);
+  check("at the cap, no second merchant", G.withinCap(me, "merchant") === false);
+  check("recruiting a second is refused", (() => {
+    const spot = landNear(home);
+    return spot ? G.recruit("merchant", spot) === false : true;
+  })());
+  check("but soldiers are still available", G.withinCap(me, "foot") === true);
+
+  /* a merchant cannot fight, and is not a target-maker */
+  check("a merchant has no range", UNITS.merchant.range === null);
+  check("and can never attack", G.canAttack(trader) === false);
+  check("it reaches nothing", G.targetsOf(trader).length === 0
+    && G.wallTargetsOf(trader).length === 0);
+  check("attacking with it is refused", (() => {
+    const spot = landNear(home);
+    if (!spot) return true;
+    const victim = place(foe, "foot", spot);
+    return G.attackUnit(trader.id, victim.tile) === false;
+  })());
+
+  /* standing on a resource adds one of it */
+  const stand = G.around(home).find(t => settleable(t) && !G.unitAt(t.id)
+    && !G.game.towns.has(t.id) && RESOURCES.includes(t.terrain));
+  check("a resource tile is adjacent", !!stand);
+  if (stand) {
+    const res = stand.terrain;
+    const before = G.yieldOf(me, res);
+    G.moveUnit(trader.id, stand.id);
+    check("the merchant moved onto it", trader.tile === stand.id);
+    check("that resource now yields one more", G.yieldOf(me, res) === before + 1);
+    check("every other resource is unchanged",
+      RESOURCES.filter(f => f !== res).every(f => G.yieldOf(me, f) === 1));
+    check("the opponent gains nothing from it",
+      RESOURCES.every(f => G.yieldOf(foe, f) === 1));
+
+    /* and it really pays out on a roll: 1 base + 1 from the merchant */
+    G.endTurn(); G.rollDice(DOUBLES); G.endTurn();
+    const held = G.game.hands[me][res];        // after the intervening roll, not before
+    const theirs = G.game.hands[foe][res];
+    const face = (RESOURCES.indexOf(res) + 0.5) / (RESOURCES.length + 1);
+    G.rollDice(() => face);                    // doubles of the merchant's resource
+    check("the roll paid the merchant's bonus",
+      G.game.hands[me][res] === held + 2, `${held} -> ${G.game.hands[me][res]}`);
+    check("the opponent got only the base 1",
+      G.game.hands[foe][res] === theirs + 1, `${theirs} -> ${G.game.hands[foe][res]}`);
+  }
+
+  /* barren ground trades nothing */
+  const barren = b.tiles.find(t => ["mountain", "plain", "desert"].includes(t.terrain)
+    && !G.unitAt(t.id) && !G.game.towns.has(t.id));
+  if (barren) {
+    const idle = place(me, "merchant", barren);
+    check("a merchant on barren ground adds nothing",
+      RESOURCES.every(f => G.yieldOf(me, f) === (f === (stand && stand.terrain) ? 2 : 1)));
+    G.game.units.delete(idle.id);
+  }
+
+  /* one hit kills a merchant */
+  check("a single hit kills a merchant", (() => {
+    const next = landNear(b.tiles[trader.tile]);
+    if (!next) return true;
+    const killer = place(foe, "foot", next);
+    G.endTurn(); G.rollDice(DOUBLES);
+    const ok = G.attackUnit(killer.id, trader.tile) === true
+      && G.game.units.has(trader.id) === false;
+    return ok;
+  })());
+  check("and the income goes with it", RESOURCES.every(f => G.yieldOf(me, f) === 1));
+}
+
+/* ---------- terrain and movement ---------- */
+section("terrain movement");
+{
+  const b = fresh(2);
+  const me = G.game.current;
+  rich(me);
+
+  /* the cost table itself, in half-tiles: ordinary ground is STEP */
+  check("nothing is ever free", ["mountain", "plain", "desert", "wood", "wheat", "wool", "ore"]
+    .every(t => ["foot", "horse", "cannon"].every(k => G.stepCost(k, t) > 0)));
+  check("mountains cost a horseman double", G.stepCost("horse", "mountain") === 2 * STEP);
+  check("but cost a foot soldier the usual", G.stepCost("foot", "mountain") === STEP);
+  check("and cost a cannon the usual", G.stepCost("cannon", "mountain") === STEP);
+  check("plains cost a horseman half", G.stepCost("horse", "plain") === STEP / 2);
+  check("but cost a foot soldier the usual", G.stepCost("foot", "plain") === STEP);
+  check("ordinary ground costs the same for all",
+    ["wood", "wheat", "wool", "ore", "desert"].every(t =>
+      ["foot", "horse", "cannon"].every(k => G.stepCost(k, t) === STEP)));
+  check("only the desert charges a toll",
+    JSON.stringify(G.stepToll("desert")) === JSON.stringify({ fish: 1 })
+    && G.stepToll("plain") === null && G.stepToll("mountain") === null
+    && G.stepToll("wood") === null);
+
+  /* a mountain is out of reach for a 1-move unit only if it costs more than 1 */
+  const at = (t, kind) => {
+    const id = G.game.nextUnit++;
+    const u = { id, owner: me, kind, tile: t.id, lives: 2, moved: 0, acted: false };
+    G.game.units.set(id, u); return u;
+  };
+  const nextTo = (terrain, pred = () => true) => {
+    for (const t of b.tiles) {
+      if (!settleable(t) || G.game.towns.has(t.id) || G.unitAt(t.id)) continue;
+      const n = G.around(t).find(x => x.terrain === terrain && !G.unitAt(x.id)
+        && !G.game.towns.has(x.id));
+      if (n && pred(t, n)) return [t, n];
+    }
+    return [null, null];
+  };
+
+  const [mSpot, mountain] = nextTo("mountain");
+  check("a mountain fixture exists", !!mountain);
+  if (mountain) {
+    const horse = at(mSpot, "horse");            // move 2
+    const foot = at(b.tiles.find(t => settleable(t) && !G.unitAt(t.id)
+      && !G.game.towns.has(t.id) && G.around(t).some(x => x.id === mountain.id)) || mSpot, "foot");
+    check("a horseman can still enter a mountain, at double cost",
+      G.reachable(horse).get(mountain.id) === 2 * STEP);
+    G.game.units.delete(horse.id);
+    G.game.units.delete(foot.id);
+
+    const walker = at(mSpot, "foot");
+    check("a foot soldier enters it for the usual",
+      G.reachable(walker).get(mountain.id) === STEP);
+    G.game.units.delete(walker.id);
+  }
+
+  /* plains cost a horseman nothing */
+  const [pSpot, plain] = nextTo("plain");
+  check("a plain fixture exists", !!plain);
+  if (plain) {
+    const horse = at(pSpot, "horse");
+    check("a plain costs a horseman half", G.reachable(horse).get(plain.id) === STEP / 2);
+    check("riding it spends that half", (() => {
+      G.moveUnit(horse.id, plain.id);
+      return horse.tile === plain.id && horse.moved === STEP / 2;
+    })());
+    check("so the horseman may still move afterwards", G.canMove(horse) === true);
+    check("and may still attack afterwards", G.canAttack(horse) === true);
+    check("a horseman's range is bounded even over plains", (() => {
+      /* budget 4 at half a step per plain: four plains, and no further */
+      const most = Math.floor(UNITS.horse.move / (STEP / 2));
+      return most === 4 && [...G.reachable(horse).values()].every(s => s <= UNITS.horse.move);
+    })());
+    G.game.units.delete(horse.id);
+
+    const walker = at(pSpot, "foot");
+    check("a plain costs a foot soldier the usual",
+      G.reachable(walker).get(plain.id) === STEP);
+    G.game.units.delete(walker.id);
+  }
+
+  /* the desert charges a fish per unit that crosses it */
+  const [dSpot, desert] = nextTo("desert");
+  check("a desert fixture exists", !!desert);
+  if (desert) {
+    const walker = at(dSpot, "foot");
+    G.game.hands[me].fish = 0;
+    check("no fish, no desert", G.reachable(walker).has(desert.id) === false);
+    check("the move is refused", G.moveUnit(walker.id, desert.id) === false);
+
+    G.game.hands[me].fish = 3;
+    check("with fish the desert opens", G.reachable(walker).has(desert.id) === true);
+    check("the plan names the toll",
+      JSON.stringify(G.movePlan(walker).get(desert.id).toll) === JSON.stringify({ fish: 1 }));
+    check("crossing works", G.moveUnit(walker.id, desert.id) === true);
+    check("and costs exactly one fish", G.game.hands[me].fish === 2);
+    check("the desert still costs one ordinary step", walker.moved === STEP);
+    G.game.units.delete(walker.id);
+
+    /* the toll is per unit, so a second unit pays again */
+    const other = at(dSpot, "foot");
+    check("a second unit pays its own fish", (() => {
+      const before = G.game.hands[me].fish;
+      G.moveUnit(other.id, desert.id);
+      return G.game.hands[me].fish === before - 1;
+    })());
+    G.game.units.delete(other.id);
+  }
 }
 
 /* ---------- blocking ---------- */
@@ -644,7 +854,7 @@ section("cannon");
   /* moving means it cannot fire, exactly like a foot soldier */
   G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
   check("the cannon refreshed", G.canMove(gun) === true && G.canAttack(gun) === true);
-  check("a cannon moves 1 tile", [...G.reachable(gun).values()].every(s => s === 1));
+  check("a cannon moves 1 tile", [...G.reachable(gun).values()].every(s => s === STEP));
   G.moveUnit(gun.id, [...G.reachable(gun).keys()][0]);
   check("a cannon that moved cannot fire", G.canAttack(gun) === false);
 }

@@ -351,7 +351,8 @@ section("expansion");
   check("full cost is paid", Object.entries(COSTS.town)
     .every(([k, n]) => G.game.hands[me][k] === cost[k] - n),
     JSON.stringify(COSTS.town));
-  check("a second town doubles income", G.yieldOf(me, "wood") === 2);
+  check("a second town does not raise income", G.yieldOf(me, "wood") === 1,
+    "production is flat — only merchants add to it");
 
   /* an unreachable-but-legal tile must still be refused */
   const far = b.tiles.find(t => G.legalTown(t) && !G.legalExpansion(me, t));

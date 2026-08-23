@@ -61,9 +61,15 @@ Things this project does deliberately so Pages works:
 **Setup.** Each player founds one town on a land tile, at least `MIN_TOWN_GAP` tiles from
 every other town — a town blocks all six of its neighbours.
 
-**Production is independent of the map.** A player gains 1 of a resource per town they
-hold, whatever terrain that town stands on. Terrain governs where you may build, not who
-gets paid.
+**Production is flat, and merchants are the only way to raise it.** Every player gains
+exactly **1** of the rolled resource, however many towns they hold. A **merchant** standing
+on a resource tile adds **1 more** of that resource whenever it is rolled — so income is
+bought with ground you have to hold, and never compounds on its own.
+
+That last part is load-bearing. When income scaled with town count instead, simulated play
+doubled its towns every four rounds, saturated the board by round 20, and then piled up
+1,600 unspendable resources. Flat production with merchants gives roughly one new town
+every three rounds and players who stay within a town or two of each other.
 
 **There are five resources and six die faces.** Wood, wheat, wool, ore and fish are the
 things a player can hold; the sixth face is the **wild**, which is never held. Whenever a
@@ -130,6 +136,7 @@ the fixed cost), but no unit uses it any more.
 |---|---|---|---|---|
 | foot soldier | 1 wool + 1 wood | 1 tile | 1 | your town |
 | horseman | 2 wool + 1 wood | 2 tiles | 1 | your town |
+| **merchant** | 1 wool + 1 wheat + 1 fish | 1 tile | — cannot fight | your town |
 | cannon | 2 ore | 1 tile | **2–3** | your town |
 | boat | 2 wood + 1 wool + 1 ore | 2 tiles | **exactly 2** | your port |
 
@@ -165,6 +172,12 @@ Walls mend at 1 ore for 1 life, and **only one life per wall per turn** — so a
 firing every turn will always out-pace the masons, but slowly enough that relief has time
 to arrive.
 
+**The merchant is a civilian, and fragile on purpose.** It has **one life**, so a single hit
+kills it and the income dies with it; it cannot attack anything; and you may hold only
+**one per town**, so raising income means founding towns and defending the ground your
+traders stand on. A merchant on barren ground earns nothing — and since fish is a water
+tile, working a fish bed means bridging out to it first.
+
 **The cannon is artillery.** It is the cheapest unit in the game at 2 ore, moves 1 tile,
 and shells anything 2 or 3 tiles away — including boats out at sea. It cannot fire on an
 adjacent enemy, so it needs infantry screening it; get under its guns and it is helpless.
@@ -177,6 +190,19 @@ adjacent land unit can hit it. Closing the distance is the counter. A damaged bo
 rooted the way a wounded land unit is (it could never get home otherwise), but it may only
 repair while sitting in one of its owner's ports, and sailing there and repairing are two
 separate turns.
+
+**The barren ground shapes how armies move.** Everything not listed costs one step:
+
+| terrain | effect |
+|---|---|
+| mountain | costs a **horseman** 2 steps; everyone else 1 |
+| plain | costs a **horseman** nothing at all; everyone else 1 |
+| desert | 1 fish, paid by the owner, for **every unit** that enters it |
+
+Because a plain is free, a chain of them carries a horseman as far as the chain runs — in
+testing, up to **6 tiles in a single turn** against a nominal move of 2. And since that
+ride spends no movement, the horseman can still attack at the end of it. A unit that
+cannot pay the desert toll simply cannot enter the desert.
 
 **One action per unit per turn.** A foot soldier moves *or* acts; a horseman may spend one
 of its two steps and still attack, but not both. Every attack deals exactly 1 damage
@@ -195,6 +221,7 @@ Not settled yet: **the victory condition**.
 | placement legality (gap, footprint, variety) | `src/config.js` → `RULES` |
 | what roads, bridges and towns cost | `src/config.js` → `COSTS` |
 | unit stats, costs and movement | `src/config.js` → `UNITS` |
+| what terrain does to movement | `src/config.js` → `TERRAIN_MOVE` |
 | terrain colours, glyph ink, passability | `src/terrain.js` |
 | production rule (`yieldOf`) | `src/game.js` |
 | turn flow (roll, keep, resolve, build, end) | `src/game.js` |
@@ -211,7 +238,7 @@ size, and the `TUNING` object to derive a byte-identical map.
     npm test          # all three suites
     node tests/run.js       # geometry, generation, turn loop
     node tests/build.js     # roads, bridges, coastal edges, towns (97 checks)
-    node tests/units.js     # units, crossings, ports, boats, cannon, walls (243 checks)
+    node tests/units.js     # units, merchants, terrain, navy, siege (298 checks)
 
 `tests/build.js` covers construction specifically, and most of it asserts what must be
 **refused**: building outside the window, on an occupied edge, on a town's perimeter, off

@@ -5,7 +5,7 @@ import { TERRAIN, faceSpec } from "../terrain.js";
 import { tileCounts, deadFaces } from "../generate.js";
 import { game, canBuild, canAfford, canAffordUnit, canMove, canAttack, canRevive,
          injured, unitsOf, portsOf, atPort, hasBerth, blockaders, rangeLabel,
-         canRepairWall, wallsOf, sheltered } from "../game.js";
+         canRepairWall, wallsOf, sheltered, withinCap, countOf, capOf } from "../game.js";
 import { glyph } from "./icons.js";
 import { ui } from "./state.js";
 
@@ -164,6 +164,8 @@ function renderArmy() {
   /* a boat needs a port; either kind also needs somewhere free to muster */
   const why = k => {
     if (UNITS[k].home === "port" && portsOf(pi).length === 0) return "Needs a port";
+    if (!withinCap(pi, k))
+      return `${countOf(pi, k)} of ${capOf(pi, k)} — ${UNITS[k].perTown} per town`;
     if (!hasBerth(pi, k)) return UNITS[k].home === "port"
       ? "Every port is blockaded or occupied" : "Every town already holds a unit";
     return "";
@@ -197,7 +199,9 @@ function renderArmy() {
         <div><b>${spec.label}</b> · ${sel.lives}/${spec.lives} lives
           ${injured(sel) ? `<span class="bad">injured</span>` : ""}</div>
         <div class="can">${can.length ? `can ${can.join(" or ")}` : "spent for this turn"}
-          ${spec.range[0] > 1 ? ` · strikes at ${rangeLabel(sel.kind)}` : ""}</div>
+          ${!spec.range ? " · civilian, cannot fight"
+            : spec.range[0] > 1 ? ` · strikes at ${rangeLabel(sel.kind)}` : ""}
+          ${spec.trades ? ` · trading ${TERRAIN[game.board.tiles[sel.tile].terrain].label}` : ""}</div>
         ${canRevive(sel) ? `<button class="wide" data-order="revive">Revive</button>` : ""}
         ${stranded ? `<div class="hint">Sail back into one of your ports to repair</div>` : ""}
         ${injured(sel) && spec.noRevive ? `<div class="hint">Damage to a ${spec.label.toLowerCase()} is permanent</div>` : ""}

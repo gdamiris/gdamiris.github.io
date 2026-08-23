@@ -23,6 +23,9 @@ circle.site { opacity: .8; }
 /* army: move targets, strike targets, recruit drops */
 polygon.move { opacity: .22; cursor: pointer; }
 polygon.move:hover { opacity: .5; }
+/* a move that charges a toll to enter, e.g. crossing the desert */
+polygon.move.toll { opacity: .3; stroke: var(--brass); stroke-width: 2; stroke-dasharray: 3 2; }
+polygon.move.toll:hover { opacity: .55; }
 polygon.strike { cursor: pointer; }
 polygon.strike:hover { fill: var(--bad); fill-opacity: .3; }
 polygon.drop { cursor: pointer; stroke-dasharray: 4 3; }

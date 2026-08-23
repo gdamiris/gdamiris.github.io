@@ -66,27 +66,51 @@ export const WALL = {
   breachedBy: ["cannon", "boat"],
 };
 
+/* Movement is counted in half-tiles so terrain can be faster as well as slower without
+   ever being free: entering an ordinary tile costs STEP, and a unit's `move` is its
+   budget in the same units. Nothing costing zero means a unit's range always has a
+   ceiling, whatever the map looks like. */
+export const STEP = 2;
+
+/* What the barren ground does to an army crossing it. `cost` overrides STEP, per unit
+   kind; `toll` is paid by the owner for every such tile a unit enters, whatever the
+   unit. Anything not listed costs STEP and nothing else. */
+export const TERRAIN_MOVE = {
+  mountain: { cost: { horse: 2 * STEP } },   // broken ground: cavalry at half speed
+  plain:    { cost: { horse: STEP / 2 } },   // open going: cavalry at double speed
+  desert:   { toll: { fish: 1 } },           // every unit needs water to cross
+};
+
 /* Units. `either` is a choice of one resource from the list, on top of `cost`.
    Every attack deals exactly 1 damage whatever the attacker is.
 
    `domain`  where the unit may stand: land units never touch water, boats never touch land.
-   `range`   [min, max] distance in tiles it may strike. A boat's [2, 2] means it cannot
-             hit anything adjacent, which is exactly what makes closing on it the counter.
-   Roads and bridges do not carry armies, so on land each island is its own theatre. */
+   `range`   [min, max] distance in tiles it may strike, or null for a civilian that
+             cannot fight at all. A boat's [2, 2] means it cannot hit anything adjacent,
+             which is exactly what makes closing on it the counter.
+   `perTown` a cap: at most this many of the kind per town the player holds.
+   `trades`  standing on a resource tile adds 1 to that resource whenever it is rolled. */
 export const UNITS = {
-  foot:  { label: "Foot soldier", short: "F", move: 1, lives: 2, domain: "land", range: [1, 1],
+  foot:  { label: "Foot soldier", short: "F", move: STEP, lives: 2, domain: "land", range: [1, 1],
            cost: { wool: 1, wood: 1 }, either: null, home: "town" },
-  horse: { label: "Horseman",     short: "H", move: 2, lives: 2, domain: "land", range: [1, 1],
+  horse: { label: "Horseman",     short: "H", move: 2 * STEP, lives: 2, domain: "land", range: [1, 1],
            cost: { wool: 2, wood: 1 }, either: null, home: "town" },
+  /* The merchant is the whole economy: production is otherwise flat at 1 per roll, and
+     a merchant parked on a resource tile adds 1 more of it. Civilians cannot fight, die
+     to a single hit, and are capped at one per town — so income is bought with territory
+     you have to defend rather than compounding on its own. */
+  merchant:{ label: "Merchant",   short: "M", move: STEP, lives: 1, domain: "land", range: null,
+           cost: { wool: 1, wheat: 1, fish: 1 }, either: null, home: "town",
+           perTown: 1, trades: true },
   /* Artillery: outranges everything but cannot fire close in, so it needs infantry to
      screen it. Damage is permanent — a cannon has no way to repair — but a wounded one
      can still be pulled back, unlike a wounded soldier. */
-  cannon:{ label: "Cannon",       short: "C", move: 1, lives: 2, domain: "land",  range: [2, 3],
+  cannon:{ label: "Cannon",       short: "C", move: STEP, lives: 2, domain: "land",  range: [2, 3],
            cost: { ore: 2 }, either: null, home: "town",
            movesInjured: true, noRevive: true },
   /* Boats launch from a port and must return to one to recover. They keep moving while
      injured — rooting them would make reaching a port impossible. */
-  boat:  { label: "Boat",         short: "B", move: 2, lives: 2, domain: "water", range: [2, 2],
+  boat:  { label: "Boat",         short: "B", move: 2 * STEP, lives: 2, domain: "water", range: [2, 2],
            cost: { wood: 2, wool: 1, ore: 1 }, either: null, home: "port",
            movesInjured: true, reviveAtPort: true },
 };

@@ -1,7 +1,8 @@
 /* All game state and rules. No DOM access lives here, which is what lets the
    whole rule set be driven headlessly from tests (and later from netcode). */
 
-import { PLAYERS, DIE_FACES, RESOURCES, WILD, RULES, COSTS, UNITS, WALL } from "./config.js";
+import { PLAYERS, DIE_FACES, RESOURCES, WILD, RULES, COSTS, UNITS, WALL,
+         TERRAIN_MOVE, STEP } from "./config.js";
 import { TERRAIN, faceSpec, settleable, isWater, isBlocked } from "./terrain.js";
 import { hexDist, neighbours } from "./hex.js";
 
@@ -44,10 +45,13 @@ export const tileById = id => game.board.tiles[id];
 export const townsOf = pi => [...game.towns].filter(([, o]) => o === pi).map(([id]) => tileById(id));
 export const footprint = pi => townsOf(pi).flatMap(t => [t, ...around(t)]);
 
-/* Production is independent of the map: a player gains 1 of the rolled resource per town
-   they hold, whatever terrain that town stands on. Terrain still governs where a town may
-   be founded (see legalTown) — it just no longer decides who gets paid. */
-export const yieldOf = (pi, _res) => townsOf(pi).length;
+/* Production is flat: every player gains 1 of the rolled resource, however many towns
+   they hold. The only way to earn more is to put a merchant on the ground that makes it
+   — so income is bought with territory you have to hold, and never compounds on its own. */
+export const merchantsOf = pi => unitsOf(pi).filter(u => unitSpec(u).trades);
+
+export const yieldOf = (pi, res) => 1 + merchantsOf(pi)
+  .filter(u => tileById(u.tile).terrain === res).length;
 
 /* ---------- placement rules ---------- */
 export function legalTown(t) {
@@ -340,8 +344,17 @@ export function legalLaunch(pi, kind, t) {
   return home.get(t.id) === pi;
 }
 
+/* Some kinds are rationed by how many towns you hold — a merchant per town. */
+export const capOf = (pi, kind) => {
+  const per = UNITS[kind].perTown;
+  return per ? per * townsOf(pi).length : Infinity;
+};
+export const countOf = (pi, kind) => unitsOf(pi).filter(u => u.kind === kind).length;
+export const withinCap = (pi, kind) => countOf(pi, kind) < capOf(pi, kind);
+
 export function legalRecruit(pi, kind, t) {
   if (!legalLaunch(pi, kind, t)) return false;
+  if (!withinCap(pi, kind)) return false;
   return canAffordUnit(pi, kind);
 }
 
@@ -353,6 +366,8 @@ export function recruit(kind, t) {
     game.notice = sitting && sitting.owner !== pi && game.ports.get(t.id) === pi
                   ? "That port is blockaded"
                 : sitting ? "That tile already holds a unit"
+                : !withinCap(pi, kind)
+                  ? `Only ${UNITS[kind].perTown} ${UNITS[kind].label.toLowerCase()} per town`
                 : !legalLaunch(pi, kind, t)
                   ? (UNITS[kind].home === "port" ? "Launch from one of your ports"
                                                  : "Recruit on one of your towns")
@@ -372,7 +387,11 @@ export function recruit(kind, t) {
    are rooted; boats are not, or they could never sail home to a port. */
 export const canMove = u => !u.acted && u.moved < unitSpec(u).move
   && (!injured(u) || !!unitSpec(u).movesInjured);
-export const canAttack = u => !u.acted && u.moved <= unitSpec(u).move - 1;
+/* Room left for one ordinary tile of movement means the unit still has an attack in it:
+   a foot soldier must not have moved at all, a horseman may have spent one tile.
+   A civilian has no range at all and can never attack. */
+export const canAttack = u => !u.acted && !!unitSpec(u).range
+  && u.moved <= unitSpec(u).move - STEP;
 
 export const atPort = u => game.ports.get(u.tile) === u.owner;
 
@@ -428,24 +447,67 @@ export function hasBerth(pi, kind) {
 export const blockaders = pi => portsOf(pi)
   .map(t => unitAt(t.id)).filter(u => u && u.owner !== pi);
 
-export function reachable(u) {
-  const out = new Map();                          // tile id -> steps spent
-  if (!canMove(u)) return out;
-  let frontier = [tileById(u.tile)];
-  for (let step = 1; step <= unitSpec(u).move - u.moved; step++) {
-    const next = [];
-    for (const t of frontier) for (const n of around(t)) {
-      if (n.id === u.tile || out.has(n.id) || !canStand(u, n)) continue;
-      out.set(n.id, step); next.push(n);
-    }
-    frontier = next;
-  }
+/* Terrain effects, per unit kind. Everything unlisted is one step and no toll. */
+export const stepCost = (kind, terrain) => {
+  const rule = TERRAIN_MOVE[terrain];
+  const c = rule && rule.cost && rule.cost[kind];
+  return c === undefined ? STEP : c;
+};
+export const stepToll = terrain => (TERRAIN_MOVE[terrain] || {}).toll || null;
+
+const addToll = (a, b) => {
+  if (!b) return a;
+  const out = { ...a };
+  for (const [k, n] of Object.entries(b)) out[k] = (out[k] || 0) + n;
   return out;
+};
+const tollSize = t => Object.values(t).reduce((a, b) => a + b, 0);
+
+/* Cheapest way to every tile this unit could reach, in steps and in tolls paid along
+   the way. Plains cost a horseman nothing, so this has to be a weighted search rather
+   than a plain ring-by-ring flood: zero-cost ground can carry a rider any distance.
+   Among equal-step routes it prefers the one that pays the smaller toll. */
+export function movePlan(u) {
+  const best = new Map();                         // tile id -> { steps, toll }
+  if (!canMove(u)) return best;
+  const budget = unitSpec(u).move - u.moved;
+  const start = tileById(u.tile);
+  best.set(start.id, { steps: 0, toll: {} });
+
+  const buckets = Array.from({ length: budget + 1 }, () => []);
+  buckets[0].push(start);
+  for (let c = 0; c <= budget; c++) {
+    while (buckets[c].length) {
+      const t = buckets[c].pop();
+      const here = best.get(t.id);
+      if (here.steps !== c) continue;             // superseded by a cheaper route
+      for (const n of around(t)) {
+        if (!canStand(u, n)) continue;
+        const steps = c + stepCost(u.kind, n.terrain);
+        if (steps > budget) continue;
+        const toll = addToll(here.toll, stepToll(n.terrain));
+        if (!canAfford(u.owner, toll)) continue;  // no water, no desert crossing
+        const prev = best.get(n.id);
+        if (prev && (prev.steps < steps
+          || (prev.steps === steps && tollSize(prev.toll) <= tollSize(toll)))) continue;
+        best.set(n.id, { steps, toll });
+        buckets[steps].push(n);
+      }
+    }
+  }
+  best.delete(start.id);
+  return best;
 }
 
+/* The same thing flattened to tile -> steps, which is all most callers want. */
+export const reachable = u =>
+  new Map([...movePlan(u)].map(([id, p]) => [id, p.steps]));
+
 export const inRange = (u, t) => {
-  const [lo, hi] = unitSpec(u).range, d = hexDist(tileById(u.tile), t);
-  return d >= lo && d <= hi;
+  const r = unitSpec(u).range;
+  if (!r) return false;                           // civilians strike nothing
+  const d = hexDist(tileById(u.tile), t);
+  return d >= r[0] && d <= r[1];
 };
 
 /* Enemy units this unit could strike. A boat's [2, 2] means adjacent enemies are safe
@@ -467,9 +529,16 @@ const mine = id => {
 export function moveUnit(id, tid) {
   const u = mine(id);
   if (!u) return false;
-  const steps = reachable(u).get(tid);
-  if (steps === undefined) { game.notice = "That unit cannot reach there"; return false; }
-  u.tile = tid; u.moved += steps; game.notice = "";
+  const plan = movePlan(u).get(tid);
+  if (!plan) { game.notice = "That unit cannot reach there"; return false; }
+  if (!canAfford(u.owner, plan.toll)) {
+    game.notice = `Crossing costs ${costLabel(plan.toll)}`; return false;
+  }
+  pay(u.owner, plan.toll);
+  u.tile = tid; u.moved += plan.steps; game.notice = "";
+  if (tollSize(plan.toll))
+    emit(`<b style="color:${PLAYERS[u.owner].color}">${PLAYERS[u.owner].name}</b>` +
+         ` spends ${costLabel(plan.toll)} crossing the desert`);
   return true;
 }
 

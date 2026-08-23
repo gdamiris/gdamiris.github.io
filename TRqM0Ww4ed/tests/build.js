@@ -392,7 +392,8 @@ section("town construction");
   check("every resource in the cost is paid",
     Object.entries(COSTS.town).every(([k, n]) => G.game.hands[me][k] === before[k] - n));
   check("wool is not part of the cost", G.game.hands[me].wool === before.wool);
-  check("a second town doubles income", G.yieldOf(me, "wood") === income + 1);
+  check("income is flat, whatever the town count", G.yieldOf(me, "wood") === income,
+    "towns buy territory and muster points, not income");
   check("the new town adds its corners to the network",
     b.corners[site.id].every(c => G.networkVerts(me).has(c)));
   check("the new town blocks its own perimeter",
@@ -435,7 +436,7 @@ section("island hopping");
         `${path.length} edges`);
       check("the far island is now reachable", G.legalExpansion(me, target) === true);
       check("the town is founded overseas", G.buildTown(target) === true);
-      check("income counts both islands", G.yieldOf(me, "ore") === 2);
+      check("a second island does not raise income", G.yieldOf(me, "ore") === 1);
       console.log(`  (crossed to island ${target.island} in ${path.length} edges, ` +
         `${path.filter(id => b.edges[id].water).length} of them bridges)`);
     }
