@@ -4,7 +4,7 @@
    The action economy is the fiddly part — a foot soldier moves OR acts, a horseman may
    spend one of its two steps and still attack, and an injured unit cannot move at all. */
 
-import { DIE_FACES, UNITS, COSTS } from "../src/config.js";
+import { RESOURCES, UNITS, COSTS } from "../src/config.js";
 import { settleable, isWater } from "../src/terrain.js";
 import { hexDist } from "../src/hex.js";
 import { generateBoard } from "../src/generate.js";
@@ -35,7 +35,7 @@ function seedTowns(n) {
 }
 
 const DOUBLES = () => 0.01;
-const rich = (pi, v = 99) => DIE_FACES.forEach(f => G.game.hands[pi][f] = v);
+const rich = (pi, v = 99) => RESOURCES.forEach(f => G.game.hands[pi][f] = v);
 const hand = pi => ({ ...G.game.hands[pi] });
 
 function fresh(n = 2) {
@@ -74,23 +74,22 @@ section("recruiting");
 
   check("cannot afford a unit while broke", G.canAffordUnit(me, "foot") === false);
 
-  /* the either-cost really is a choice: wool + wood + one of fish|deer */
-  G.game.hands[me] = { wood: 1, wool: 1, fish: 1, deer: 0, wheat: 0, ore: 0 };
-  check("fish satisfies the either-cost", G.canAffordUnit(me, "foot") === true);
-  G.game.hands[me] = { wood: 1, wool: 1, fish: 0, deer: 1, wheat: 0, ore: 0 };
-  check("deer satisfies the either-cost", G.canAffordUnit(me, "foot") === true);
-  G.game.hands[me] = { wood: 1, wool: 1, fish: 0, deer: 0, wheat: 0, ore: 0 };
-  check("neither fish nor deer blocks it", G.canAffordUnit(me, "foot") === false);
-  G.game.hands[me] = { wood: 0, wool: 1, fish: 1, deer: 1, wheat: 0, ore: 0 };
+  /* infantry costs wool and wood and nothing else */
+  G.game.hands[me] = { wood: 1, wool: 1, fish: 0, wheat: 0, ore: 0 };
+  check("wool and wood alone buy a foot soldier", G.canAffordUnit(me, "foot") === true);
+  check("no fish is needed", G.game.hands[me].fish === 0);
+  check("deer is gone from the game", RESOURCES.includes("deer") === false
+    && !("deer" in G.blankHand()));
+  G.game.hands[me] = { wood: 0, wool: 1, fish: 9, wheat: 9, ore: 9 };
   check("missing wood blocks it", G.canAffordUnit(me, "foot") === false);
-  G.game.hands[me] = { wood: 1, wool: 1, fish: 1, deer: 1, wheat: 0, ore: 0 };
+  G.game.hands[me] = { wood: 1, wool: 0, fish: 9, wheat: 9, ore: 9 };
+  check("missing wool blocks it", G.canAffordUnit(me, "foot") === false);
+  G.game.hands[me] = { wood: 1, wool: 1, fish: 0, wheat: 0, ore: 0 };
   check("1 wool is not enough for a horseman", G.canAffordUnit(me, "horse") === false);
   G.game.hands[me].wool = 2;
   check("2 wool buys a horseman", G.canAffordUnit(me, "horse") === true);
 
-  /* recruiting spends exactly one either-resource, and the larger stock is taken */
   rich(me);
-  G.game.hands[me].deer = 5; G.game.hands[me].fish = 1;
   const before = hand(me);
   const id = G.recruit("foot", home);
   check("recruiting returns a unit id", typeof id === "number");
@@ -100,10 +99,9 @@ section("recruiting");
   check("the unit starts at full lives", u.lives === UNITS.foot.lives && !G.injured(u));
   check("wool and wood are spent",
     G.game.hands[me].wool === before.wool - 1 && G.game.hands[me].wood === before.wood - 1);
-  check("exactly one either-resource is spent",
-    G.game.hands[me].deer === before.deer - 1 && G.game.hands[me].fish === before.fish);
-  check("wheat and ore are untouched",
-    G.game.hands[me].wheat === before.wheat && G.game.hands[me].ore === before.ore);
+  check("nothing else is spent on infantry",
+    RESOURCES.filter(f => f !== "wool" && f !== "wood")
+      .every(f => G.game.hands[me][f] === before[f]));
 
   check("a fresh unit cannot act this turn",
     G.canMove(u) === false && G.canAttack(u) === false);
@@ -233,8 +231,16 @@ section("combat");
   check("it is the victim's turn", G.game.current === victim.owner);
   check("an injured unit cannot move", G.canMove(victim) === false);
   check("an injured unit may still attack", G.canAttack(victim) === true);
+
+  /* repairs are paid for in fish */
+  G.game.hands[victim.owner].fish = 0;
+  check("no fish, no repair", G.canRevive(victim) === false);
+  check("and it says why",
+    G.whyNoRevive(victim) === `Needs ${G.costLabel(COSTS.revive)}`);
+  G.game.hands[victim.owner].fish = 3;
   check("an injured unit may revive", G.canRevive(victim) === true);
   check("reviving works", G.reviveUnit(victim.id) === true);
+  check("the repair cost a fish", G.game.hands[victim.owner].fish === 2);
   check("revival restores full lives", victim.lives === UNITS.horse.lives);
   check("a revived unit is no longer injured", G.injured(victim) === false);
   check("reviving spends the turn", victim.acted === true && G.canAttack(victim) === false);
@@ -322,7 +328,7 @@ section("ports");
   check("the port stands on water", isWater(site));
   check("wood, ore and wheat are paid", Object.entries(COSTS.port)
     .every(([k, n]) => G.game.hands[me][k] === before[k] - n));
-  check("no other resource is spent", DIE_FACES.filter(f => !(f in COSTS.port))
+  check("no other resource is spent", RESOURCES.filter(f => !(f in COSTS.port))
     .every(f => G.game.hands[me][f] === before[f]));
   check("the same tile cannot take two ports", G.buildPort(site) === false);
   check("a port is not a town", G.game.towns.has(site.id) === false);
@@ -512,6 +518,109 @@ section("blockade");
   const foot = place(foe, "foot", G.around(G.townsOf(me)[0]).find(t => settleable(t) && !G.unitAt(t.id)));
   check("enemy towns remain closed",
     G.reachable(foot).has(G.townsOf(me)[0].id) === false);
+}
+
+/* ---------- cannon ---------- */
+section("cannon");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me, home = G.townsOf(me)[0];
+
+  /* the cheapest unit in the game: ore alone */
+  G.game.hands[me] = { wood: 0, wool: 0, fish: 0, wheat: 0, ore: 1 };
+  check("1 ore is not enough", G.canAffordUnit(me, "cannon") === false);
+  G.game.hands[me].ore = 2;
+  check("2 ore buys a cannon", G.canAffordUnit(me, "cannon") === true);
+  check("a cannon needs nothing but ore",
+    RESOURCES.filter(f => f !== "ore").every(f => G.game.hands[me][f] === 0));
+
+  const before = hand(me);
+  const gun = ready("cannon", home);
+  check("the cannon musters on a town", gun.tile === home.id);
+  check("only ore is spent", G.game.hands[me].ore === before.ore - 2
+    && RESOURCES.filter(f => f !== "ore").every(f => G.game.hands[me][f] === before[f]));
+
+  /* range 2 to 3: never adjacent, never 4 out */
+  check("the range band is 2 to 3", G.rangeLabel("cannon") === "2–3");
+  const at = d => b.tiles.find(t => hexDist(t, b.tiles[gun.tile]) === d && !G.unitAt(t.id)
+    && !G.game.towns.has(t.id));
+  const adj = at(1), two = at(2), three = at(3), four = at(4);
+  check("adjacent is out of range", G.inRange(gun, adj) === false);
+  check("2 tiles is in range", G.inRange(gun, two) === true);
+  check("3 tiles is in range", G.inRange(gun, three) === true);
+  check("4 tiles is out of range", G.inRange(gun, four) === false);
+
+  const close = place(foe, "foot", adj);
+  check("an adjacent enemy is not a target", G.targetsOf(gun).includes(close) === false);
+  check("firing on an adjacent enemy is refused", G.attackUnit(gun.id, adj.id) === false);
+  check("the refusal explains the band", G.game.notice === "That unit strikes at 2–3 tiles");
+  check("the refused shot cost nothing", gun.acted === false && close.lives === UNITS.foot.lives);
+
+  const far = place(foe, "horse", three);
+  check("an enemy at 3 is a target", G.targetsOf(gun).includes(far) === true);
+  check("the shot lands", G.attackUnit(gun.id, three.id) === true);
+  check("it deals the standard 1 damage", far.lives === UNITS.horse.lives - 1);
+  check("firing ends the cannon's turn", gun.acted === true);
+
+  /* moving means it cannot fire, exactly like a foot soldier */
+  G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
+  check("the cannon refreshed", G.canMove(gun) === true && G.canAttack(gun) === true);
+  check("a cannon moves 1 tile", [...G.reachable(gun).values()].every(s => s === 1));
+  G.moveUnit(gun.id, [...G.reachable(gun).keys()][0]);
+  check("a cannon that moved cannot fire", G.canAttack(gun) === false);
+}
+
+/* ---------- a cannon never repairs, but can retreat ---------- */
+section("cannon damage");
+{
+  const b = fresh(2);
+  const me = G.game.current, home = G.townsOf(me)[0];
+  rich(me);
+  const gun = ready("cannon", home);
+  gun.lives = 1;
+
+  check("the cannon is injured", G.injured(gun) === true);
+  check("it can never revive", G.canRevive(gun) === false);
+  check("reviving is refused outright", G.reviveUnit(gun.id) === false);
+  check("but a wounded cannon may still move", G.canMove(gun) === true);
+  check("and may still fire", G.canAttack(gun) === true);
+  check("a wounded foot soldier still may not move", (() => {
+    const foot = place(me, "foot", G.around(home).find(t => settleable(t) && !G.unitAt(t.id)));
+    foot.lives = 1;
+    return G.canMove(foot) === false;
+  })());
+
+  const away = [...G.reachable(gun).keys()][0];
+  check("it retreats", G.moveUnit(gun.id, away) === true && gun.tile === away);
+  check("and is still injured after retreating", G.injured(gun) === true);
+}
+
+/* ---------- cannons shell boats ---------- */
+section("cannon versus boat");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me;
+  rich(me);
+
+  /* find a land tile with water 2 or 3 tiles away, and put a gun on it */
+  let gunTile = null, seaTile = null;
+  for (const t of b.tiles) {
+    if (!settleable(t) || G.game.towns.has(t.id) || G.unitAt(t.id)) continue;
+    const target = b.tiles.find(w => isWater(w) && !G.unitAt(w.id)
+      && [2, 3].includes(hexDist(w, t)));
+    if (target) { gunTile = t; seaTile = target; break; }
+  }
+  check("a coastal firing position exists", !!gunTile && !!seaTile);
+
+  if (gunTile) {
+    const gun = place(me, "cannon", gunTile);
+    const target = place(foe, "boat", seaTile);
+    check("a land cannon can target a boat at sea", G.targetsOf(gun).includes(target));
+    check("the shell lands", G.attackUnit(gun.id, seaTile.id) === true);
+    check("the boat is damaged", target.lives === UNITS.boat.lives - 1);
+    check("a cannon stays on land", [...G.reachable(gun).keys()]
+      .every(id => settleable(b.tiles[id])));
+  }
 }
 
 console.log(failures

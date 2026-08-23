@@ -10,7 +10,12 @@ export const BOARD_SIZES = [
   { id: "17,20", label: "Huge — 17 x 20 (340 tiles)",     cols: 17, rows: 20 },
 ];
 
-export const DIE_FACES = ["wood", "deer", "wheat", "wool", "ore", "fish"];
+/* Five resources a player can hold, and a sixth die face that is none of them: the wild.
+   A wild is never held — whoever it pays picks a real resource instead, and the roller
+   always does the picking, for themselves and for the table. */
+export const RESOURCES = ["wood", "wheat", "wool", "ore", "fish"];
+export const WILD = "wild";
+export const DIE_FACES = [...RESOURCES, WILD];
 
 export const PLAYERS = [
   { name: "Crimson", color: "#D6453F" },
@@ -41,8 +46,9 @@ export const TUNING = {
 export const COSTS = {
   road:   { ore: 2 },
   bridge: { wood: 2 },
-  town:   { wheat: 1, ore: 1, wood: 1, fish: 1, deer: 1 },
+  town:   { wheat: 1, ore: 1, wood: 1, fish: 1 },
   port:   { wood: 2, ore: 1, wheat: 1 },
+  revive: { fish: 1 },      // patching up any unit costs a fish
 };
 
 /* Units. `either` is a choice of one resource from the list, on top of `cost`.
@@ -54,10 +60,16 @@ export const COSTS = {
    Roads and bridges do not carry armies, so on land each island is its own theatre. */
 export const UNITS = {
   foot:  { label: "Foot soldier", short: "F", move: 1, lives: 2, domain: "land", range: [1, 1],
-           cost: { wool: 1, wood: 1 }, either: ["fish", "deer"], home: "town" },
+           cost: { wool: 1, wood: 1 }, either: null, home: "town" },
   horse: { label: "Horseman",     short: "H", move: 2, lives: 2, domain: "land", range: [1, 1],
-           cost: { wool: 2, wood: 1 }, either: ["deer", "fish"], home: "town" },
-  /* Boats launch beside a port and must return to one to recover. They keep moving while
+           cost: { wool: 2, wood: 1 }, either: null, home: "town" },
+  /* Artillery: outranges everything but cannot fire close in, so it needs infantry to
+     screen it. Damage is permanent — a cannon has no way to repair — but a wounded one
+     can still be pulled back, unlike a wounded soldier. */
+  cannon:{ label: "Cannon",       short: "C", move: 1, lives: 2, domain: "land",  range: [2, 3],
+           cost: { ore: 2 }, either: null, home: "town",
+           movesInjured: true, noRevive: true },
+  /* Boats launch from a port and must return to one to recover. They keep moving while
      injured — rooting them would make reaching a port impossible. */
   boat:  { label: "Boat",         short: "B", move: 2, lives: 2, domain: "water", range: [2, 2],
            cost: { wood: 2, wool: 1, ore: 1 }, either: null, home: "port",

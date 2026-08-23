@@ -1,15 +1,13 @@
 /* Monoline terrain glyphs, drawn in a 24x24 space and mounted once as an SVG
    sprite sheet. Everything paints in currentColor so each context picks its own ink. */
 
-import { TERRAIN } from "../terrain.js";
+import { faceSpec } from "../terrain.js";
 
 export const ICONS = {
   wood: `<path d="M12 3.2 16.7 10.4 7.3 10.4Z M12 8.4 18.4 17 5.6 17Z" fill="currentColor"/>
          <rect x="11" y="16" width="2" height="5" rx=".6" fill="currentColor"/>`,
-  deer: `<g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-           <path d="M12 21v-8"/><path d="M12 13c0-2.4-1.6-3.6-2.7-5.4"/><path d="M9.3 7.6 7.1 5.2"/>
-           <path d="M9.3 7.6 6.4 8"/><path d="M12 13c0-2.4 1.6-3.6 2.7-5.4"/><path d="M14.7 7.6 16.9 5.2"/>
-           <path d="M14.7 7.6 17.6 8"/></g>`,
+  wild: `<path d="M12 2.6 14.6 9.4 21.4 12 14.6 14.6 12 21.4 9.4 14.6 2.6 12 9.4 9.4Z"
+           fill="currentColor"/>`,
   wheat: `<g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
            <path d="M12 21V7"/><path d="M12 9.5 15.6 6.9M12 9.5 8.4 6.9"/>
            <path d="M12 13.5 15.6 10.9M12 13.5 8.4 10.9"/><path d="M12 17.5 15.6 14.9M12 17.5 8.4 14.9"/></g>`,
@@ -41,4 +39,4 @@ export function mountSprites(el) {
 
 /* Inline glyph for panel contexts. Pass a colour to override the terrain ink. */
 export const glyph = (k, color) =>
-  `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${k}" style="color:${color || TERRAIN[k].ink}"/></svg>`;
+  `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${k}" style="color:${color || faceSpec(k).ink}"/></svg>`;

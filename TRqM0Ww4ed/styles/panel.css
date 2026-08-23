@@ -57,6 +57,16 @@ button:disabled:hover { background: transparent; }
 .die .nm { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
 .die .tag { font-size: 9px; letter-spacing: .1em; color: var(--mute); text-transform: uppercase; }
 
+/* wild: name a resource before anything is paid */
+.wild { margin-top: 8px; border: 1px dashed var(--brass); border-radius: 3px; padding: 8px; }
+.wild .ask { font-size: 11px; color: var(--mute); margin-bottom: 7px; }
+.wild .ask b { color: var(--brass); font-weight: 400; }
+.wild .picks { display: flex; gap: 6px; }
+.wild .pick { flex: 1; padding: 5px; border-color: var(--line); }
+.wild .pick:hover { border-color: var(--brass); }
+.wild .pick .sw { margin: 0 auto; width: 22px; height: 22px; }
+.wild .pick .sw svg { width: 15px; height: 15px; }
+
 /* build costs */
 .build { display: flex; flex-direction: column; gap: 5px; }
 .cost { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--chalk); }

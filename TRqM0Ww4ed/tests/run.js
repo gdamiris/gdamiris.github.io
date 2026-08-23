@@ -1,7 +1,7 @@
 /* Headless checks over the pure modules. No DOM, no browser.
    Run with: node tests/run.js */
 
-import { DIE_FACES, TUNING, RULES, COSTS } from "../src/config.js";
+import { RESOURCES, TUNING, RULES, COSTS } from "../src/config.js";
 import { TERRAIN, isResource, settleable } from "../src/terrain.js";
 import { NB, hexDist } from "../src/hex.js";
 import { generateBoard, tileCounts } from "../src/generate.js";
@@ -40,8 +40,8 @@ for (const [cols, rows] of [[11, 13], [13, 15], [15, 17]]) {
     const b = generateBoard("seed" + i, cols, rows);
     const c = tileCounts(b);
     const tag = `${cols}x${rows} seed${i}`;
-    check("every resource has equal count", new Set(DIE_FACES.map(f => c[f] || 0)).size === 1, tag + " " + DIE_FACES.map(f => c[f] || 0));
-    check("resource count matches board.per", DIE_FACES.every(f => (c[f] || 0) === b.per), tag);
+    check("every resource has equal count", new Set(RESOURCES.map(f => c[f] || 0)).size === 1, tag + " " + RESOURCES.map(f => c[f] || 0));
+    check("resource count matches board.per", RESOURCES.every(f => (c[f] || 0) === b.per), tag);
     check("island count honoured", b.sizes.length === b.islands, `${tag} got ${b.sizes.length}/${b.islands}`);
     check("determinism", JSON.stringify(generateBoard("seed" + i, cols, rows)) === JSON.stringify(b), tag);
     check("no unassigned tiles", b.tiles.every(t => TERRAIN[t.terrain]), tag);
@@ -61,7 +61,7 @@ section("de-clumping");
     }).filter(Boolean);
     return res.reduce((a, t) => a + nb(t).filter(n => n.terrain === t.terrain).length, 0) / res.length;
   };
-  check("counts survive mixing", JSON.stringify(DIE_FACES.map(f => tileCounts(raw)[f])) === JSON.stringify(DIE_FACES.map(f => tileCounts(mix)[f])));
+  check("counts survive mixing", JSON.stringify(RESOURCES.map(f => tileCounts(raw)[f])) === JSON.stringify(RESOURCES.map(f => tileCounts(mix)[f])));
   check("mixing lowers cohesion", cohesion(mix) < cohesion(raw), `${cohesion(raw).toFixed(2)} -> ${cohesion(mix).toFixed(2)}`);
   check("mixing keeps some cohesion", cohesion(mix) > 0.5, cohesion(mix).toFixed(2));
 }
@@ -91,14 +91,23 @@ section("game loop");
         const who = G.game.current;
         G.rollDice();
         if (G.game.awaiting) G.resolveRoll(k % 2);
+        /* a wild pays nothing until the roller names a resource, so the turn cannot end */
+        let guard = 0;
+        while (G.game.needWild) {
+          check("a wild blocks the turn from ending", G.endTurn() === false);
+          check("a wild blocks building", G.canBuild() === false);
+          G.nameWild(RESOURCES[(k + guard) % RESOURCES.length]);
+          if (++guard > 2) break;
+        }
+        check("every wild was named", G.game.needWild === null);
         check("turn waits for endTurn", G.game.current === who);
         check("cannot roll twice in a turn", G.rollDice() === false);
         G.endTurn();
         rolls++;
         check("turn advances", G.game.current === (who + 1) % pc, `${who} -> ${G.game.current}`);
-        check("hands stay finite", G.game.hands.slice(0, pc).every(h => DIE_FACES.every(f => Number.isFinite(h[f]) && h[f] >= 0)));
+        check("hands stay finite", G.game.hands.slice(0, pc).every(h => RESOURCES.every(f => Number.isFinite(h[f]) && h[f] >= 0)));
       }
-      check("yield never exceeds town count", DIE_FACES.every(f =>
+      check("yield never exceeds town count", RESOURCES.every(f =>
         Array.from({ length: pc }, (_, i) => G.yieldOf(i, f)).every(v => v <= G.townsOf(0).length + pc)));
     }
   }
@@ -114,10 +123,10 @@ section("production");
   for (let p = 0; p < 3; p++) G.placeTown(G.game.board.tiles.filter(G.legalTown)[p * 3 + 1]);
 
   check("every player produces every resource", [0, 1, 2].every(i =>
-    DIE_FACES.every(f => G.yieldOf(i, f) === 1)),
-    [0, 1, 2].map(i => DIE_FACES.filter(f => !G.yieldOf(i, f)).join("/")).join(" "));
+    RESOURCES.every(f => G.yieldOf(i, f) === 1)),
+    [0, 1, 2].map(i => RESOURCES.filter(f => !G.yieldOf(i, f)).join("/")).join(" "));
   check("yield ignores the town's own terrain", new Set([0, 1, 2].flatMap(i =>
-    DIE_FACES.map(f => G.yieldOf(i, f)))).size === 1);
+    RESOURCES.map(f => G.yieldOf(i, f)))).size === 1);
 
   /* the roller keeps one face, everyone else takes the other */
   const before = G.game.hands.map(h => ({ ...h }));
@@ -142,7 +151,7 @@ section("keep one, give one");
 
   let n = 0;
   const roller = G.game.current;
-  G.rollDice(() => [0.01, 0.9][n++]);            // wood + fish, distinct
+  G.rollDice(() => [0.01, 0.5][n++]);            // wood + ore, distinct
   check("distinct faces await a choice", G.game.awaiting === true && G.game.doubles === false);
   const [a, b] = G.game.dice;
   G.resolveRoll(0);                              // keep the LEFT die
@@ -170,6 +179,71 @@ function seedTowns(n) {
       : opts[Math.floor(opts.length / 2)];
     G.placeTown(pick);
   }
+}
+
+/* ---- the wild face ---- */
+section("wild");
+{
+  const WILD_IDX = RESOURCES.length;                 // the wild sits last in DIE_FACES
+  const face = i => (i + 0.5) / (RESOURCES.length + 1);
+  const seq = (...idx) => { let n = 0; return () => face(idx[n++ % idx.length]); };
+
+  const setup = () => {
+    G.setBoard(generateBoard("halcyon", 13, 15));
+    G.setPlayers(3);
+    G.startGame();
+    for (let p = 0; p < 3; p++) G.placeTown(G.game.board.tiles.filter(G.legalTown)[p * 3 + 1]);
+  };
+
+  check("wild is a die face but not a resource",
+    RESOURCES.includes("wild") === false && !("wild" in G.blankHand()));
+  check("a hand holds five resources", Object.keys(G.blankHand()).length === 5);
+
+  /* keeping a wild: the roller names their own resource, others take the real face */
+  setup();
+  let roller = G.game.current;
+  G.rollDice(seq(WILD_IDX, 0));                      // wild + wood
+  check("a wild and a resource still offer a choice", G.game.awaiting === true);
+  G.resolveRoll(0);                                  // keep the wild
+  check("keeping a wild asks the roller to name it", G.game.needWild === "mine");
+  check("nothing is paid until it is named",
+    G.game.hands[roller].wood === 0 && G.game.hands[roller].ore === 0);
+  check("a junk name is refused", G.nameWild("nonsense") === false);
+  G.nameWild("ore");
+  check("the roller receives what they named", G.game.hands[roller].ore === 1);
+  check("everyone else takes the real face", [0, 1, 2].filter(i => i !== roller)
+    .every(i => G.game.hands[i].wood === 1));
+  check("no wild is outstanding", G.game.needWild === null && G.canBuild() === true);
+
+  /* giving a wild: the roller names what the table gets */
+  setup();
+  roller = G.game.current;
+  G.rollDice(seq(0, WILD_IDX));                      // wood + wild
+  G.resolveRoll(0);                                  // keep the wood, give the wild
+  check("giving a wild asks the roller to name it", G.game.needWild === "theirs");
+  G.nameWild("wheat");
+  check("the roller took the real face", G.game.hands[roller].wood === 1);
+  check("the table takes what the roller named", [0, 1, 2].filter(i => i !== roller)
+    .every(i => G.game.hands[i].wheat === 1 && G.game.hands[i].wood === 0));
+
+  /* double wild: doubles, but the roller names both sides */
+  setup();
+  roller = G.game.current;
+  G.rollDice(seq(WILD_IDX, WILD_IDX));
+  check("two wilds are doubles", G.game.doubles === true);
+  check("doubles resolve the die choice", G.game.awaiting === false);
+  check("but the roller still owes a name", G.game.needWild === "mine");
+  G.nameWild("ore");
+  check("then owes a second name", G.game.needWild === "theirs");
+  check("still nothing paid", G.game.hands[roller].ore === 0);
+  G.nameWild("fish");
+  check("the roller gets their own pick", G.game.hands[roller].ore === 1);
+  check("the table gets the roller's other pick", [0, 1, 2].filter(i => i !== roller)
+    .every(i => G.game.hands[i].fish === 1 && G.game.hands[i].ore === 0));
+  check("a double wild lets the roller take one thing and give another",
+    G.game.award.mine === "ore" && G.game.award.theirs === "fish");
+  check("the build window opens once both are named", G.canBuild() === true);
+  check("naming when nothing is pending is refused", G.nameWild("wood") === false);
 }
 
 /* ---- edge graph: roads on land, bridges on water, oceans crossable ---- */
@@ -249,7 +323,7 @@ section("expansion");
   G.rollDice(() => 0.01);
 
   const b = G.game.board, me = G.game.current, home = G.townsOf(me)[0];
-  DIE_FACES.forEach(f => G.game.hands[me][f] = 99);
+  RESOURCES.forEach(f => G.game.hands[me][f] = 99);
 
   /* A lone town reaches only its own tile and its 6 neighbours, all of which fail the
      spacing rule — so nothing is settleable until roads carry the network outward. */
@@ -284,7 +358,7 @@ section("expansion");
   if (far) check("unreachable tiles are refused", G.buildTown(far) === false);
 
   /* and poverty blocks founding outright */
-  DIE_FACES.forEach(f => G.game.hands[me][f] = 0);
+  RESOURCES.forEach(f => G.game.hands[me][f] = 0);
   check("cannot found a town while broke", b.tiles.every(t => G.legalExpansion(me, t) === false));
 }
 

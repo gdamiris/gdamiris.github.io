@@ -9,7 +9,7 @@
    tile count, and a de-clumping pass swaps labels (a pure permutation, counts untouched)
    to break up monocultures while leaving small groves intact. */
 
-import { TUNING, DIE_FACES } from "./config.js";
+import { TUNING, RESOURCES } from "./config.js";
 import { TERRAIN, isWater, settleable } from "./terrain.js";
 import { hash, mulberry32, lerp, octaves } from "./rng.js";
 import { NB, px, corner, hexDist } from "./hex.js";
@@ -20,7 +20,7 @@ export function generateBoard(seed, cols, rows, tuning = TUNING) {
   const T = tuning, rng = mulberry32(hash(seed));
   const shape = octaves(rng, 4);                       // island silhouette
   const g = Math.max(2, T.grain);
-  const relief = octaves(rng, g), moist = octaves(rng, g), game = octaves(rng, g);
+  const relief = octaves(rng, g), moist = octaves(rng, g);
   const j = T.scatter / 100, blend = (f, r) => f * (1 - j) + r * j;
 
   const tiles = [], grid = [];
@@ -30,7 +30,7 @@ export function generateBoard(seed, cols, rows, tuning = TUNING) {
       const u = (col + 0.5 * (row & 1)) / cols, v = row / (rows - 1), [x, y] = px(col, row);
       const t = {
         id: tiles.length, col, row, x, y, s: shape(u, v),
-        e: blend(relief(u, v), rng()), m: blend(moist(u, v), rng()), g: blend(game(u, v), rng()),
+        e: blend(relief(u, v), rng()), m: blend(moist(u, v), rng()),
         island: -1, terrain: null,
       };
       grid[row].push(t); tiles.push(t);
@@ -97,10 +97,12 @@ export function generateBoard(seed, cols, rows, tuning = TUNING) {
   tiles.filter(t => t.island < 0).forEach(t => t.terrain = "sea");
 
   /* --- equal-share resources --- */
+  /* Four resources come from land (ore, wool, wheat, wood); fish comes from the sea.
+     Every one of the five ends up with exactly `per` tiles. */
   const bTot = Object.values(T.barrenMix).reduce((a, b) => a + b, 0) || 1;
   let barrenN = Math.min(land.length, Math.round(land.length * T.barren / 100));
-  const per = Math.max(0, Math.floor((land.length - barrenN) / 5));
-  barrenN = land.length - per * 5;                      // remainder absorbed by barren
+  const per = Math.max(0, Math.floor((land.length - barrenN) / 4));
+  barrenN = land.length - per * 4;                      // remainder absorbed by barren
   const need = {}; let used = 0;
   BARREN_ORDER.forEach((k, i) => {
     need[k] = i === BARREN_ORDER.length - 1 ? barrenN - used
@@ -117,9 +119,7 @@ export function generateBoard(seed, cols, rows, tuning = TUNING) {
   for (const [k, n] of [["desert", need.desert], ["plain", need.plain], ["wool", per], ["wheat", per]]) {
     rest.slice(i, i + n).forEach(t => t.terrain = k); i += n;
   }
-  const wet = rest.slice(i).sort((a, b) => b.g - a.g);
-  wet.slice(0, per).forEach(t => t.terrain = "deer");
-  wet.slice(per).forEach(t => t.terrain = "wood");
+  rest.slice(i).forEach(t => t.terrain = "wood");       // the wettest ground left over
 
   /* --- de-clump: only excess adjacency is penalised, so groves survive --- */
   if (T.mixing > 0) {
@@ -166,7 +166,7 @@ export function generateBoard(seed, cols, rows, tuning = TUNING) {
   }));
   const sizes = size.filter(n => n > 0).sort((a, b) => b - a);
 
-  tiles.forEach(t => { delete t.e; delete t.m; delete t.g; delete t.s; });
+  tiles.forEach(t => { delete t.e; delete t.m; delete t.s; });
   return {
     seed, cols, rows, islands: N, tuning: { ...T }, tiles, per, sizes,
     verts: vertXY, edges: edgeList, corners,
@@ -182,7 +182,8 @@ export const tileCounts = board => {
   return c;
 };
 
+/* Only real resources have tiles — the wild face never does. */
 export const deadFaces = board => {
   const c = tileCounts(board);
-  return DIE_FACES.filter(f => !c[f]);
+  return RESOURCES.filter(f => !c[f]);
 };

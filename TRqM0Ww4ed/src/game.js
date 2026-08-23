@@ -1,11 +1,12 @@
 /* All game state and rules. No DOM access lives here, which is what lets the
    whole rule set be driven headlessly from tests (and later from netcode). */
 
-import { PLAYERS, DIE_FACES, RULES, COSTS, UNITS } from "./config.js";
-import { TERRAIN, settleable, isWater, isBlocked } from "./terrain.js";
+import { PLAYERS, DIE_FACES, RESOURCES, WILD, RULES, COSTS, UNITS } from "./config.js";
+import { TERRAIN, faceSpec, settleable, isWater, isBlocked } from "./terrain.js";
 import { hexDist, neighbours } from "./hex.js";
 
-export const blankHand = () => Object.fromEntries(DIE_FACES.map(f => [f, 0]));
+/* Hands hold real resources only — a wild is chosen, never stored. */
+export const blankHand = () => Object.fromEntries(RESOURCES.map(f => [f, 0]));
 
 export const game = {
   board: null,
@@ -20,7 +21,9 @@ export const game = {
   awaiting: false,          // a die still needs choosing
   dice: [null, null],
   keptIndex: null,
-  doubles: false,           // both faces matched, so there was no choice to make
+  doubles: false,           // both faces matched, so there was no die choice to make
+  pick: { mine: null, theirs: null },  // the faces in play, wilds resolved to resources
+  needWild: null,           // "mine" | "theirs" — which wild the roller still has to name
   award: null,              // what the last roll actually paid, for the panel to show
   rolled: false,            // the current player has rolled, so building is open to them
   roads: new Map(),         // edge id -> { owner, bridge }
@@ -110,7 +113,8 @@ export function networkVerts(pi) {
   return v;
 }
 
-export const canBuild = () => game.phase === "play" && game.rolled && !game.awaiting;
+export const canBuild = () =>
+  game.phase === "play" && game.rolled && !game.awaiting && !game.needWild;
 
 export function legalEdge(pi, id, net = networkVerts(pi)) {
   const e = edgeById(id);
@@ -279,9 +283,28 @@ export const canAttack = u => !u.acted && u.moved <= unitSpec(u).move - 1;
 
 export const atPort = u => game.ports.get(u.tile) === u.owner;
 
+/* Patching a unit up costs a fish, whatever the unit is. */
 export const canRevive = u => {
-  if (u.acted || u.moved !== 0 || !injured(u)) return false;
-  return unitSpec(u).reviveAtPort ? atPort(u) : true;
+  const spec = unitSpec(u);
+  if (spec.noRevive || u.acted || u.moved !== 0 || !injured(u)) return false;
+  if (!canAfford(u.owner, COSTS.revive)) return false;
+  return spec.reviveAtPort ? atPort(u) : true;
+};
+
+export function whyNoRevive(u) {
+  const spec = unitSpec(u);
+  if (spec.noRevive) return `Damage to a ${spec.label.toLowerCase()} is permanent`;
+  if (!injured(u)) return "Not damaged";
+  if (!canAfford(u.owner, COSTS.revive)) return `Needs ${costLabel(COSTS.revive)}`;
+  if (spec.reviveAtPort && !atPort(u)) return "Sail back into one of your ports";
+  if (u.moved !== 0 || u.acted) return "Already acted this turn";
+  return "";
+}
+
+/* "1" for melee, "2" for a single band, "2–3" for a spread. */
+export const rangeLabel = kind => {
+  const [lo, hi] = UNITS[kind].range;
+  return lo === hi ? `${lo}` : `${lo}–${hi}`;
 };
 
 /* Where a unit may stand: its own domain, and empty. Towns are closed to enemies, but
@@ -351,8 +374,7 @@ export function attackUnit(id, tid) {
   const target = unitAt(tid);
   if (!target || target.owner === u.owner) { game.notice = "Nothing to attack there"; return false; }
   if (!inRange(u, tileById(tid))) {
-    const [lo, hi] = unitSpec(u).range;
-    game.notice = lo === hi ? `That unit strikes at exactly ${lo} tiles` : "Target is out of range";
+    game.notice = `That unit strikes at ${rangeLabel(u.kind)} tiles`;
     return false;
   }
 
@@ -368,7 +390,9 @@ export function attackUnit(id, tid) {
 
 export function reviveUnit(id) {
   const u = mine(id);
-  if (!u || !canRevive(u)) return false;
+  if (!u) return false;
+  if (!canRevive(u)) { game.notice = whyNoRevive(u); return false; }
+  pay(u.owner, COSTS.revive);
   u.lives = unitSpec(u).lives; u.acted = true; game.notice = "";
   emit(`<b style="color:${PLAYERS[u.owner].color}">${PLAYERS[u.owner].name}</b>'s ${unitSpec(u).label.toLowerCase()} recovers`);
   return true;
@@ -381,6 +405,7 @@ function clearRound() {
   game.towns = new Map(); game.turn = 0; game.turnNo = 0; game.current = 0;
   game.roller = null; game.awaiting = false; game.dice = [null, null];
   game.keptIndex = null; game.doubles = false; game.award = null;
+  game.pick = { mine: null, theirs: null }; game.needWild = null;
   game.rolled = false; game.roads = new Map();
   game.units = new Map(); game.nextUnit = 1; game.ports = new Map();
   game.notice = ""; game.varietyReq = RULES.MIN_VARIETY;
@@ -419,27 +444,59 @@ export function placeTown(t) {
 export function rollDice(rand = Math.random) {
   if (game.phase !== "play" || game.awaiting || game.rolled) return false;
   game.rolled = true;
-  game.dice = [DIE_FACES[Math.floor(rand() * 6)], DIE_FACES[Math.floor(rand() * 6)]];
+  const n = DIE_FACES.length;
+  game.dice = [DIE_FACES[Math.floor(rand() * n)], DIE_FACES[Math.floor(rand() * n)]];
   game.keptIndex = null; game.awaiting = true; game.roller = game.current;
-  game.notice = ""; game.award = null;
+  game.notice = ""; game.award = null; game.needWild = null;
+  game.pick = { mine: null, theirs: null };
   const [a, b] = game.dice;
   game.doubles = a === b;
-  emit(`<b>Turn ${game.turnNo}</b> · ${PLAYERS[game.current].name} rolled ${TERRAIN[a].label} + ${TERRAIN[b].label}`);
+  emit(`<b>Turn ${game.turnNo}</b> · ${PLAYERS[game.current].name} rolled ${faceSpec(a).label} + ${faceSpec(b).label}`);
   /* Doubles are not a special rule — there is simply nothing to choose between two
-     identical faces, so everybody produces that resource and the turn resolves itself.
-     The panel must say so rather than mark die 0 as a deliberate keep. */
-  if (game.doubles) { emit(`Doubles — no choice, everyone produces ${TERRAIN[a].label}`); resolveRoll(0); }
+     identical faces, so the turn resolves itself. Two wilds are still doubles, but the
+     roller then names both resources, so the choice moves rather than disappearing. */
+  if (game.doubles) {
+    emit(a === WILD
+      ? `Double wild — ${PLAYERS[game.current].name} names both resources`
+      : `Doubles — no choice, everyone produces ${faceSpec(a).label}`);
+    resolveRoll(0);
+  }
   return true;
 }
 
-/* The roller keeps one die; the other resource goes to everyone else. */
+/* The roller keeps one die; the other resource goes to everyone else. A kept wild has to
+   be named before anything is paid, and so does a given one — the roller chooses both,
+   which is what makes a double wild the strongest roll in the game rather than a dud. */
 export function resolveRoll(keepIdx) {
   if (!game.awaiting) return false;
   if (game.roller === null) game.roller = game.current;
-  const who = game.roller;                      // the roller keeps, not whoever is current
-  const mine = game.dice[keepIdx], theirs = game.dice[1 - keepIdx];
   game.keptIndex = keepIdx;
+  game.awaiting = false;
+  game.pick = { mine: game.dice[keepIdx], theirs: game.dice[1 - keepIdx] };
+  return settlePicks();
+}
 
+/* Ask for the next outstanding wild, or pay out once both faces are real resources. */
+function settlePicks() {
+  for (const slot of ["mine", "theirs"]) {
+    if (game.pick[slot] === WILD) { game.needWild = slot; return true; }
+  }
+  game.needWild = null;
+  payOut();
+  return true;
+}
+
+export function nameWild(res) {
+  if (!game.needWild || !RESOURCES.includes(res)) return false;
+  const slot = game.needWild;
+  game.pick[slot] = res;
+  emit(`${PLAYERS[game.roller].name} names ${TERRAIN[res].label} ${slot === "mine" ? "for themselves" : "for everyone else"}`);
+  return settlePicks();
+}
+
+function payOut() {
+  const who = game.roller;                      // the roller keeps, not whoever is current
+  const { mine, theirs } = game.pick;
   const parts = [];
   let kept = 0, given = 0;
   for (let i = 0; i < game.playerCount; i++) {
@@ -451,15 +508,10 @@ export function resolveRoll(keepIdx) {
   }
   game.award = { roller: who, mine, theirs, kept, given, doubles: game.doubles };
   emit(parts.length ? "→ " + parts.join(", ") : "→ nobody produces");
-
-  /* The turn does NOT pass here any more — the roller now gets a build window and
-     ends the turn explicitly. */
-  game.awaiting = false;
-  return true;
 }
 
 export function endTurn() {
-  if (game.phase !== "play" || game.awaiting || !game.rolled) return false;
+  if (game.phase !== "play" || game.awaiting || game.needWild || !game.rolled) return false;
   game.rolled = false;
   game.turnNo++;
   game.current = (game.current + 1) % game.playerCount;

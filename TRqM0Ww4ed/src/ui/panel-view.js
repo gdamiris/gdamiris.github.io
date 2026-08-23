@@ -1,10 +1,10 @@
 /* Draws the side panel: turn colour, player chips and hands, dice, legend, stats, log. */
 
-import { PLAYERS, DIE_FACES, COSTS, UNITS } from "../config.js";
-import { TERRAIN } from "../terrain.js";
+import { PLAYERS, RESOURCES, COSTS, UNITS } from "../config.js";
+import { TERRAIN, faceSpec } from "../terrain.js";
 import { tileCounts, deadFaces } from "../generate.js";
 import { game, canBuild, canAfford, canAffordUnit, canMove, canAttack, canRevive,
-         injured, unitsOf, portsOf, atPort, hasBerth, blockaders } from "../game.js";
+         injured, unitsOf, portsOf, atPort, hasBerth, blockaders, rangeLabel } from "../game.js";
 import { glyph } from "./icons.js";
 import { ui } from "./state.js";
 
@@ -36,7 +36,7 @@ function renderChips() {
         <span class="dot" style="background:${p.color}"></span>${p.name}
         <span class="done">${label}</span>
       </div>
-      ${game.phase === "play" ? `<div class="hand">${DIE_FACES.map(f =>
+      ${game.phase === "play" ? `<div class="hand">${RESOURCES.map(f =>
         `<span class="${hand[f] ? "" : "zero"}">${glyph(f, TERRAIN[f].color)}${hand[f]}</span>`).join("")}</div>` : ""}`;
   }).join("");
 }
@@ -65,11 +65,13 @@ function renderStatus() {
 function renderDice() {
   const rc = game.roller === null ? "var(--brass)" : PLAYERS[game.roller].color;
   const a = game.award;
-  $("dice").innerHTML = game.dice.map((f, i) => {
+  const dice = game.dice.map((f, i) => {
     if (!f) return `<div class="die"><div class="nm muted">—</div></div>`;
     /* On doubles nobody chose, so neither die may be dressed up as a deliberate keep. */
     const isKept = !game.doubles && game.keptIndex === i;
+    const spec = faceSpec(f);
     const tag = game.awaiting ? "click to keep"
+              : game.needWild ? "naming…"
               : !a ? "—"
               : a.doubles ? `everyone +${a.kept + a.given}`
               : isKept ? `${PLAYERS[a.roller].name} +${a.kept}`
@@ -77,11 +79,28 @@ function renderDice() {
     return `<div class="die ${isKept ? "keep" : ""} ${!game.awaiting && a && a.doubles ? "dbl" : ""}"
         ${game.awaiting ? "data-armed" : ""} data-i="${i}"
         style="${isKept ? `border-color:${rc};box-shadow:inset 0 0 0 1px ${rc}` : ""}">
-        <div class="face" style="background:${TERRAIN[f].color}">${glyph(f)}</div>
-        <div class="nm">${TERRAIN[f].label}</div>
+        <div class="face" style="background:${spec.color}">${glyph(f)}</div>
+        <div class="nm">${spec.label}</div>
         <div class="tag" style="${isKept && game.roller !== null ? `color:${rc}` : ""}">${tag}</div>
       </div>`;
   }).join("");
+  $("dice").innerHTML = dice;
+  renderWild();
+}
+
+/* A wild pays nothing until the roller names a real resource — for themselves first,
+   then for the table. */
+function renderWild() {
+  const slot = game.needWild;
+  $("wild").innerHTML = !slot ? "" :
+    `<div class="wild">
+       <div class="ask">Wild — name a resource
+         <b>${slot === "mine" ? "for yourself" : "for everyone else"}</b></div>
+       <div class="picks">${RESOURCES.map(r =>
+         `<button class="pick" data-wild="${r}" title="${TERRAIN[r].label}">
+            <span class="sw" style="background:${TERRAIN[r].color}">${glyph(r)}</span>
+          </button>`).join("")}</div>
+     </div>`;
 }
 
 /* The three costs, greyed out until the current player can actually pay them.
@@ -158,9 +177,10 @@ function renderArmy() {
         <div><b>${spec.label}</b> · ${sel.lives}/${spec.lives} lives
           ${injured(sel) ? `<span class="bad">injured</span>` : ""}</div>
         <div class="can">${can.length ? `can ${can.join(" or ")}` : "spent for this turn"}
-          ${spec.range[0] > 1 ? ` · strikes at ${spec.range[0]}` : ""}</div>
+          ${spec.range[0] > 1 ? ` · strikes at ${rangeLabel(sel.kind)}` : ""}</div>
         ${canRevive(sel) ? `<button class="wide" data-order="revive">Revive</button>` : ""}
         ${stranded ? `<div class="hint">Sail back into one of your ports to repair</div>` : ""}
+        ${injured(sel) && spec.noRevive ? `<div class="hint">Damage to a ${spec.label.toLowerCase()} is permanent</div>` : ""}
       </div>`;
   }
   const warning = siege.length

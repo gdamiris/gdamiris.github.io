@@ -107,4 +107,11 @@ $("dice").onclick = e => {
   render();
 };
 
+$("wild").onclick = e => {
+  const p = e.target.closest("[data-wild]");
+  if (!p) return;
+  G.nameWild(p.dataset.wild);
+  render();
+};
+
 regenerate();

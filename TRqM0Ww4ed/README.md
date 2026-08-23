@@ -65,10 +65,20 @@ every other town — a town blocks all six of its neighbours.
 hold, whatever terrain that town stands on. Terrain governs where you may build, not who
 gets paid.
 
-**A turn is roll → keep → build → end.** You roll two resource dice and keep one; the
-other resource goes to everyone else. Two matching faces are not a special rule, there is
-simply nothing to choose, so everyone produces that resource and the roll resolves itself.
-You then build as much as you can afford and end the turn explicitly.
+**There are five resources and six die faces.** Wood, wheat, wool, ore and fish are the
+things a player can hold; the sixth face is the **wild**, which is never held. Whenever a
+wild is in play the roller names a real resource in its place — for themselves if they
+kept it, for the table if they gave it away.
+
+**A turn is roll → keep → build → end.** You roll two dice and keep one; the other face
+goes to everyone else. Two matching faces are not a special rule, there is simply nothing
+to choose, so everyone produces that resource and the roll resolves itself. You then build
+as much as you can afford and end the turn explicitly.
+
+**Double wild is the strongest roll in the game.** It is still doubles — no die to choose —
+but because both faces need naming, the roller picks one resource for themselves *and a
+different one for everyone else*. Nothing is paid until both are named, and neither
+building nor ending the turn is possible while a wild is outstanding.
 
 **Roads and bridges run along hex edges and meet at corners.** A town blocks its own
 hexagon's perimeter, so it has exactly six ways out — one radiating edge per corner (fewer
@@ -88,16 +98,24 @@ existing town.
 |---|---|
 | road | 2 ore |
 | bridge | 2 wood |
-| town | 1 wheat + 1 ore + 1 wood + 1 fish + 1 deer |
+| town | 1 wheat + 1 ore + 1 wood + 1 fish |
 | port | 2 wood + 1 ore + 1 wheat |
+| repairing any unit | 1 fish |
 
 **Units are what wool buys.** Recruit on a town you own; one unit to a tile, and a fresh
-unit is spent on arrival, so it takes orders from its owner's next turn.
+unit is spent on arrival, so it takes orders from its owner's next turn. Wool is the
+infantry tax — foot, horse and boat all need it, the cannon does not. **Fish is the medical
+supply**: patching up any damaged unit costs 1 fish, on top of whatever else that unit's
+repair requires.
+
+`UNITS` still supports an `either` field (a choice of one resource from a list, on top of
+the fixed cost), but no unit uses it any more.
 
 | unit | cost | move | strikes at | mustered on |
 |---|---|---|---|---|
-| foot soldier | 1 wool + 1 wood + 1 fish **or** deer | 1 tile | 1 | your town |
-| horseman | 2 wool + 1 wood + 1 deer **or** fish | 2 tiles | 1 | your town |
+| foot soldier | 1 wool + 1 wood | 1 tile | 1 | your town |
+| horseman | 2 wool + 1 wood | 2 tiles | 1 | your town |
+| cannon | 2 ore | 1 tile | **2–3** | your town |
 | boat | 2 wood + 1 wool + 1 ore | 2 tiles | **exactly 2** | your port |
 
 **A port** costs 2 wood + 1 ore + 1 wheat and sits **on the water** — a sea or fish tile
@@ -117,6 +135,12 @@ boat and to repair one, so while an enemy occupies it you can do neither — and
 damaged boats cannot get home. The blockader gets no benefit from the harbour either; it
 can only repair in a port of its own. Breaking a siege means killing the boat, which takes
 two hits from something that can reach it.
+
+**The cannon is artillery.** It is the cheapest unit in the game at 2 ore, moves 1 tile,
+and shells anything 2 or 3 tiles away — including boats out at sea. It cannot fire on an
+adjacent enemy, so it needs infantry screening it; get under its guns and it is helpless.
+It also has no way to repair: damage to a cannon is permanent. Unlike a wounded soldier it
+is not rooted, so a crippled gun can still be pulled back, it just never recovers.
 
 **Boats trade reach for vulnerability.** A boat strikes at *exactly* 2 tiles and can hit
 land units, so it bombards coasts — but it cannot touch anything adjacent, while an
@@ -157,7 +181,7 @@ size, and the `TUNING` object to derive a byte-identical map.
     npm test          # all three suites
     node tests/run.js       # geometry, generation, turn loop
     node tests/build.js     # roads, bridges, town construction (82 checks)
-    node tests/units.js     # recruiting, movement, combat, ports, boats (117 checks)
+    node tests/units.js     # recruiting, combat, ports, boats, cannon (169 checks)
 
 `tests/build.js` covers construction specifically, and most of it asserts what must be
 **refused**: building outside the window, on an occupied edge, on a town's perimeter, off
@@ -174,7 +198,9 @@ shot at an adjacent enemy is refused *and costs it nothing*, and a damaged boat 
 but can only repair in a port. It also checks that open ocean with no land beside it is
 never a harbour, and covers the blockade from both sides: an enemy boat may enter your
 port but gains no repair from it, you can neither launch nor sail home while it sits
-there, and lifting the siege restores both.
+there, and lifting the siege restores both. For the cannon it walks the whole range band —
+adjacent refused, 2 and 3 allowed, 4 refused — confirms a land gun can shell a boat at
+sea, and checks that a wounded cannon can retreat but never repairs.
 
 Covers hex geometry against true distances, generation invariants across seeds and
 sizes (equal resource counts, island count, determinism), the de-clumping pass

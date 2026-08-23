@@ -4,7 +4,7 @@
    These are the rules that are easiest to break by accident, because most of them are
    about what must be REFUSED rather than what must work. */
 
-import { DIE_FACES, COSTS, RULES } from "../src/config.js";
+import { RESOURCES, COSTS, RULES } from "../src/config.js";
 import { isWater, settleable } from "../src/terrain.js";
 import { hexDist } from "../src/hex.js";
 import { generateBoard } from "../src/generate.js";
@@ -38,7 +38,7 @@ function seedTowns(n) {
 }
 
 const DOUBLES = () => 0.01;                       // wood + wood: resolves itself
-const SPLIT = (n => () => [0.01, 0.9][n++ % 2])(0); // wood + fish: leaves a choice
+const SPLIT = (n => () => [0.01, 0.5][n++ % 2])(0); // wood + ore: leaves a choice
 
 /* A board with `n` players settled and the current player's build window open. */
 function fresh(n = 2, seed = "halcyon") {
@@ -50,8 +50,8 @@ function fresh(n = 2, seed = "halcyon") {
   return G.game.board;
 }
 
-const rich   = (pi, v = 999) => DIE_FACES.forEach(f => G.game.hands[pi][f] = v);
-const broke  = pi => DIE_FACES.forEach(f => G.game.hands[pi][f] = 0);
+const rich   = (pi, v = 999) => RESOURCES.forEach(f => G.game.hands[pi][f] = v);
+const broke  = pi => RESOURCES.forEach(f => G.game.hands[pi][f] = 0);
 const hand   = pi => ({ ...G.game.hands[pi] });
 const pass   = (rand = DOUBLES) => { G.endTurn(); G.rollDice(rand); };
 const openTo = (pi, net = G.networkVerts(pi)) =>
@@ -170,7 +170,7 @@ section("roads");
   check("the road is built", G.buildEdge(road.id) === true);
   check("2 ore is deducted", G.game.hands[me].ore === before.ore - 2);
   check("nothing else is spent",
-    DIE_FACES.filter(f => f !== "ore").every(f => G.game.hands[me][f] === before[f]));
+    RESOURCES.filter(f => f !== "ore").every(f => G.game.hands[me][f] === before[f]));
   check("the road is recorded to its owner", G.game.roads.get(road.id).owner === me);
   check("a land edge is not flagged as a bridge", G.game.roads.get(road.id).bridge === false);
   check("the network gains the far vertex", G.networkVerts(me).size === 7);
@@ -382,7 +382,7 @@ section("conservation");
       const site = b.tiles.find(t => G.legalExpansion(pi, t));
       if (site && !G.buildTown(site)) illegalBuilds++;
     }
-    if (G.game.hands.some(h => DIE_FACES.some(f => h[f] < 0))) negative++;
+    if (G.game.hands.some(h => RESOURCES.some(f => h[f] < 0))) negative++;
     pass(turn % 3 === 0 ? SPLIT : DOUBLES);
     if (G.game.awaiting) G.resolveRoll(turn % 2);
   }
