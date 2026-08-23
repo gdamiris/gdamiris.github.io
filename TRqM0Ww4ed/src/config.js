@@ -55,6 +55,7 @@ export const COSTS = {
   port:   { wood: 2, ore: 1, wheat: 1 },
   revive: { fish: 1 },      // patching up any unit costs a fish
   wall:   { ore: 2, wood: 2 },
+  townRepair: { wood: 1 },  // 1 life back, once per town per turn
   /* what a spy can do, none of which is an attack */
   peek:        { wheat: 1 },           // is there a king in that town?
   steal:       { wheat: 1 },           // take 1 of whatever the town's own tile makes
@@ -98,12 +99,14 @@ export const TERRAIN_MOVE = {
              cannot fight at all. A boat's [2, 2] means it cannot hit anything adjacent,
              which is exactly what makes closing on it the counter.
    `perTown` a cap: at most this many of the kind per town the player holds.
+   `mends`   can act as a work crew. Only a foot soldier can: manning walls and rebuilding
+             is infantry work, and it is the job cavalry cannot cover.
    `trades`  standing on a resource tile adds 1 to that resource whenever it is rolled. */
 export const UNITS = {
   /* Armies eat, and that is what stops wood being the only face worth keeping: rations
      and fodder carry a third of wood's demand across to fish and wheat. */
   foot:  { label: "Foot soldier", short: "F", move: STEP, lives: 2, domain: "land", range: [1, 1],
-           cost: { wool: 1, fish: 1 }, either: null, home: "town" },
+           cost: { wool: 1, fish: 1 }, either: null, home: "town", mends: true },
   horse: { label: "Horseman",     short: "H", move: RIDE, lives: 2, domain: "land", range: [1, 1],
            cost: { wool: 2, wheat: 1 }, either: null, home: "town" },
   /* The merchant is the whole economy: production is otherwise flat at 1 per roll, and
@@ -141,6 +144,10 @@ export const UNITS = {
 export const RULES = {
   TOWNS_AT_START: 2,  // towns each player founds before play, one per round, snaking back
   FAMINE_PER:     5,  // on a double wild, one card is lost for every this many held
+  TOWN_LIFE:      2,  // a town's own life, before garrison and roads
+  TOWN_LINK_CAP:  2,  // most life a road network can add, however many towns it joins
+  TRADE_BASE:     6,  // give this many of one resource to get 1 of another
+  TRADE_FLOOR:    2,  // however many towns you hold, trade never gets cheaper than this
   MIN_TOWN_GAP:  2,   // no two towns within this many tiles
   MIN_FOOTPRINT: 1,   // own tile + ring must be at least this many tiles
   MIN_VARIETY:   1,   // ...covering at least this many distinct resources

@@ -213,6 +213,57 @@ kills it and the income dies with it; it cannot attack anything; and you may hol
 traders stand on. A merchant on barren ground earns nothing — and since fish is a water
 tile, working a fish bed means bridging out to it first.
 
+**Towns can be stormed and razed.** A town's life is `RULES.TOWN_LIFE` (2), plus one for
+each of its owner's other towns joined to it by their own roads — capped at
+`TOWN_LINK_CAP` (2), so a large empire's capital does not become unkillable. Measured on a
+real board, towns end up linked to 0–4 others with a median of 2, and about a fifth are
+joined to nothing at all.
+
+**A garrison adds its own remaining lives.** Defenders absorb blows first, so the town only
+starts taking damage once they are dead — which is the same arithmetic, and means wounding
+the garrison weakens the place. Civilians man no walls: a merchant or spy in a town adds
+nothing and does not shield it.
+
+| a town | life |
+|---|---|
+| isolated, empty — a frontier outpost | 2 |
+| median town, two roads to neighbours | 4 |
+| the same, with a healthy foot soldier | 6 |
+| …behind a wall | + 4 more, and only siege can breach it |
+
+Rebuilding costs **1 wood for 1 life, once per town per turn** — the same shape as mending
+a wall, so a defender with timber can out-repair a single attacker but not two.
+
+**A town beaten to nothing is conquered, not destroyed.** It stays on the map and stays its
+owner's — it still links roads, still counts against the merchant cap, still blocks new
+towns nearby, and can still shelter a king. What it loses is the two things that make a
+town worth holding: it **musters nobody**, and it stops helping its owner **trade**. Its
+gates also stand open, so an enemy may march in and hold it.
+
+Its owner can win it back: drive the occupier off, get a foot soldier in, and rebuild it a
+life a turn. Territory changes hands more than once a game rather than draining away.
+
+**A town does one job a turn — it musters or it repairs, never both.** And repairs need
+hands: only a **foot soldier** standing in the town can rebuild it or mend its wall. A
+horseman cannot, a cannon cannot, and a civilian certainly cannot. An undefended town
+cannot repair at all.
+
+**Anyone may trade at `TRADE_BASE` to 1** — six of one resource for one of another. Holding
+the right ground makes it cheaper: every town of yours standing **on** that resource takes
+1 off, and 1 more if that town is joined by your roads to another of your towns. It never
+falls below `TRADE_FLOOR` (2).
+
+| ore, for a player who… | rate |
+|---|---|
+| holds no town on ore | 6 : 1 |
+| holds one ore town | 5 : 1 |
+| …and it is road-linked | 4 : 1 |
+| holds a second linked ore town | 2 : 1 (floor) |
+
+**Conquest is an attack on the economy.** A conquered town stops counting for its owner's
+rate, and once an enemy is standing in it, it counts for *theirs* instead. Taking a town
+is a raid on trade as much as on territory.
+
 **Every player has one king**, seated in one of their towns once the draft is over, and
 re-seated in a *different* town if it is ever killed. A player who owes a king must seat
 it before they may roll. There are two ways to take one: conquering the town — not built

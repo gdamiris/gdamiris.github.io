@@ -6,7 +6,8 @@ import { tileCounts, deadFaces } from "../generate.js";
 import { game, canBuild, canAfford, canAffordUnit, canMove, canAttack, canRevive,
          injured, unitsOf, portsOf, atPort, hasBerth, blockaders, rangeLabel,
          canRepairWall, wallsOf, sheltered, withinCap, countOf, capOf,
-         townsOf, merchantsOf, owesKing, isSpy, spyTargets, kingOf, stealable } from "../game.js";
+         townsOf, merchantsOf, owesKing, isSpy, spyTargets, kingOf, stealable,
+         canRepairTown, townLife, townMaxLife, tradeRatio, canTrade } from "../game.js";
 import { glyph } from "./icons.js";
 import { ui } from "./state.js";
 
@@ -17,6 +18,7 @@ export function renderPanel() {
   renderStatus();
   renderDice();
   renderBuild();
+  renderTrade();
   renderArmy();
   renderLegend();
   renderStats();
@@ -67,6 +69,9 @@ function renderStatus() {
     : owesKing(game.current)
       ? `${PLAYERS[game.current].name}: seat a new king — click a different town`
     : game.phase === "play" ? (game.awaiting ? `Turn ${game.turnNo} — ${PLAYERS[game.current].name}: keep one die`
+                            : game.needWild  ? `Turn ${game.turnNo} — name the wild`
+                            : game.rolled && game.award && game.award.famine
+                              ? `Famine — nobody produced; 1 lost per ${RULES.FAMINE_PER} held`
                             : game.rolled    ? `Turn ${game.turnNo} — ${PLAYERS[game.current].name}: build or end turn`
                                              : `Turn ${game.turnNo} — ${PLAYERS[game.current].name} to roll`)
     : "Pick player count, then start";
@@ -160,11 +165,15 @@ function renderBuild() {
     arm("port", "Port", COSTS.port, open && canAfford(pi, COSTS.port)) +
     arm("wall", "Wall", COSTS.wall, open && canAfford(pi, COSTS.wall)) +
     (wallsOf(pi).length ? arm("mend", "Repair wall", WALL.repair, mendable) + wallList(pi) : "") +
+    (hurtTowns(pi).length
+      ? arm("rebuild", "Rebuild town", COSTS.townRepair,
+            open && hurtTowns(pi).some(t => canRepairTown(pi, t))) + townList(pi) : "") +
     `<div class="hint">${!open
       ? (game.phase === "play" ? "Roll first" : "No game running")
       : ui.build === "port" ? "Click an outlined water tile beside land"
       : ui.build === "wall" ? "Click one of your towns to wall it"
       : ui.build === "mend" ? "Click an outlined wall — one life per turn"
+      : ui.build === "rebuild" ? "Click an outlined town — one life per turn"
       : "Click a highlighted edge or circled tile"}</div>`;
 }
 
@@ -194,6 +203,23 @@ function spyOrders(sel) {
         : `${towns} town${towns > 1 ? "s" : ""} in reach`}</div>`;
 }
 
+/* Towns that have taken a beating, weakest first, so a siege is never a surprise. */
+const hurtTowns = pi => townsOf(pi).filter(t => townLife(t) < townMaxLife(t));
+
+function townList(pi) {
+  return `<div class="walls">${hurtTowns(pi)
+    .sort((a, b) => townLife(a) - townLife(b))
+    .map(t => {
+      const life = townLife(t), max = townMaxLife(t);
+      return `<div class="wallrow hurt">
+         <span class="where">${t.col},${t.row}</span>
+         <span class="bar">${Array.from({ length: max }, (_, i) =>
+           `<i class="${i < life ? "on" : ""}"></i>`).join("")}</span>
+         <span class="n">${life}/${max}</span>
+       </div>`;
+    }).join("")}</div>`;
+}
+
 /* Your walls and how much of each is left standing, so their strength is never something
    you had to be watching the log to know. */
 function wallList(pi) {
@@ -206,6 +232,33 @@ function wallList(pi) {
          `<i class="${i < w.lives ? "on" : ""}"></i>`).join("")}</span>
        <span class="n">${w.lives}/${WALL.lives}</span>
      </div>`).join("")}</div>`;
+}
+
+/* Trade is two-step: pick what you are giving, then what you want back. The rate for
+   each resource is shown up front, since holding the right ground is what lowers it. */
+function renderTrade() {
+  const open = canBuild(), pi = game.current;
+  const rates = RESOURCES.map(r => {
+    const rate = tradeRatio(pi, r), armed = ui.give === r;
+    const can = open && game.hands[pi][r] >= rate;
+    return `<button class="rate ${armed ? "armed" : ""}" data-give="${r}"
+        ${can ? "" : "disabled"} title="${TERRAIN[r].label}: ${rate} for 1">
+        <span class="sw" style="background:${TERRAIN[r].color}">${glyph(r)}</span>
+        <span class="n">${rate}</span>
+      </button>`;
+  }).join("");
+
+  const wants = !ui.give ? "" : `<div class="picks">${RESOURCES
+    .filter(r => r !== ui.give)
+    .map(r => `<button class="pick" data-want="${r}" title="${TERRAIN[r].label}"
+        ${canTrade(pi, ui.give, r) ? "" : "disabled"}>
+        <span class="sw" style="background:${TERRAIN[r].color}">${glyph(r)}</span>
+      </button>`).join("")}</div>`;
+
+  $("trade").innerHTML = `<div class="rates">${rates}</div>${wants}
+    <div class="hint">${!open ? "Roll first"
+      : ui.give ? `Give ${tradeRatio(pi, ui.give)} ${TERRAIN[ui.give].label} — pick what you want`
+      : "A town on the ground takes 1 off, its roads 1 more"}</div>`;
 }
 
 /* Recruiting is two-step: arm a unit kind here, then click one of your towns.

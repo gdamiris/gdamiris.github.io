@@ -5,7 +5,7 @@
    spend one of its two steps and still attack, and a unit recruited this turn may march
    but not strike. Anything that can move at all can always move, wounded or fresh. */
 
-import { RESOURCES, UNITS, COSTS, WALL, STEP } from "../src/config.js";
+import { RESOURCES, UNITS, COSTS, WALL, STEP, RULES } from "../src/config.js";
 import { settleable, isWater } from "../src/terrain.js";
 import { hexDist } from "../src/hex.js";
 import { generateBoard } from "../src/generate.js";
@@ -62,6 +62,8 @@ function fresh(n = 2, prefer = null) {
 /* Recruit and then hand the unit a full turn: a fresh unit may march but not strike, so
    clearing `fresh` is what makes it a veteran for the purposes of a fixture. */
 function ready(kind, tile) {
+  /* a town does one job a turn now; fixtures muster freely and the rule is tested alone */
+  G.game.busy.delete(tile.id);
   const id = G.recruit(kind, tile);
   const u = G.game.units.get(id);
   u.moved = 0; u.acted = false; u.fresh = false;
@@ -369,6 +371,366 @@ section("merchants");
       && G.game.units.has(solo.id) === false;
   })());
   check("and the income goes with it", RESOURCES.every(f => G.yieldOf(me, f) === 1));
+}
+
+/* ---------- town life ---------- */
+section("town life");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me;
+  rich(me);
+  const mine0 = G.townsOf(me)[0];
+
+  check("an unlinked town is worth its base", G.townMaxLife(mine0) === RULES.TOWN_LIFE,
+    `${G.townMaxLife(mine0)}`);
+  check("it starts undamaged", G.townLife(mine0) === G.townMaxLife(mine0));
+  check("no roads means no links", G.linkedTowns(me, mine0) === 0);
+  check("an empty tile has no life", G.townMaxLife(
+    b.tiles.find(t => settleable(t) && !G.game.towns.has(t.id))) === 0);
+
+  /* roads between your own towns add life, up to the cap */
+  const other = G.townsOf(me).find(t => t.id !== mine0.id);
+  const path = [];
+  {
+    const adj = new Map();
+    for (const e of b.edges) {
+      if (e.tiles.some(x => G.game.towns.has(x))) continue;
+      if (!adj.has(e.a)) adj.set(e.a, []); if (!adj.has(e.b)) adj.set(e.b, []);
+      adj.get(e.a).push([e.b, e.id]); adj.get(e.b).push([e.a, e.id]);
+    }
+    const goal = new Set(b.corners[other.id]), prev = new Map();
+    const seen = new Set(b.corners[mine0.id]), q = [...b.corners[mine0.id]];
+    while (q.length) {
+      const v = q.shift();
+      if (goal.has(v)) { for (let u = v; prev.has(u); u = prev.get(u)[0]) path.unshift(prev.get(u)[1]); break; }
+      for (const [n, eid] of adj.get(v) || []) {
+        if (seen.has(n)) continue; seen.add(n); prev.set(n, [v, eid]); q.push(n);
+      }
+    }
+  }
+  check("a route between your towns exists", path.length > 0);
+  path.forEach(id => G.game.roads.set(id, { owner: me, bridge: b.edges[id].water }));
+  check("the towns are now linked", G.linkedTowns(me, mine0) === 1);
+  check("and each is worth one more", G.townMaxLife(mine0) === RULES.TOWN_LIFE + 1);
+  check("the link is mutual", G.townMaxLife(other) === RULES.TOWN_LIFE + 1);
+  check("an opponent's roads do not count", (() => {
+    path.forEach(id => G.game.roads.set(id, { owner: foe, bridge: b.edges[id].water }));
+    const n = G.linkedTowns(me, mine0);
+    path.forEach(id => G.game.roads.set(id, { owner: me, bridge: b.edges[id].water }));
+    return n === 0;
+  })());
+
+  /* a fighting garrison adds its remaining lives; a civilian adds nothing */
+  check("an empty town defends with its own life alone",
+    G.townDefence(mine0) === G.townLife(mine0));
+  const guard = place(me, "foot", mine0);
+  check("a soldier is a garrison", G.garrisonOf(mine0) === guard);
+  check("and adds its lives", G.townDefence(mine0) === G.townLife(mine0) + guard.lives);
+  guard.lives = 1;
+  check("a wounded garrison adds less", G.townDefence(mine0) === G.townLife(mine0) + 1);
+  G.game.units.delete(guard.id);
+
+  const trader = place(me, "merchant", mine0);
+  check("a civilian is no garrison", G.garrisonOf(mine0) === null);
+  check("and adds nothing", G.townDefence(mine0) === G.townLife(mine0));
+  G.game.units.delete(trader.id);
+}
+
+/* ---------- storming a town ---------- */
+section("storming");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me;
+  rich(me);
+  const target = G.townsOf(foe)[0];
+  const post = G.around(target).find(t => settleable(t) && !G.unitAt(t.id) && !G.game.towns.has(t.id));
+  check("a staging tile exists", !!post);
+  if (!post) throw new Error("nowhere to attack from");
+
+  const ram = place(me, "foot", post);
+  check("the town is a target", G.townTargetsOf(ram).includes(target.id));
+  check("your own towns are never targets",
+    G.townTargetsOf(ram).every(id => G.game.towns.get(id) !== me));
+
+  const max = G.townMaxLife(target);
+  for (let hit = 1; hit <= max; hit++) {
+    ram.moved = 0; ram.acted = false;
+    check(`blow ${hit} lands`, G.attackUnit(ram.id, target.id) === true);
+    if (hit < max) check(`town down to ${max - hit}`, G.townLife(target) === max - hit);
+  }
+  /* conquered, not destroyed: it stays on the map and stays its owner's */
+  check("the town has fallen", G.townFallen(target) === true);
+  check("but it is still on the map", G.game.towns.get(target.id) === foe);
+  check("its owner keeps the count", G.townsOf(foe).length === RULES.TOWNS_AT_START);
+  check("the attacker did not move in", ram.tile === post.id);
+  check("it musters nobody now", G.legalRecruit(foe, "foot", target) === false);
+  check("and cannot be beaten further", G.townTargetsOf(ram).includes(target.id) === false);
+  check("its gates stand open to the enemy", (() => {
+    const scout = place(me, "foot", post);
+    const ok = G.canStand(scout, target);
+    G.game.units.delete(scout.id);
+    return ok;
+  })(), "an enemy may occupy a conquered town");
+  check("a standing town stays closed", (() => {
+    const whole = G.townsOf(foe).find(t => !G.townFallen(t));
+    if (!whole) return true;
+    const scout = place(me, "foot", post);
+    const ok = G.canStand(scout, whole) === false;
+    G.game.units.delete(scout.id);
+    return ok;
+  })());
+
+  /* a garrison has to be cleared first */
+  const second = G.townsOf(foe)[0];
+  if (second) {
+    const post2 = G.around(second).find(t => settleable(t) && !G.unitAt(t.id) && !G.game.towns.has(t.id));
+    if (post2) {
+      const defender = place(foe, "foot", second);
+      const attacker = place(me, "foot", post2);
+      check("a garrisoned town is not a town target",
+        G.townTargetsOf(attacker).includes(second.id) === false);
+      check("but the garrison is a unit target",
+        G.targetsOf(attacker).includes(defender));
+      const life = G.townLife(second);
+      G.attackUnit(attacker.id, second.id);
+      check("the blow fell on the garrison", defender.lives === UNITS.foot.lives - 1);
+      check("and the town is untouched", G.townLife(second) === life);
+    }
+  }
+}
+
+/* ---------- a wall must fall before the town ---------- */
+section("siege order");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me;
+  rich(me); rich(foe);
+  const target = G.townsOf(foe)[0];
+  G.game.walls.set(target.id, { owner: foe, lives: 1, repaired: false });
+
+  const post = b.tiles.find(t => settleable(t) && !G.unitAt(t.id) && !G.game.towns.has(t.id)
+    && hexDist(t, target) === 2);
+  check("a firing position exists", !!post);
+  if (post) {
+    const gun = place(me, "cannon", post);
+    check("the town is shielded while the wall stands",
+      G.townTargetsOf(gun).includes(target.id) === false);
+    check("but the wall is a target", G.wallTargetsOf(gun).includes(target.id));
+    G.attackUnit(gun.id, target.id);
+    check("the wall is breached", G.game.walls.has(target.id) === false);
+    check("and the town is now exposed", (() => {
+      gun.moved = 0; gun.acted = false;
+      return G.townTargetsOf(gun).includes(target.id);
+    })());
+    const life = G.townLife(target);
+    G.attackUnit(gun.id, target.id);
+    check("the next shot hits the town", G.townLife(target) === life - 1);
+  }
+}
+
+/* ---------- rebuilding, and razing a king out of house and home ---------- */
+section("rebuilding");
+{
+  const b = fresh(2);
+  const me = G.game.current;
+  rich(me);
+  const t = G.townsOf(me)[0];
+
+  check("an unharmed town needs no rebuilding", G.canRepairTown(me, t) === false);
+  check("and says so", G.whyNoTownRepair(me, t) === "That town is unharmed");
+
+  /* repairs need hands: a foot soldier or horseman standing in the town */
+  G.game.townHurt.set(t.id, 1);
+  check("a damaged town with nobody in it cannot be worked on",
+    G.canRepairTown(me, t) === false);
+  check("and says what it needs",
+    G.whyNoTownRepair(me, t) === "Needs a foot soldier or horseman in the town");
+  const idle = place(me, "merchant", t);
+  check("a merchant is no work crew", G.workCrew(me, t) === null
+    && G.canRepairTown(me, t) === false);
+  G.game.units.delete(idle.id);
+  const gun = place(me, "cannon", t);
+  check("nor is a cannon", G.workCrew(me, t) === null && G.canRepairTown(me, t) === false);
+  G.game.units.delete(gun.id);
+  const crew = place(me, "foot", t);
+  check("a foot soldier is", G.workCrew(me, t) === crew);
+  G.game.townHurt.delete(t.id);
+
+  G.game.townHurt.set(t.id, 1);
+  check("a damaged town shows it", G.townLife(t) === G.townMaxLife(t) - 1);
+  G.game.hands[me].wood = 0;
+  check("no timber, no rebuilding", G.canRepairTown(me, t) === false);
+  check("and it says why",
+    G.whyNoTownRepair(me, t) === `Needs ${G.costLabel(COSTS.townRepair)}`);
+
+  G.game.hands[me].wood = 4;
+  check("rebuilding works", G.repairTown(t) === true);
+  check("a life comes back", G.townLife(t) === G.townMaxLife(t));
+  check("it cost timber", G.game.hands[me].wood === 3);
+  check("only one course a turn", G.canRepairTown(me, t) === false);
+  check("a fully mended town reports itself unharmed",
+    G.whyNoTownRepair(me, t) === "That town is unharmed");
+
+  /* the allowance is per turn, so the crew must wait for their next one */
+  G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
+  check("back to the owner", G.game.current === me);
+  check("the allowance came back", G.mendedThisTurn(t) === false);
+
+  G.game.townHurt.set(t.id, 2);
+  check("a badly damaged town can be worked on", G.repairTown(t) === true);
+  check("one life at a time", G.townLife(t) === G.townMaxLife(t) - 1);
+  check("and no more this turn", G.canRepairTown(me, t) === false);
+  check("which is why it is refused",
+    G.whyNoTownRepair(me, t) === "Something there has already been repaired this turn");
+  check("a second attempt fails", G.repairTown(t) === false);
+
+  /* the masons are back next turn */
+  G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
+  check("back to the owner", G.game.current === me);
+  check("rebuilding is available again", G.canRepairTown(me, t) === true);
+
+  /* a conquered town stays on the map, and keeps its king */
+  const seat = b.tiles[G.game.kings.get(me)];
+  G.game.townHurt.set(seat.id, G.townMaxLife(seat));
+  check("the town is still there", G.game.towns.get(seat.id) === me);
+  check("but it has fallen", G.townFallen(seat) === true && G.townLife(seat) === 0);
+  check("the king still sits in it", G.game.kings.get(me) === seat.id);
+  check("and nobody owes a new one", G.owesKing(me) === false);
+}
+
+/* ---------- trade ---------- */
+section("trade");
+{
+  const b = fresh(2, t => RESOURCES.includes(t.terrain));
+  const me = G.game.current, foe = 1 - me;
+  rich(me);
+
+  const home = G.townsOf(me).find(t => RESOURCES.includes(t.terrain));
+  check("a town on producing ground exists", !!home);
+  const res = home ? home.terrain : "wood";
+  const bare = RESOURCES.find(f => !G.townsOf(me).some(t => t.terrain === f));
+
+  check("a resource you hold no town on trades at base",
+    bare ? G.tradeRatio(me, bare) === RULES.TRADE_BASE : true, `${bare}`);
+  check("a town on the ground takes one off",
+    G.tradeRatio(me, res) === RULES.TRADE_BASE - 1, `${res} at ${G.tradeRatio(me, res)}`);
+
+  /* roads take one more off */
+  const other = G.townsOf(me).find(t => t.id !== home.id);
+  {
+    const adj = new Map();
+    for (const e of b.edges) {
+      if (e.tiles.some(x => G.game.towns.has(x))) continue;
+      if (!adj.has(e.a)) adj.set(e.a, []); if (!adj.has(e.b)) adj.set(e.b, []);
+      adj.get(e.a).push([e.b, e.id]); adj.get(e.b).push([e.a, e.id]);
+    }
+    const goal = new Set(b.corners[other.id]), prev = new Map();
+    const seen = new Set(b.corners[home.id]), q = [...b.corners[home.id]];
+    while (q.length) { const v = q.shift();
+      if (goal.has(v)) { for (let u = v; prev.has(u); u = prev.get(u)[0])
+        G.game.roads.set(prev.get(u)[1], { owner: me, bridge: b.edges[prev.get(u)[1]].water }); break; }
+      for (const [n, eid] of adj.get(v) || []) { if (seen.has(n)) continue;
+        seen.add(n); prev.set(n, [v, eid]); q.push(n); } }
+  }
+  check("a road link takes another off",
+    G.tradeRatio(me, res) === RULES.TRADE_BASE - 2, `${res} at ${G.tradeRatio(me, res)}`);
+  check("it never drops below the floor", RESOURCES
+    .every(f => G.tradeRatio(me, f) >= RULES.TRADE_FLOOR));
+
+  /* the swap itself */
+  const rate = G.tradeRatio(me, res);
+  const want = RESOURCES.find(f => f !== res);
+  G.game.hands[me][res] = rate - 1;
+  check("one short and the trade is refused", G.trade(res, want) === false);
+  check("and it says the rate", G.game.notice === `Needs ${rate} ${res} to get 1 ${want}`);
+
+  G.game.hands[me][res] = rate;
+  const had = G.game.hands[me][want];
+  check("at the rate it goes through", G.trade(res, want) === true);
+  check("the given resource is spent", G.game.hands[me][res] === 0);
+  check("and one of the wanted comes back", G.game.hands[me][want] === had + 1);
+  check("trading a resource for itself is refused", G.trade(want, want) === false);
+  check("the opponent's ratio is their own",
+    G.tradeRatio(foe, res) === RULES.TRADE_BASE
+    || G.townsOf(foe).some(t => t.terrain === res));
+}
+
+/* ---------- occupying a conquered town ---------- */
+section("occupation");
+{
+  const b = fresh(2, t => RESOURCES.includes(t.terrain));
+  const me = G.game.current, foe = 1 - me;
+  rich(me);
+
+  const prize = G.townsOf(foe).find(t => RESOURCES.includes(t.terrain));
+  check("the enemy holds producing ground", !!prize);
+  if (prize) {
+    const res = prize.terrain;
+    const theirs0 = G.tradeRatio(foe, res), mine0 = G.tradeRatio(me, res);
+    check("its owner trades that resource cheaper", theirs0 < RULES.TRADE_BASE);
+
+    /* beat it down */
+    G.game.townHurt.set(prize.id, G.townMaxLife(prize));
+    check("the town has fallen", G.townFallen(prize) === true);
+    check("its owner loses the discount", G.tradeRatio(foe, res) === RULES.TRADE_BASE);
+    check("but nobody else has gained it yet", G.tradeHolder(prize) === null);
+    check("and the attacker's ratio is untouched", G.tradeRatio(me, res) === mine0);
+
+    /* walk in */
+    const post = G.around(prize).find(t => settleable(t) && !G.unitAt(t.id) && !G.game.towns.has(t.id));
+    if (post) {
+      const occupier = place(me, "foot", post);
+      check("an enemy may enter it", G.reachable(occupier).has(prize.id) === true);
+      G.moveUnit(occupier.id, prize.id);
+      check("the occupier is standing in it", occupier.tile === prize.id);
+      check("the trade now counts for the occupier", G.tradeHolder(prize) === me);
+      check("whose ratio improves", G.tradeRatio(me, res) < mine0,
+        `${mine0} -> ${G.tradeRatio(me, res)}`);
+      check("while the owner stays at base", G.tradeRatio(foe, res) === RULES.TRADE_BASE);
+
+      /* and the owner can win it back once the occupier is gone */
+      G.game.units.delete(occupier.id);
+      check("with the town empty nobody holds it", G.tradeHolder(prize) === null);
+      const crew = place(foe, "foot", prize);
+      check("a returning crew may repair it", G.canRepairTown(foe, prize) === true
+        || G.game.hands[foe].wood === 0);
+      G.game.hands[foe].wood = 3;
+      G.game.current = foe; G.game.rolled = true;
+      check("rebuilding works", G.repairTown(prize) === true);
+      check("it stands again", G.townFallen(prize) === false);
+      check("and its owner has the discount back", G.tradeRatio(foe, res) < RULES.TRADE_BASE);
+      G.game.units.delete(crew.id);
+    }
+  }
+}
+
+/* ---------- a town does one job a turn ---------- */
+section("one job a turn");
+{
+  const b = fresh(2);
+  const me = G.game.current;
+  rich(me);
+  const t = G.townsOf(me).find(x => !G.unitAt(x.id));
+
+  check("a fresh town is free to work", G.townBusy(t) === false);
+  const id = G.recruit("foot", t);
+  check("mustering works", typeof id === "number");
+  check("and spends the town's turn", G.townBusy(t) === true);
+  G.game.townHurt.set(t.id, 1);
+  check("so it cannot also repair", G.canRepairTown(me, t) === false);
+  check("and says why",
+    G.whyNoTownRepair(me, t) === "Something there has already been repaired this turn");
+
+  /* the other way round */
+  G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
+  check("the town is free again", G.townBusy(t) === false);
+  const crew = G.game.units.get(id);
+  crew.tile = t.id;                                  // the garrison is the work crew
+  check("repairing works", G.repairTown(t) === true);
+  check("and spends the turn", G.townBusy(t) === true);
+  const spare = G.townsOf(me).find(x => x.id !== t.id && !G.unitAt(x.id));
+  if (spare) check("another town is unaffected", G.townBusy(spare) === false
+    && G.legalRecruit(me, "foot", spare) === true);
 }
 
 /* ---------- kings ---------- */
@@ -1385,6 +1747,7 @@ section("wall repair");
   rich(me);
   G.buildWall(home);
   const w = G.wallAt(home.id);
+  const crew = place(me, "foot", home);          // repairs need hands now
 
   check("an intact wall needs no repair", G.canRepairWall(me, home) === false);
   check("and it says so", G.whyNoWallRepair(me, home) === "That wall is intact");
@@ -1399,10 +1762,20 @@ section("wall repair");
   check("repairing works", G.repairWall(home) === true);
   check("one life is restored", w.lives === 2);
   check("one ore is spent", G.game.hands[me].ore === 4);
-  check("only one course per turn", G.canRepairWall(me, home) === false);
+  check("only one repair per turn", G.canRepairWall(me, home) === false);
   check("a second repair is refused", G.repairWall(home) === false);
   check("and it says why",
-    G.game.notice === "That wall has been repaired this turn");
+    G.game.notice === "Something there has already been repaired this turn");
+  /* the allowance is shared: having mended the wall, the masonry must wait too */
+  G.game.townHurt.set(home.id, 1);
+  check("the town cannot also be rebuilt this turn", G.canRepairTown(me, home) === false);
+  G.game.townHurt.delete(home.id);
+  check("and without a crew nothing can be repaired at all", (() => {
+    G.game.units.delete(crew.id);
+    const no = G.canRepairWall(me, home) === false;
+    G.game.units.set(crew.id, crew);
+    return no;
+  })());
 
   /* next turn the masons are back */
   G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);

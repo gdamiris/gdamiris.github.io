@@ -74,6 +74,9 @@ boardSvg.onclick = e => {
   const rampart = hit("[data-wall]");
   if (rampart) { G.buildWall(G.game.board.tiles[+rampart.dataset.wall]); ui.build = null; return render(); }
 
+  const rebuilt = hit("[data-rebuild]");
+  if (rebuilt) { G.repairTown(G.game.board.tiles[+rebuilt.dataset.rebuild]); return render(); }
+
   const mend = hit("[data-mend]");
   if (mend) { G.repairWall(G.game.board.tiles[+mend.dataset.mend]); return render(); }
 
@@ -115,6 +118,13 @@ $("army").onclick = e => {
   /* spy work is two-step: arm it here, then click the brass-outlined town */
   ui.spyAct = ui.spyAct === order.dataset.order ? null : order.dataset.order;
   render();
+};
+
+$("trade").onclick = e => {
+  const g = e.target.closest("[data-give]");
+  if (g) { ui.give = ui.give === g.dataset.give ? null : g.dataset.give; return render(); }
+  const w = e.target.closest("[data-want]");
+  if (w) { G.trade(ui.give, w.dataset.want); ui.give = null; render(); }
 };
 
 $("build").onclick = e => {

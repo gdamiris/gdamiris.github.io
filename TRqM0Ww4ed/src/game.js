@@ -33,6 +33,8 @@ export const game = {
   nextUnit: 1,
   ports: new Map(),         // tile id -> player index
   walls: new Map(),         // tile id -> { owner, lives, repaired }
+  townHurt: new Map(),      // tile id -> damage taken by the town itself
+  busy: new Set(),          // towns that have spent their turn — repairing OR mustering
   kings: new Map(),         // player index -> tile id of the town they sit in
   crown: null,              // { player, from } — a king owed, after an assassination
   notice: "",               // transient feedback for the status line
@@ -98,6 +100,147 @@ export function ensureSites() {
     game.varietyReq--;
     emit(`No sites left — variety requirement relaxed to ${game.varietyReq}`);
   }
+}
+
+/* ---------- town life ---------- */
+
+/* How many of this player's OTHER towns share a road component with this one. Walking
+   the built edges rather than networkVerts is the point: owning many towns counts for
+   nothing, joining them up is what counts. */
+export function linkedTowns(pi, t) {
+  const adj = new Map();
+  for (const [id, r] of game.roads) {
+    if (r.owner !== pi) continue;
+    const e = edgeById(id);
+    if (!adj.has(e.a)) adj.set(e.a, []);
+    if (!adj.has(e.b)) adj.set(e.b, []);
+    adj.get(e.a).push(e.b); adj.get(e.b).push(e.a);
+  }
+  const corners = game.board.corners;
+  const seen = new Set(corners[t.id]), q = [...corners[t.id]];
+  while (q.length) for (const n of adj.get(q.pop()) || [])
+    if (!seen.has(n)) { seen.add(n); q.push(n); }
+  return townsOf(pi).filter(o => o.id !== t.id && corners[o.id].some(c => seen.has(c))).length;
+}
+
+/* A town's own life: its base, plus what its roads are worth, capped. */
+export const townMaxLife = t => {
+  const pi = game.towns.get(t.id);
+  if (pi === undefined) return 0;
+  return RULES.TOWN_LIFE + Math.min(linkedTowns(pi, t), RULES.TOWN_LINK_CAP);
+};
+const hurtOf = tid => game.townHurt.get(tid) || 0;
+export const townLife = t => Math.max(0, townMaxLife(t) - hurtOf(t.id));
+
+/* Repairs need hands. Only a foot soldier or a horseman standing in the town can do the
+   work — a cannon is a siege engine and a civilian is no use on the walls. And a town
+   gets ONE repair a turn, wall OR masonry, never both: two stacking repairs made a
+   defended town impossible for a lone attacker to make any progress against at all. */
+export const workCrew = (pi, t) => {
+  const u = unitAt(t.id);
+  return u && u.owner === pi && !!unitSpec(u).mends ? u : null;
+};
+/* A town does one job a turn: it either repairs or it musters, never both. */
+export const townBusy = t => game.busy.has(t.id);
+export const mendedThisTurn = townBusy;
+
+/* Anything standing in the town that will actually fight adds its remaining lives to
+   what an attacker has to chew through. Civilians man no walls and add nothing. */
+export const garrisonOf = t => {
+  const u = unitAt(t.id);
+  return u && game.towns.get(t.id) === u.owner && !!unitSpec(u).range ? u : null;
+};
+export const townDefence = t => townLife(t) + (garrisonOf(t) ? garrisonOf(t).lives : 0);
+
+export function canRepairTown(pi, t) {
+  if (!t || game.towns.get(t.id) !== pi) return false;
+  if (!hurtOf(t.id) || mendedThisTurn(t) || !workCrew(pi, t)) return false;
+  return canAfford(pi, COSTS.townRepair);
+}
+
+export function whyNoTownRepair(pi, t) {
+  if (!t || !game.towns.has(t.id)) return "No town there";
+  if (game.towns.get(t.id) !== pi) return "That is not your town";
+  if (!hurtOf(t.id)) return "That town is unharmed";
+  if (mendedThisTurn(t)) return "Something there has already been repaired this turn";
+  if (!workCrew(pi, t)) return "Needs a foot soldier or horseman in the town";
+  return `Needs ${costLabel(COSTS.townRepair)}`;
+}
+
+export function repairTown(t) {
+  if (!canBuild()) return false;
+  const pi = game.current;
+  if (!canRepairTown(pi, t)) { game.notice = whyNoTownRepair(pi, t); return false; }
+  pay(pi, COSTS.townRepair);
+  game.townHurt.set(t.id, hurtOf(t.id) - 1);
+  game.busy.add(t.id);
+  game.notice = "";
+  emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> rebuilds a town (${townLife(t)}/${townMaxLife(t)})`);
+  return true;
+}
+
+/* A town beaten down to nothing is CONQUERED, not destroyed. It stays on the map and
+   stays its owner's: it still links roads, still counts against the merchant cap, still
+   blocks new towns nearby, and can still shelter a king. What it loses is the two things
+   that make a town worth holding — it can muster nobody, and it stops helping its owner
+   trade. And its gates stand open, so an enemy may walk in and hold it. */
+export const townFallen = t => game.towns.has(t.id) && townLife(t) <= 0;
+
+/* Who a town's trade counts for: its owner while it stands, the occupier once it has
+   fallen and somebody else is standing in it, and nobody while it lies empty. */
+export function tradeHolder(t) {
+  const owner = game.towns.get(t.id);
+  if (owner === undefined) return null;
+  if (!townFallen(t)) return owner;
+  const u = unitAt(t.id);
+  return u && u.owner !== owner ? u.owner : null;
+}
+
+/* A player's towns may be worked on again when their turn comes round. */
+const refreshTowns = pi => {
+  for (const id of [...game.busy]) if (game.towns.get(id) === pi) game.busy.delete(id);
+};
+
+/* ---------- trade ---------- */
+
+/* Anyone may swap resources at TRADE_BASE to 1, and holding the right ground makes the
+   swap cheaper: every town of yours standing ON that resource takes 1 off, and 1 more if
+   that town is joined by your roads to another of your towns. A conquered town helps
+   whoever is standing in it, not the player whose name is on it — so taking a town is a
+   raid on its owner's economy as much as on their army. Never cheaper than TRADE_FLOOR. */
+export function tradeTowns(pi, res) {
+  return [...game.towns.keys()].map(tileById)
+    .filter(t => t.terrain === res && tradeHolder(t) === pi);
+}
+
+export function tradeRatio(pi, res) {
+  let off = 0;
+  for (const t of tradeTowns(pi, res)) {
+    off += 1;                                       // the town itself
+    if (linkedTowns(game.towns.get(t.id), t) > 0) off += 1;   // and its roads
+  }
+  return Math.max(RULES.TRADE_FLOOR, RULES.TRADE_BASE - off);
+}
+
+export const canTrade = (pi, give, get) =>
+  give !== get && RESOURCES.includes(give) && RESOURCES.includes(get)
+  && game.hands[pi][give] >= tradeRatio(pi, give);
+
+export function trade(give, get) {
+  if (!canBuild()) return false;
+  const pi = game.current;
+  if (give === get) { game.notice = "Trade needs two different resources"; return false; }
+  const rate = tradeRatio(pi, give);
+  if (!canTrade(pi, give, get)) {
+    game.notice = `Needs ${rate} ${give} to get 1 ${get}`;
+    return false;
+  }
+  game.hands[pi][give] -= rate;
+  game.hands[pi][get] += 1;
+  game.notice = "";
+  emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b>` +
+       ` trades ${rate} ${TERRAIN[give].label} for 1 ${TERRAIN[get].label}`);
+  return true;
 }
 
 /* ---------- kings ---------- */
@@ -345,8 +488,9 @@ export function buildWall(t) {
 
 export function canRepairWall(pi, t) {
   const w = t && game.walls.get(t.id);
-  return !!w && w.owner === pi && w.lives < WALL.lives && !w.repaired
-      && canAfford(pi, WALL.repair);
+  if (!w || w.owner !== pi || w.lives >= WALL.lives) return false;
+  if (mendedThisTurn(t) || !workCrew(pi, t)) return false;
+  return canAfford(pi, WALL.repair);
 }
 
 export function whyNoWallRepair(pi, t) {
@@ -354,7 +498,8 @@ export function whyNoWallRepair(pi, t) {
   if (!w) return "No wall there";
   if (w.owner !== pi) return "That is not your wall";
   if (w.lives >= WALL.lives) return "That wall is intact";
-  if (w.repaired) return "That wall has been repaired this turn";
+  if (mendedThisTurn(t)) return "Something there has already been repaired this turn";
+  if (!workCrew(pi, t)) return "Needs a foot soldier or horseman in the town";
   return `Needs ${costLabel(WALL.repair)}`;
 }
 
@@ -364,13 +509,13 @@ export function repairWall(t) {
   if (!canRepairWall(pi, t)) { game.notice = whyNoWallRepair(pi, t); return false; }
   const w = game.walls.get(t.id);
   pay(pi, WALL.repair);
-  w.lives++; w.repaired = true;                 // one course a turn, no more
+  w.lives++; game.busy.add(t.id);              // the town has spent its turn
   game.notice = "";
   emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> repairs a wall (${w.lives}/${WALL.lives})`);
   return true;
 }
 
-const refreshWalls = pi => { for (const [, w] of game.walls) if (w.owner === pi) w.repaired = false; };
+
 
 /* ---------- units ---------- */
 
@@ -408,7 +553,9 @@ export const unitCostLabel = kind => costLabel(UNITS[kind].cost) +
 export function legalLaunch(pi, kind, t) {
   if (!t || unitAt(t.id)) return false;
   const home = UNITS[kind].home === "port" ? game.ports : game.towns;
-  return home.get(t.id) === pi;
+  if (home.get(t.id) !== pi) return false;
+  if (UNITS[kind].home === "town" && (townFallen(t) || townBusy(t))) return false;
+  return true;
 }
 
 /* Some kinds are rationed by how many towns you hold — a merchant per town. */
@@ -435,12 +582,15 @@ export function recruit(kind, t) {
                 : sitting ? "That tile already holds a unit"
                 : !withinCap(pi, kind)
                   ? `Only ${UNITS[kind].perTown} ${UNITS[kind].label.toLowerCase()} per town`
+                : t && townBusy(t) ? "That town has already worked this turn"
+                : t && townFallen(t) ? "A conquered town musters nobody"
                 : !legalLaunch(pi, kind, t)
                   ? (UNITS[kind].home === "port" ? "Launch from one of your ports"
                                                  : "Recruit on one of your towns")
                 : `Needs ${unitCostLabel(kind)}`;
     return false;
   }
+  if (UNITS[kind].home === "town") game.busy.add(t.id);   // a town musters OR repairs
   const paid = payUnit(pi, kind), spec = UNITS[kind], id = game.nextUnit++;
   /* A fresh unit can march away at once but cannot strike until its owner's next turn. */
   game.units.set(id, { id, owner: pi, kind, tile: t.id, lives: spec.lives,
@@ -515,7 +665,8 @@ export function canStand(u, t) {
   if (!afloat && game.ports.has(t.id)) return false;
   if (unitAt(t.id)) return false;
   const town = game.towns.get(t.id);
-  return town === undefined || town === u.owner;
+  /* a standing town is closed to enemies; a conquered one has its gates open */
+  return town === undefined || town === u.owner || townFallen(t);
 }
 
 /* Does this player have anywhere to muster this kind right now? A port under blockade
@@ -612,6 +763,14 @@ export const wallTargetsOf = u => !isSiege(u) ? []
   : [...game.walls].filter(([tid, w]) =>
       w.owner !== u.owner && w.lives > 0 && inRange(u, tileById(tid))).map(([tid]) => tid);
 
+/* Enemy towns this unit could storm: in range, not sheltered behind a standing wall,
+   and with no fighting garrison in the way. */
+export const townTargetsOf = u => [...game.towns]
+  .filter(([tid, owner]) => owner !== u.owner && !sheltered(tid)
+    && !garrisonOf(tileById(tid)) && !townFallen(tileById(tid))
+    && inRange(u, tileById(tid)))
+  .map(([tid]) => tid);
+
 const mine = id => {
   const u = game.units.get(id);
   return u && u.owner === game.current && canBuild() ? u : null;
@@ -657,6 +816,24 @@ export function attackUnit(id, tid) {
   }
 
   const target = unitAt(tid);
+  const townOwner = game.towns.get(tid);
+  const holds = target && target.owner !== u.owner && !!unitSpec(target).range;
+
+  /* An enemy town with no fighting garrison takes the blow itself. A garrison absorbs
+     first — which is exactly what "a defender adds its lives to the town" amounts to,
+     and it means wounding the garrison weakens the place. Civilians defend nothing. */
+  if (townOwner !== undefined && townOwner !== u.owner && !holds) {
+    const t = tileById(tid);
+    game.townHurt.set(tid, hurtOf(tid) + 1);
+    u.acted = true; game.notice = "";
+    const who = `<b style="color:${PLAYERS[u.owner].color}">${PLAYERS[u.owner].name}</b>`;
+    const whose = `<b style="color:${PLAYERS[townOwner].color}">${PLAYERS[townOwner].name}</b>`;
+    if (townLife(t) <= 0)
+      emit(`${who} conquers ${whose}'s town at ${t.col},${t.row} — it musters nobody now`);
+    else emit(`${who} storms ${whose}'s town (${townLife(t)}/${townMaxLife(t)})`);
+    return true;
+  }
+
   if (!target || target.owner === u.owner) { game.notice = "Nothing to attack there"; return false; }
 
   /* SEAM FOR MULTIPLAYER: evading is the defender's decision, so once each player has a
@@ -800,6 +977,7 @@ function clearRound() {
   game.units = new Map(); game.nextUnit = 1;
   game.ports = new Map(); game.walls = new Map();
   game.kings = new Map(); game.crown = null;
+  game.townHurt = new Map(); game.busy = new Set();
   game.notice = ""; game.varietyReq = RULES.MIN_VARIETY;
   game.hands = PLAYERS.map(blankHand);
 }
@@ -949,7 +1127,7 @@ export function endTurn() {
   game.current = (game.current + 1) % game.playerCount;
   game.notice = "";
   refreshUnits(game.current);      // the incoming player's units are ready again
-  refreshWalls(game.current);      // and their masons can lay another course
+  refreshTowns(game.current);      // and their work crews can start again
   return true;
 }
 

@@ -6,9 +6,10 @@ export const ui = {
   recruit: null,    // unit kind armed for placement, or null
   build: null,      // structure armed for placement ("port" | "wall" | "mend"), or null
   edgeKind: "bridge",   // what a click builds on a coastal edge, which takes either
-  spyAct: null,         // "peek" | "kill" — what a click on an enemy town means
+  spyAct: null,         // "peek" | "kill" | "steal" — what a click on an enemy town means
+  give: null,           // resource being offered in a trade
 };
 
 export const clearUi = () => {
-  ui.selected = null; ui.recruit = null; ui.build = null; ui.spyAct = null;
+  ui.selected = null; ui.recruit = null; ui.build = null; ui.spyAct = null; ui.give = null;
 };

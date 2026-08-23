@@ -6,7 +6,8 @@ import { hexPoints, corner } from "../hex.js";
 import { game, legalTown, canBuild, legalEdge, legalExpansion, networkVerts,
          movePlan, targetsOf, wallTargetsOf, canAttack, injured, legalRecruit, legalPort,
          legalWall, canRepairWall, sheltered, isCoastalEdge, edgeKinds, unitAt,
-         kingVisibleTo, legalKingSeat, owesKing, spyTargets, isSpy } from "../game.js";
+         kingVisibleTo, legalKingSeat, owesKing, spyTargets, isSpy,
+         townTargetsOf, townLife, townMaxLife, canRepairTown, mendedThisTurn } from "../game.js";
 import { WALL } from "../config.js";
 import { ui } from "./state.js";
 
@@ -42,8 +43,11 @@ export function renderBoard(svg) {
      unit markers are pointer-transparent, so this is the only thing hover can reach. */
   const label = t => {
     const w = game.walls.get(t.id), u = unitAt(t.id);
+    const town = game.towns.has(t.id);
     return [`${TERRAIN[t.terrain].label} — ${t.col},${t.row}`,
-      w && `Wall ${w.lives}/${WALL.lives}${w.repaired ? " (repaired this turn)" : ""}`,
+      town && `${PLAYERS[game.towns.get(t.id)].name} town ${townLife(t)}/${townMaxLife(t)}`,
+      w && `Wall ${w.lives}/${WALL.lives}`,
+      town && mendedThisTurn(t) && "repaired this turn",
       u && `${PLAYERS[u.owner].name} ${UNITS[u.kind].label.toLowerCase()} ${u.lives}/${UNITS[u.kind].lives}`,
     ].filter(Boolean).join(" · ");
   };
@@ -125,7 +129,7 @@ export function renderBoard(svg) {
        fill="none" stroke="var(--brass)" stroke-width="3"/>`).join("");
 
   const attacks = !ordering || !canAttack(sel) ? "" :
-    [...targetsOf(sel).map(e => e.tile), ...wallTargetsOf(sel)].map(tid =>
+    [...targetsOf(sel).map(e => e.tile), ...wallTargetsOf(sel), ...townTargetsOf(sel)].map(tid =>
       `<polygon class="strike" data-attack="${tid}" points="${hex(b.tiles[tid])}"
          fill="none" stroke="var(--bad)" stroke-width="3"/>`).join("");
 
@@ -146,6 +150,22 @@ export function renderBoard(svg) {
     .filter(t => legalWall(game.current, t))
     .map(t => `<polygon class="drop" data-wall="${t.id}" points="${hex(t)}"
        fill="none" stroke="${PLAYERS[game.current].color}" stroke-width="3"/>`).join("");
+
+  const rebuild = !(building && ui.build === "rebuild") ? "" : b.tiles
+    .filter(t => canRepairTown(game.current, t))
+    .map(t => `<polygon class="drop" data-rebuild="${t.id}" points="${hex(t)}"
+       fill="none" stroke="${PLAYERS[game.current].color}" stroke-width="3"/>`).join("");
+
+  const scars = [...game.towns].filter(([id]) => townLife(b.tiles[id]) < townMaxLife(b.tiles[id]))
+    .map(([id, owner]) => {
+      const t = b.tiles[id], life = townLife(t), max = townMaxLife(t);
+      const w = S * 0.2, gap = S * 0.07, span = max * w + (max - 1) * gap;
+      return `<g pointer-events="none">${Array.from({ length: max }, (_, i) =>
+        `<rect x="${(t.x - span / 2 + i * (w + gap)).toFixed(1)}" y="${(t.y + S * 0.74).toFixed(1)}"
+           width="${w.toFixed(1)}" height="${(S * 0.16).toFixed(1)}" rx="0.5"
+           fill="${i < life ? PLAYERS[owner].color : "none"}"
+           stroke="${i < life ? PLAYERS[owner].color : "var(--bad)"}" stroke-width="0.9"/>`).join("")}</g>`;
+    }).join("");
 
   const mendSites = !(building && ui.build === "mend") ? "" : b.tiles
     .filter(t => canRepairWall(game.current, t))
@@ -223,8 +243,8 @@ export function renderBoard(svg) {
   }).join("");
 
   svg.innerHTML = terrain + glyphs + slots + built + sites + moves + attacks
-                + drops + portSites + wallSites + mendSites + seats + plots
-                + marks + harbours + ramparts + crowns + army;
+                + drops + portSites + wallSites + mendSites + rebuild + seats + plots
+                + marks + harbours + ramparts + scars + crowns + army;
   svg.parentElement.classList.toggle("placing", placing || seating);
   svg.parentElement.classList.toggle("building", building);
 }
