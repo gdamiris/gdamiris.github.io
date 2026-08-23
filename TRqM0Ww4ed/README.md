@@ -137,7 +137,7 @@ the fixed cost), but no unit uses it any more.
 | foot soldier | 1 wool + 1 wood | 1 tile | 1 | your town |
 | horseman | 2 wool + 1 wood | 2 tiles | 1 | your town |
 | **merchant** | 1 wool + 1 wheat + 1 fish | 1 tile | — cannot fight | your town |
-| cannon | 2 ore | 1 tile | **2–3** | your town |
+| cannon | 2 ore + 2 wood | 1 tile | **2–3** | your town |
 | boat | 2 wood + 1 wool + 1 ore | 2 tiles | **exactly 2** | your port |
 
 **A port** costs 2 wood + 1 ore + 1 wheat and sits **on the water** — a sea or fish tile
@@ -178,11 +178,16 @@ kills it and the income dies with it; it cannot attack anything; and you may hol
 traders stand on. A merchant on barren ground earns nothing — and since fish is a water
 tile, working a fish bed means bridging out to it first.
 
-**The cannon is artillery.** It is the cheapest unit in the game at 2 ore, moves 1 tile,
+**The cannon is artillery**, and priced like a siege piece at 2 ore + 2 wood. It moves 1 tile,
 and shells anything 2 or 3 tiles away — including boats out at sea. It cannot fire on an
 adjacent enemy, so it needs infantry screening it; get under its guns and it is helpless.
 It also has no way to repair: damage to a cannon is permanent. Unlike a wounded soldier it
 is not rooted, so a crippled gun can still be pulled back, it just never recovers.
+
+Its 2–3 band covers **30 tiles**, the widest reach in the game — five times a foot
+soldier's. That is why it costs 4 rather than 2: a foot soldier closing from 3 tiles is
+shelled twice and dies before contact, so the only land answer is a horseman, and the
+answer should never cost more than the thing it answers.
 
 **Boats trade reach for vulnerability.** A boat strikes at *exactly* 2 tiles and can hit
 land units, so it bombards coasts — but it cannot touch anything adjacent, while an

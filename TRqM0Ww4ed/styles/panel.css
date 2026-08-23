@@ -89,6 +89,17 @@ aside svg { width: 13px; height: 13px; display: block; }
 .cost.shore .toggle button.on { border-color: var(--brass); color: var(--brass);
   background: rgba(228,179,99,.12); }
 
+/* wall strength: one block per life left */
+.walls { display: flex; flex-direction: column; gap: 3px; margin: 2px 0 0 2px; }
+.wallrow { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--mute); }
+.wallrow .where { min-width: 34px; font-variant-numeric: tabular-nums; }
+.wallrow .bar { display: inline-flex; gap: 2px; }
+.wallrow .bar i { width: 9px; height: 9px; border: 1px solid var(--turn, var(--brass));
+  border-radius: 1px; opacity: .4; }
+.wallrow .bar i.on { background: var(--turn, var(--brass)); opacity: 1; }
+.wallrow .n { margin-left: auto; font-variant-numeric: tabular-nums; }
+.wallrow.hurt .n { color: var(--bad); }
+
 /* army */
 .army { display: flex; flex-direction: column; gap: 6px; }
 /* Shared by the Army panel and the Build panel: both hold these buttons. */
@@ -116,5 +127,13 @@ td.n { text-align: right; color: var(--chalk); font-variant-numeric: tabular-num
 .counts { color: var(--mute); line-height: 1.7; font-size: 12px; }
 .counts b { color: var(--brass); font-weight: 400; }
 
-.log { font-size: 11px; color: var(--mute); line-height: 1.6; max-height: 110px; overflow: auto; }
+/* The log sits beside the map now, so it gets the height the map has. */
+.log {
+  font-size: 11px; color: var(--mute); line-height: 1.6;
+  max-height: calc(100vh - 80px); overflow: auto;
+  border: 1px solid var(--line); border-radius: 2px;
+  padding: 8px 9px; background: var(--panel);
+}
 .log b { color: var(--chalk); font-weight: 400; }
+.log > div { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,.04); }
+.log > div:last-child { border-bottom: 0; }

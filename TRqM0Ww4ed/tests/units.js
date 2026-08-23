@@ -815,19 +815,27 @@ section("cannon");
   const b = fresh(2);
   const me = G.game.current, foe = 1 - me, home = G.townsOf(me)[0];
 
-  /* the cheapest unit in the game: ore alone */
-  G.game.hands[me] = { wood: 0, wool: 0, fish: 0, wheat: 0, ore: 1 };
+  /* a siege piece: 2 ore + 2 wood, dearer than the horseman that counters it */
+  G.game.hands[me] = { wood: 2, wool: 0, fish: 0, wheat: 0, ore: 1 };
   check("1 ore is not enough", G.canAffordUnit(me, "cannon") === false);
-  G.game.hands[me].ore = 2;
-  check("2 ore buys a cannon", G.canAffordUnit(me, "cannon") === true);
-  check("a cannon needs nothing but ore",
-    RESOURCES.filter(f => f !== "ore").every(f => G.game.hands[me][f] === 0));
+  G.game.hands[me] = { wood: 1, wool: 0, fish: 0, wheat: 0, ore: 2 };
+  check("1 wood is not enough", G.canAffordUnit(me, "cannon") === false);
+  G.game.hands[me] = { wood: 2, wool: 0, fish: 0, wheat: 0, ore: 2 };
+  check("2 ore and 2 wood buy a cannon", G.canAffordUnit(me, "cannon") === true);
+  check("a cannon needs no wool, wheat or fish",
+    ["wool", "wheat", "fish"].every(f => G.game.hands[me][f] === 0));
+  check("its counter is cheaper than it is", (() => {
+    const sum = c => Object.values(c).reduce((a, n) => a + n, 0);
+    return sum(UNITS.horse.cost) < sum(UNITS.cannon.cost);
+  })(), "a horseman must cost less than the gun it closes on");
 
   const before = hand(me);
   const gun = ready("cannon", home);
   check("the cannon musters on a town", gun.tile === home.id);
-  check("only ore is spent", G.game.hands[me].ore === before.ore - 2
-    && RESOURCES.filter(f => f !== "ore").every(f => G.game.hands[me][f] === before[f]));
+  check("ore and wood are spent", G.game.hands[me].ore === before.ore - 2
+    && G.game.hands[me].wood === before.wood - 2);
+  check("nothing else is spent",
+    ["wool", "wheat", "fish"].every(f => G.game.hands[me][f] === before[f]));
 
   /* range 2 to 3: never adjacent, never 4 out */
   check("the range band is 2 to 3", G.rangeLabel("cannon") === "2–3");

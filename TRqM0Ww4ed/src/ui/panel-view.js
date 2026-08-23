@@ -144,13 +144,27 @@ function renderBuild() {
     row("Town", COSTS.town, "reachable tile") +
     arm("port", "Port", COSTS.port, open && canAfford(pi, COSTS.port)) +
     arm("wall", "Wall", COSTS.wall, open && canAfford(pi, COSTS.wall)) +
-    (wallsOf(pi).length ? arm("mend", "Repair wall", WALL.repair, mendable) : "") +
+    (wallsOf(pi).length ? arm("mend", "Repair wall", WALL.repair, mendable) + wallList(pi) : "") +
     `<div class="hint">${!open
       ? (game.phase === "play" ? "Roll first" : "No game running")
       : ui.build === "port" ? "Click an outlined water tile beside land"
       : ui.build === "wall" ? "Click one of your towns to wall it"
       : ui.build === "mend" ? "Click an outlined wall — one life per turn"
       : "Click a highlighted edge or circled tile"}</div>`;
+}
+
+/* Your walls and how much of each is left standing, so their strength is never something
+   you had to be watching the log to know. */
+function wallList(pi) {
+  const walls = wallsOf(pi).map(t => ({ t, w: game.walls.get(t.id) }))
+    .sort((a, b) => a.w.lives - b.w.lives);
+  return `<div class="walls">${walls.map(({ t, w }) =>
+    `<div class="wallrow ${w.lives < WALL.lives ? "hurt" : ""}">
+       <span class="where">${t.col},${t.row}</span>
+       <span class="bar">${Array.from({ length: WALL.lives }, (_, i) =>
+         `<i class="${i < w.lives ? "on" : ""}"></i>`).join("")}</span>
+       <span class="n">${w.lives}/${WALL.lives}</span>
+     </div>`).join("")}</div>`;
 }
 
 /* Recruiting is two-step: arm a unit kind here, then click one of your towns.

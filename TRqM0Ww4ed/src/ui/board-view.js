@@ -5,7 +5,7 @@ import { TERRAIN } from "../terrain.js";
 import { hexPoints, corner } from "../hex.js";
 import { game, legalTown, canBuild, legalEdge, legalExpansion, networkVerts,
          movePlan, targetsOf, wallTargetsOf, canAttack, injured, legalRecruit, legalPort,
-         legalWall, canRepairWall, sheltered, isCoastalEdge, edgeKinds } from "../game.js";
+         legalWall, canRepairWall, sheltered, isCoastalEdge, edgeKinds, unitAt } from "../game.js";
 import { WALL } from "../config.js";
 import { ui } from "./state.js";
 
@@ -31,11 +31,21 @@ export function renderBoard(svg) {
   const dimmed = t => placing && !legalTown(t);
   const W = S * 1.15;
 
+  /* The tile carries the tooltip for everything standing on it — the wall bar and the
+     unit markers are pointer-transparent, so this is the only thing hover can reach. */
+  const label = t => {
+    const w = game.walls.get(t.id), u = unitAt(t.id);
+    return [`${TERRAIN[t.terrain].label} — ${t.col},${t.row}`,
+      w && `Wall ${w.lives}/${WALL.lives}${w.repaired ? " (repaired this turn)" : ""}`,
+      u && `${PLAYERS[u.owner].name} ${UNITS[u.kind].label.toLowerCase()} ${u.lives}/${UNITS[u.kind].lives}`,
+    ].filter(Boolean).join(" · ");
+  };
+
   const terrain = b.tiles.map(t => {
     const spec = TERRAIN[t.terrain], lit = kept && t.terrain === kept;
     return `<polygon class="tile" data-id="${t.id}" points="${hexPoints(t.col, t.row)}" fill="${spec.color}"
       ${dimmed(t) ? 'opacity="0.35"' : ""} ${lit ? 'stroke="var(--brass)" stroke-width="2.5"' : ""}
-      ><title>${spec.label} — ${t.col},${t.row}</title></polygon>`;
+      ><title>${label(t)}</title></polygon>`;
   }).join("");
 
   const glyphs = b.tiles.map(t =>
@@ -126,16 +136,27 @@ export function renderBoard(svg) {
        fill="none" stroke="${PLAYERS[game.current].color}" stroke-width="3"/>`).join("");
 
   /* standing walls: a heavy ring just inside the hex, with one notch per life lost */
+  /* A wall is a heavy ring plus a strength bar: one filled block per life left, hollow
+     for each one battered away. The bar sits on its own dark plate inside the hex, so it
+     reads against any terrain and is never clipped by the hex edge. */
   const ramparts = [...game.walls].map(([id, w]) => {
     const t = b.tiles[id], c = PLAYERS[w.owner].color;
-    const ring = insetRing(t, 0.97);
-    const pips = Array.from({ length: WALL.lives }, (_, i) =>
-      `<rect x="${(t.x - S * 0.42 + i * S * 0.22).toFixed(1)}" y="${(t.y - S * 0.82).toFixed(1)}"
-         width="${(S * 0.15).toFixed(1)}" height="${(S * 0.15).toFixed(1)}"
-         fill="${i < w.lives ? c : "none"}" stroke="${c}" stroke-width="1"/>`).join("");
+    const bw = S * 0.26, gap = S * 0.08, h = S * 0.24;
+    const span = WALL.lives * bw + (WALL.lives - 1) * gap;
+    const x0 = t.x - span / 2, y0 = t.y - S * 0.62;
+    const blocks = Array.from({ length: WALL.lives }, (_, i) =>
+      `<rect x="${(x0 + i * (bw + gap)).toFixed(1)}" y="${y0.toFixed(1)}"
+         width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="0.6"
+         fill="${i < w.lives ? c : "none"}" fill-opacity="${i < w.lives ? 1 : 0}"
+         stroke="${c}" stroke-width="0.9" stroke-opacity="${i < w.lives ? 1 : 0.55}"/>`).join("");
     return `<g pointer-events="none">
-        <polygon points="${ring}" fill="none" stroke="${c}" stroke-width="3.5" opacity="0.9"/>
-        ${pips}</g>`;
+        <polygon points="${insetRing(t, 0.93)}" fill="none" stroke="${c}"
+          stroke-width="3.5" opacity="0.95"/>
+        <rect x="${(x0 - gap).toFixed(1)}" y="${(y0 - gap).toFixed(1)}"
+          width="${(span + gap * 2).toFixed(1)}" height="${(h + gap * 2).toFixed(1)}"
+          rx="1" fill="#06101A" fill-opacity="0.72"/>
+        ${blocks}
+      </g>`;
   }).join("");
 
   /* a port: the same ring as a town, dashed, with its pip centred rather than below */

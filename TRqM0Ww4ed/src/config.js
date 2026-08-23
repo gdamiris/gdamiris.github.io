@@ -104,9 +104,14 @@ export const UNITS = {
            perTown: 1, trades: true },
   /* Artillery: outranges everything but cannot fire close in, so it needs infantry to
      screen it. Damage is permanent — a cannon has no way to repair — but a wounded one
-     can still be pulled back, unlike a wounded soldier. */
+     can still be pulled back, unlike a wounded soldier.
+
+     Priced as a siege piece rather than a cheap unit: covering 30 tiles at range 2-3 is
+     the widest reach in the game, and a foot soldier cannot close on one from 3 without
+     dying on the way. At 4 resources the horseman that CAN close costs less than the
+     gun it answers, which is the way round it should be. */
   cannon:{ label: "Cannon",       short: "C", move: STEP, lives: 2, domain: "land",  range: [2, 3],
-           cost: { ore: 2 }, either: null, home: "town",
+           cost: { ore: 2, wood: 2 }, either: null, home: "town",
            movesInjured: true, noRevive: true },
   /* Boats launch from a port and must return to one to recover. They keep moving while
      injured — rooting them would make reaching a port impossible. */

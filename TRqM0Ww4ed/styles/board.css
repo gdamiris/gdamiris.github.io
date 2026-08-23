@@ -1,3 +1,17 @@
+/* Map and log side by side: the board never fills its column, so the log lives in the
+   space the board leaves rather than at the bottom of the side panel. */
+.board-area { display: flex; gap: 16px; align-items: flex-start; }
+.board-area .stage { flex: 0 1 auto; min-width: 0; }
+.feed {
+  flex: 1 1 200px; min-width: 170px;
+  position: sticky; top: 20px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+@media (max-width: 1100px) {
+  .board-area { flex-direction: column; }
+  .feed { position: static; width: 100%; }
+}
+
 /* The map surface. */
 .stage {
   background: var(--stage);

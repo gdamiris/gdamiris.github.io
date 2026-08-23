@@ -13,7 +13,13 @@
 
 <svg id="sprites" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg>
 
-<div class="stage"><svg id="board" aria-label="Board"></svg></div>
+<div class="board-area">
+  <div class="stage"><svg id="board" aria-label="Board"></svg></div>
+  <div class="feed">
+    <div class="eyebrow">Log</div>
+    <div class="log" id="log"></div>
+  </div>
+</div>
 
 <aside>
   <div><div class="eyebrow">Layout prototype</div><h1 id="title">—</h1></div>
@@ -47,8 +53,6 @@
   <div class="rule"></div>
   <div class="eyebrow">Army</div>
   <div id="army" class="army"></div>
-
-  <div class="log" id="log"></div>
 
   <div class="rule"></div>
   <table id="legend"></table>
