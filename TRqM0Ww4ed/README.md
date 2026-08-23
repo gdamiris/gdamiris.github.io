@@ -208,16 +208,32 @@ separate turns.
 
 **The barren ground shapes how armies move.** Everything not listed costs one step:
 
-| terrain | effect |
-|---|---|
-| mountain | costs a **horseman** 2 steps; everyone else 1 |
-| plain | costs a **horseman** nothing at all; everyone else 1 |
-| desert | 1 fish, paid by the owner, for **every unit** that enters it |
+Movement is counted in **points**, not tiles: an ordinary tile costs **3**, a foot soldier
+has **3** a turn and a horseman **8**. Only cavalry feels the terrain.
 
-Because a plain is free, a chain of them carries a horseman as far as the chain runs — in
-testing, up to **6 tiles in a single turn** against a nominal move of 2. And since that
-ride spends no movement, the horseman can still attack at the end of it. A unit that
-cannot pay the desert toll simply cannot enter the desert.
+| terrain | horse | everyone else |
+|---|---|---|
+| ordinary ground | 3 | 3 |
+| **plain** | **2** | 3 |
+| **mountain** | **8** — the whole turn | 3 |
+| **desert** | 3, plus **1 fish** paid by the owner for every unit that enters | same |
+
+So a horseman may spend its 8 on: two ordinary tiles **and** a plain; or four plains; or
+one mountain and nothing more. Five plains, three ordinary tiles, or a mountain followed
+by anything are all beyond it.
+
+**Striking costs one ordinary tile of allowance, whatever your budget.** A unit may attack
+only if it has spent no more than 3 getting there *and* still holds 3 in reserve. A foot
+soldier (budget 3) therefore must not have moved at all; a horseman may have gone one
+ordinary tile or one plain, but never two tiles however cheap the ground. Without that
+first half, cavalry could cross two tiles of discounted plain and still fight — a reach
+no other unit has, and one that let a horseman close on a cannon and kill it in a single
+turn from 39% of the board.
+
+Nothing costs zero, so cavalry range always has a ceiling: **four tiles** at the very most,
+over unbroken plain. An earlier version made plains free, and a chain of them carried a
+horseman **six tiles and still let it attack** — range set by the map rather than by the
+unit. A unit that cannot pay the desert toll simply cannot enter the desert.
 
 **One action per unit per turn.** A foot soldier moves *or* acts; a horseman may spend one
 of its two steps and still attack, but not both. Every attack deals exactly 1 damage

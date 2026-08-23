@@ -1,6 +1,6 @@
 /* Draws the hex board: terrain polygons, terrain glyphs, and town markers. */
 
-import { S, PLAYERS, UNITS } from "../config.js";
+import { S, PLAYERS, UNITS, STEP } from "../config.js";
 import { TERRAIN } from "../terrain.js";
 import { hexPoints, corner } from "../hex.js";
 import { game, legalTown, canBuild, legalEdge, legalExpansion, networkVerts,
@@ -102,12 +102,17 @@ export function renderBoard(svg) {
 
   /* where the selected unit may go, and who it may hit. Tiles that charge a toll to
      enter are marked, so a desert crossing is never a surprise. */
+  const budget = ordering ? UNITS[sel.kind].move : 0;
   const moves = !ordering ? "" : [...movePlan(sel)].map(([id, p]) => {
     const priced = Object.keys(p.toll).length > 0;
-    const cost = Object.entries(p.toll).map(([k, n]) => `${n} ${k}`).join(" + ");
+    const toll = Object.entries(p.toll).map(([k, n]) => `${n} ${k}`).join(" + ");
+    /* movement is in half-tiles, so report it against the budget rather than as a
+       count of steps — "3 of 4 movement" is readable, "3 steps" is not */
+    const left = budget - (sel.moved + p.steps);
     return `<polygon class="move ${priced ? "toll" : ""}" data-move="${id}"
         points="${hex(b.tiles[id])}" fill="${PLAYERS[sel.owner].color}"
-        ><title>${p.steps} step${p.steps === 1 ? "" : "s"}${priced ? ` · costs ${cost}` : ""}</title></polygon>`;
+        ><title>${p.steps} of ${budget} movement · ${left} left${
+          left >= STEP ? " · can still attack" : ""}${priced ? ` · costs ${toll}` : ""}</title></polygon>`;
   }).join("");
 
   const attacks = !ordering || !canAttack(sel) ? "" :

@@ -398,9 +398,17 @@ export const canMove = u => !u.acted && u.moved < unitSpec(u).move;
 /* Room left for one ordinary tile of movement means the unit still has an attack in it:
    a foot soldier must not have moved at all, a horseman may have spent one tile.
    A civilian has no range at all and can never attack, and neither does a unit recruited
-   this turn — it may march, but the ambush has to wait for its owner's next turn. */
+   this turn — it may march, but the ambush has to wait for its owner's next turn.
+
+   The allowance is one ordinary tile either way: a unit must have spent no more than STEP
+   getting there, and still hold STEP in reserve. For a foot soldier (budget STEP) both
+   halves collapse to "must not have moved". For a horseman the first half is what bites —
+   without it, its larger budget let it cross two tiles on discounted plain ground and
+   still strike, which is a reach no other unit has. */
+export const strikeAllowance = kind => Math.min(UNITS[kind].move - STEP, STEP);
+
 export const canAttack = u => !u.acted && !u.fresh && !!unitSpec(u).range
-  && u.moved <= unitSpec(u).move - STEP;
+  && u.moved <= strikeAllowance(u.kind);
 
 export const atPort = u => game.ports.get(u.tile) === u.owner;
 

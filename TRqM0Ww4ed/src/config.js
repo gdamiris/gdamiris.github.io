@@ -66,19 +66,23 @@ export const WALL = {
   breachedBy: ["cannon", "boat"],
 };
 
-/* Movement is counted in half-tiles so terrain can be faster as well as slower without
-   ever being free: entering an ordinary tile costs STEP, and a unit's `move` is its
-   budget in the same units. Nothing costing zero means a unit's range always has a
-   ceiling, whatever the map looks like. */
-export const STEP = 2;
+/* Movement is counted in points, not tiles, so terrain can be faster as well as slower
+   without ever being free: entering an ordinary tile costs STEP, and a unit's `move` is
+   its budget in the same units. Nothing costing zero means a unit's range always has a
+   ceiling, whatever the map looks like.
 
-/* What the barren ground does to an army crossing it. `cost` overrides STEP, per unit
-   kind; `toll` is paid by the owner for every such tile a unit enters, whatever the
-   unit. Anything not listed costs STEP and nothing else. */
+   The exact numbers are solved from the cavalry table rather than picked: a horseman
+   must manage two ordinary tiles AND a plain (8), four plains but never five (8), and a
+   mountain but nothing after it (8). That set forces ordinary 3 / plain 2 / mountain 8.
+   It also means a plain is 1.5x faster than ordinary rather than exactly double —
+   halving it would let a horseman ride five or six plains in a turn. */
+export const STEP = 3;      // an ordinary tile
+const RIDE = 8;             // a horseman's whole turn
+
 export const TERRAIN_MOVE = {
-  mountain: { cost: { horse: 2 * STEP } },   // broken ground: cavalry at half speed
-  plain:    { cost: { horse: STEP / 2 } },   // open going: cavalry at double speed
-  desert:   { toll: { fish: 1 } },           // every unit needs water to cross
+  mountain: { cost: { horse: RIDE } },   // broken ground: a mountain IS the turn
+  plain:    { cost: { horse: 2 } },      // open going: four plains for the same 8
+  desert:   { toll: { fish: 1 } },       // every unit needs water to cross
 };
 
 /* Units. `either` is a choice of one resource from the list, on top of `cost`.
@@ -93,7 +97,7 @@ export const TERRAIN_MOVE = {
 export const UNITS = {
   foot:  { label: "Foot soldier", short: "F", move: STEP, lives: 2, domain: "land", range: [1, 1],
            cost: { wool: 1, wood: 1 }, either: null, home: "town" },
-  horse: { label: "Horseman",     short: "H", move: 2 * STEP, lives: 2, domain: "land", range: [1, 1],
+  horse: { label: "Horseman",     short: "H", move: RIDE, lives: 2, domain: "land", range: [1, 1],
            cost: { wool: 2, wood: 1 }, either: null, home: "town" },
   /* The merchant is the whole economy: production is otherwise flat at 1 per roll, and
      a merchant parked on a resource tile adds 1 more of it. Civilians cannot fight, die

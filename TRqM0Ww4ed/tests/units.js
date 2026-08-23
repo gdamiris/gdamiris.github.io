@@ -139,7 +139,7 @@ section("movement");
 
   const foot = ready("foot", home);
   const reach = G.reachable(foot);
-  /* movement is counted in half-tiles: an ordinary tile costs STEP */
+  /* movement is counted in points: an ordinary tile costs STEP */
   check("a foot soldier reaches 1 tile", [...reach.values()].every(s => s === STEP));
   check("it reaches only neighbours",
     [...reach.keys()].every(id => G.around(home).some(n => n.id === id)));
@@ -163,15 +163,22 @@ section("movement");
   check("distances are honest",
     [...far].every(([id, s]) => hexDist(b.tiles[id], home) <= s));
 
-  const oneStep = [...far].find(([, s]) => s === STEP)[0];
+  /* use ordinary ground on both hops, so the arithmetic is not at the mercy of
+     whichever plains happen to sit beside this fixture's town */
+  const ordinary = id => G.stepCost("horse", b.tiles[id].terrain) === STEP;
+  const oneStep = [...far].find(([id, s]) => s === STEP && ordinary(id))[0];
   G.moveUnit(horse.id, oneStep);
-  check("a horseman may still attack after one step", G.canAttack(horse) === true);
-  check("and may still take its second step", G.canMove(horse) === true);
+  check("a horseman may still attack after one ordinary tile", G.canAttack(horse) === true);
+  check("and may still take a second", G.canMove(horse) === true);
   /* not back onto home — the recruit check below needs that tile free */
-  const twoStep = [...G.reachable(horse).keys()].find(id => id !== home.id);
+  const twoStep = [...G.reachable(horse).keys()].find(id => id !== home.id && ordinary(id));
+  check("a second ordinary tile is available", twoStep !== undefined);
   G.moveUnit(horse.id, twoStep);
-  check("after two steps it is spent", G.canMove(horse) === false);
-  check("and can no longer attack", G.canAttack(horse) === false);
+  check("after two ordinary tiles it can no longer attack", G.canAttack(horse) === false);
+  check("and cannot afford a third", (() => {
+    const left = UNITS.horse.move - horse.moved;
+    return left < STEP && [...G.reachable(horse).keys()].every(id => !ordinary(id));
+  })());
 
   check("units cannot stack", (() => {
     const other = ready("foot", home);
@@ -348,11 +355,38 @@ section("terrain movement");
   /* the cost table itself, in half-tiles: ordinary ground is STEP */
   check("nothing is ever free", ["mountain", "plain", "desert", "wood", "wheat", "wool", "ore"]
     .every(t => ["foot", "horse", "cannon"].every(k => G.stepCost(k, t) > 0)));
-  check("mountains cost a horseman double", G.stepCost("horse", "mountain") === 2 * STEP);
-  check("but cost a foot soldier the usual", G.stepCost("foot", "mountain") === STEP);
-  check("and cost a cannon the usual", G.stepCost("cannon", "mountain") === STEP);
-  check("plains cost a horseman half", G.stepCost("horse", "plain") === STEP / 2);
-  check("but cost a foot soldier the usual", G.stepCost("foot", "plain") === STEP);
+  check("a mountain costs a horseman its whole turn",
+    G.stepCost("horse", "mountain") === UNITS.horse.move);
+  check("but costs a foot soldier the usual", G.stepCost("foot", "mountain") === STEP);
+  check("and costs a cannon the usual", G.stepCost("cannon", "mountain") === STEP);
+  check("a plain costs a horseman less than ordinary ground",
+    G.stepCost("horse", "plain") < STEP);
+  check("but costs a foot soldier the usual", G.stepCost("foot", "plain") === STEP);
+
+  /* the cavalry table, exactly as specified */
+  const ord = G.stepCost("horse", "wood"), pln = G.stepCost("horse", "plain"),
+        mtn = G.stepCost("horse", "mountain"), B = UNITS.horse.move;
+  const fits = n => n <= B;
+  check("2 ordinary + 1 plain is allowed", fits(2 * ord + pln));
+  check("3 plains is allowed",             fits(3 * pln));
+  check("4 plains is allowed",             fits(4 * pln));
+  check("1 mountain is allowed",           fits(mtn));
+  check("1 mountain + a plain is not",    !fits(mtn + pln));
+  check("1 mountain + an ordinary is not", !fits(mtn + ord));
+  check("5 plains is not",                !fits(5 * pln));
+  check("3 ordinary tiles is not",        !fits(3 * ord));
+
+  /* one ordinary tile is the whole allowance before striking — no unit may cross two
+     tiles and fight, however cheap the ground it crossed */
+  const allow = G.strikeAllowance("horse");
+  check("a horseman may strike after one ordinary tile", allow >= ord);
+  check("and after one plain",                           allow >= pln);
+  check("but never after two plains",                    allow < 2 * pln);
+  check("nor after a plain and an ordinary tile",        allow < pln + ord);
+  check("a foot soldier must not have moved at all", G.strikeAllowance("foot") === 0);
+  check("nor a cannon",                              G.strikeAllowance("cannon") === 0);
+  check("a boat may strike after one water tile",
+    G.strikeAllowance("boat") >= STEP && G.strikeAllowance("boat") < 2 * STEP);
   check("ordinary ground costs the same for all",
     ["wood", "wheat", "wool", "ore", "desert"].every(t =>
       ["foot", "horse", "cannon"].every(k => G.stepCost(k, t) === STEP)));
@@ -383,8 +417,8 @@ section("terrain movement");
     const horse = at(mSpot, "horse");            // move 2
     const foot = at(b.tiles.find(t => settleable(t) && !G.unitAt(t.id)
       && !G.game.towns.has(t.id) && G.around(t).some(x => x.id === mountain.id)) || mSpot, "foot");
-    check("a horseman can still enter a mountain, at double cost",
-      G.reachable(horse).get(mountain.id) === 2 * STEP);
+    check("a horseman entering a mountain spends its whole turn",
+      G.reachable(horse).get(mountain.id) === UNITS.horse.move);
     G.game.units.delete(horse.id);
     G.game.units.delete(foot.id);
 
@@ -399,16 +433,17 @@ section("terrain movement");
   check("a plain fixture exists", !!plain);
   if (plain) {
     const horse = at(pSpot, "horse");
-    check("a plain costs a horseman half", G.reachable(horse).get(plain.id) === STEP / 2);
-    check("riding it spends that half", (() => {
+    const plainCost = G.stepCost("horse", "plain");
+    check("a plain costs a horseman less than ordinary ground",
+      G.reachable(horse).get(plain.id) === plainCost && plainCost < STEP);
+    check("riding it spends exactly that", (() => {
       G.moveUnit(horse.id, plain.id);
-      return horse.tile === plain.id && horse.moved === STEP / 2;
+      return horse.tile === plain.id && horse.moved === plainCost;
     })());
     check("so the horseman may still move afterwards", G.canMove(horse) === true);
     check("and may still attack afterwards", G.canAttack(horse) === true);
     check("a horseman's range is bounded even over plains", (() => {
-      /* budget 4 at half a step per plain: four plains, and no further */
-      const most = Math.floor(UNITS.horse.move / (STEP / 2));
+      const most = Math.floor(UNITS.horse.move / G.stepCost("horse", "plain"));
       return most === 4 && [...G.reachable(horse).values()].every(s => s <= UNITS.horse.move);
     })());
     G.game.units.delete(horse.id);
@@ -682,7 +717,7 @@ section("boats");
 
   /* boats sail on water, never onto land */
   const sea = G.reachable(boat);
-  check("a boat reaches 2 tiles", [...sea.values()].some(s => s === 2));
+  check("a boat reaches 2 tiles", [...sea.values()].some(s => s === 2 * STEP));
   check("a boat stays on water", [...sea.keys()].every(id => isWater(b.tiles[id])));
   check("a boat never reaches land", [...sea.keys()].every(id => !settleable(b.tiles[id])));
 
