@@ -22,10 +22,12 @@ const section = name => console.log("\n" + name);
 /* Settle players inland and as far apart as the board allows. A rim town has fewer than
    six ways out and a crowded one has its exits blocked by a neighbour's perimeter, so
    neither makes a fair fixture. */
-function seedTowns(n) {
+/* Play out the whole snake draft: every player founds TOWNS_AT_START towns, inland and
+   as far apart as the board allows. */
+function seedTowns() {
   const b = G.game.board;
   const inland = t => t.col > 1 && t.row > 1 && t.col < b.cols - 2 && t.row < b.rows - 2;
-  for (let p = 0; p < n; p++) {
+  for (let p = 0; p < G.townsToPlace(); p++) {
     const opts = b.tiles.filter(t => G.legalTown(t) && inland(t));
     const placed = [...G.game.towns.keys()].map(id => b.tiles[id]);
     G.placeTown(placed.length
@@ -35,6 +37,12 @@ function seedTowns(n) {
         }, { t: opts[0], d: -1 }).t
       : opts[Math.floor(opts.length / 2)]);
   }
+  seatKings();
+}
+
+/* Kings are seated after the draft, one per player, each in their first town. */
+function seatKings() {
+  while (G.game.phase === "crowning") G.seatKing(G.townsOf(G.game.turn)[0]);
 }
 
 const DOUBLES = () => 0.01;                       // wood + wood: resolves itself
@@ -45,7 +53,7 @@ function fresh(n = 2, seed = "halcyon") {
   G.setBoard(generateBoard(seed, 13, 15));
   G.setPlayers(n);
   G.startGame();
-  seedTowns(n);
+  seedTowns();
   G.rollDice(DOUBLES);
   return G.game.board;
 }
@@ -100,7 +108,7 @@ section("build window");
   G.startGame();
   check("cannot build during placement", G.canBuild() === false);
 
-  seedTowns(2);
+  seedTowns();
   check("cannot build before rolling", G.canBuild() === false);
 
   const me = G.game.current;
@@ -127,18 +135,24 @@ section("town perimeter and exits");
   const me = G.game.current, home = G.townsOf(me)[0];
   rich(me);
 
-  check("network starts as the town's 6 corners", G.networkVerts(me).size === 6);
+  const startNet = G.networkVerts(me);
+  const ownCorners = new Set(G.townsOf(me).flatMap(t => b.corners[t.id]));
+  check("the network starts as the corners of your towns",
+    startNet.size === ownCorners.size && [...ownCorners].every(c => startNet.has(c)));
+  check("which is 6 per town", startNet.size === 6 * G.townsOf(me).length,
+    `${startNet.size} for ${G.townsOf(me).length} towns`);
   check("a town blocks every edge of its own hexagon",
     G.tileEdges(home).every(id => G.legalEdge(me, id) === false));
   check("blocked perimeter reports why",
     G.tileEdges(home).every(id => G.whyEdgeIllegal(me, id) === "A town blocks that edge"));
 
   const open = openTo(me);
-  check("an inland town has exactly 6 ways out", open.length === 6, `got ${open.length}`);
-  check("no exit touches the town's own tile",
-    open.every(e => !e.tiles.includes(home.id)));
-  check("every exit touches a corner of the town",
-    open.every(e => b.corners[home.id].includes(e.a) || b.corners[home.id].includes(e.b)));
+  check("each inland town has exactly 6 ways out",
+    open.length === 6 * G.townsOf(me).length, `got ${open.length}`);
+  check("no exit touches a town's own tile",
+    open.every(e => !e.tiles.some(id => G.game.towns.has(id))));
+  check("every exit touches a corner of one of your towns",
+    open.every(e => ownCorners.has(e.a) || ownCorners.has(e.b)));
 
   /* an opponent's town blocks just as hard as your own */
   const theirs = [...G.game.towns].find(([, o]) => o !== me);
@@ -166,14 +180,14 @@ section("roads");
   check("2 ore is exactly enough", G.legalEdge(me, road.id) === true);
   check("a road costs ore", JSON.stringify(G.edgeCost(road)) === JSON.stringify(COSTS.road));
 
-  const before = hand(me);
+  const before = hand(me), netBefore = G.networkVerts(me).size;
   check("the road is built", G.buildEdge(road.id) === true);
   check("2 ore is deducted", G.game.hands[me].ore === before.ore - 2);
   check("nothing else is spent",
     RESOURCES.filter(f => f !== "ore").every(f => G.game.hands[me][f] === before[f]));
   check("the road is recorded to its owner", G.game.roads.get(road.id).owner === me);
   check("a land edge is not flagged as a bridge", G.game.roads.get(road.id).bridge === false);
-  check("the network gains the far vertex", G.networkVerts(me).size === 7);
+  check("the network gains the far vertex", G.networkVerts(me).size === netBefore + 1);
 
   rich(me);
   check("an edge can only be built once", G.buildEdge(road.id) === false);
@@ -329,7 +343,8 @@ section("network connectivity");
     G.buildEdge(e.id); last = e.id; chain++;
   }
   check("a chain of 4 edges builds", chain === 4, `built ${chain}`);
-  check("the network grew with the chain", G.networkVerts(me).size === 6 + chain);
+  check("the network grew with the chain",
+    G.networkVerts(me).size === 6 * G.townsOf(me).length + chain);
 
   /* an opponent's roads are not your roads */
   const mine = new Set([...G.game.roads].filter(([, r]) => r.owner === me).map(([id]) => id));

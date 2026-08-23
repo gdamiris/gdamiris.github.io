@@ -20,11 +20,16 @@ const section = name => console.log("\n" + name);
 
 /* ---------- fixtures ---------- */
 
-function seedTowns(n) {
+/* Play out the whole snake draft: every player founds TOWNS_AT_START towns, inland and
+   as far apart as the board allows. */
+function seedTowns(prefer = null) {
   const b = G.game.board;
   const inland = t => t.col > 1 && t.row > 1 && t.col < b.cols - 2 && t.row < b.rows - 2;
-  for (let p = 0; p < n; p++) {
-    const opts = b.tiles.filter(t => G.legalTown(t) && inland(t));
+  for (let p = 0; p < G.townsToPlace(); p++) {
+    const all = b.tiles.filter(t => G.legalTown(t) && inland(t));
+    /* some fixtures need towns on ground that actually produces something */
+    const liked = prefer ? all.filter(prefer) : [];
+    const opts = liked.length ? liked : all;
     const placed = [...G.game.towns.keys()].map(id => b.tiles[id]);
     G.placeTown(placed.length
       ? opts.reduce((best, t) => {
@@ -33,17 +38,23 @@ function seedTowns(n) {
         }, { t: opts[0], d: -1 }).t
       : opts[Math.floor(opts.length / 2)]);
   }
+  seatKings();
+}
+
+/* Kings are seated after the draft, one per player, each in their first town. */
+function seatKings() {
+  while (G.game.phase === "crowning") G.seatKing(G.townsOf(G.game.turn)[0]);
 }
 
 const DOUBLES = () => 0.01;
 const rich = (pi, v = 99) => RESOURCES.forEach(f => G.game.hands[pi][f] = v);
 const hand = pi => ({ ...G.game.hands[pi] });
 
-function fresh(n = 2) {
+function fresh(n = 2, prefer = null) {
   G.setBoard(generateBoard("halcyon", 13, 15));
   G.setPlayers(n);
   G.startGame();
-  seedTowns(n);
+  seedTowns(prefer);
   G.rollDice(DOUBLES);
   return G.game.board;
 }
@@ -77,20 +88,22 @@ section("recruiting");
 
   check("cannot afford a unit while broke", G.canAffordUnit(me, "foot") === false);
 
-  /* infantry costs wool and wood and nothing else */
-  G.game.hands[me] = { wood: 1, wool: 1, fish: 0, wheat: 0, ore: 0 };
-  check("wool and wood alone buy a foot soldier", G.canAffordUnit(me, "foot") === true);
-  check("no fish is needed", G.game.hands[me].fish === 0);
+  /* armies eat: a foot soldier is rations, a horseman is fodder */
+  G.game.hands[me] = { wood: 0, wool: 1, fish: 1, wheat: 0, ore: 0 };
+  check("wool and fish alone buy a foot soldier", G.canAffordUnit(me, "foot") === true);
+  check("no wood is needed", G.game.hands[me].wood === 0);
   check("deer is gone from the game", RESOURCES.includes("deer") === false
     && !("deer" in G.blankHand()));
-  G.game.hands[me] = { wood: 0, wool: 1, fish: 9, wheat: 9, ore: 9 };
-  check("missing wood blocks it", G.canAffordUnit(me, "foot") === false);
-  G.game.hands[me] = { wood: 1, wool: 0, fish: 9, wheat: 9, ore: 9 };
+  G.game.hands[me] = { wood: 9, wool: 1, fish: 0, wheat: 9, ore: 9 };
+  check("missing fish blocks a foot soldier", G.canAffordUnit(me, "foot") === false);
+  G.game.hands[me] = { wood: 9, wool: 0, fish: 9, wheat: 9, ore: 9 };
   check("missing wool blocks it", G.canAffordUnit(me, "foot") === false);
-  G.game.hands[me] = { wood: 1, wool: 1, fish: 0, wheat: 0, ore: 0 };
+  G.game.hands[me] = { wood: 0, wool: 1, fish: 0, wheat: 1, ore: 0 };
   check("1 wool is not enough for a horseman", G.canAffordUnit(me, "horse") === false);
   G.game.hands[me].wool = 2;
-  check("2 wool buys a horseman", G.canAffordUnit(me, "horse") === true);
+  check("2 wool and a wheat buy a horseman", G.canAffordUnit(me, "horse") === true);
+  G.game.hands[me].wheat = 0;
+  check("a horseman without fodder is refused", G.canAffordUnit(me, "horse") === false);
 
   rich(me);
   const before = hand(me);
@@ -100,10 +113,10 @@ section("recruiting");
   check("the unit stands on the town", u.tile === home.id);
   check("the unit belongs to the recruiter", u.owner === me);
   check("the unit starts at full lives", u.lives === UNITS.foot.lives && !G.injured(u));
-  check("wool and wood are spent",
-    G.game.hands[me].wool === before.wool - 1 && G.game.hands[me].wood === before.wood - 1);
+  check("wool and fish are spent",
+    G.game.hands[me].wool === before.wool - 1 && G.game.hands[me].fish === before.fish - 1);
   check("nothing else is spent on infantry",
-    RESOURCES.filter(f => f !== "wool" && f !== "wood")
+    RESOURCES.filter(f => f !== "wool" && f !== "fish")
       .every(f => G.game.hands[me][f] === before[f]));
 
   /* a fresh unit may march off the tile it was born on, but not strike from it —
@@ -257,8 +270,9 @@ section("merchants");
 
   check("production is flat without merchants",
     RESOURCES.every(f => G.yieldOf(me, f) === 1));
-  check("towns no longer add income", G.townsOf(me).length === 1
-    && RESOURCES.every(f => G.yieldOf(me, f) === 1));
+  check("towns no longer add income", G.townsOf(me).length > 1
+    && RESOURCES.every(f => G.yieldOf(me, f) === 1),
+    `${G.townsOf(me).length} towns still yield 1 each`);
 
   /* cost and the one-per-town cap */
   G.game.hands[me] = { wool: 1, wheat: 1, fish: 1, wood: 0, ore: 0 };
@@ -276,8 +290,15 @@ section("merchants");
   const trader = ready("merchant", home);
   check("the merchant musters on a town", trader.tile === home.id);
   check("a merchant has a single life", trader.lives === 1);
-  check("at the cap, no second merchant", G.withinCap(me, "merchant") === false);
-  check("recruiting a second is refused", (() => {
+
+  /* one per town: fill every town, then the next is refused */
+  check("under the cap, more are allowed", G.withinCap(me, "merchant") === true);
+  for (const t of G.townsOf(me)) if (!G.unitAt(t.id)) ready("merchant", t);
+  check("at the cap, no more merchants", G.withinCap(me, "merchant") === false,
+    `${G.countOf(me, "merchant")} of ${G.capOf(me, "merchant")}`);
+  check("one merchant per town exactly",
+    G.countOf(me, "merchant") === G.townsOf(me).length);
+  check("recruiting past the cap is refused", (() => {
     const spot = landNear(home);
     return spot ? G.recruit("merchant", spot) === false : true;
   })());
@@ -295,15 +316,21 @@ section("merchants");
     return G.attackUnit(trader.id, victim.tile) === false;
   })());
 
-  /* standing on a resource adds one of it */
-  const stand = G.around(home).find(t => settleable(t) && !G.unitAt(t.id)
+  /* Measure the bonus with exactly ONE merchant on the board — the cap test above filled
+     every town, and a merchant standing on its own town tile already trades that terrain. */
+  for (const u of G.merchantsOf(me)) G.game.units.delete(u.id);
+  check("cleared for measurement",
+    G.merchantsOf(me).length === 0 && RESOURCES.every(f => G.yieldOf(me, f) === 1));
+  const solo = ready("merchant", G.townsOf(me).find(t => !G.unitAt(t.id)));
+
+  const stand = G.around(b.tiles[solo.tile]).find(t => settleable(t) && !G.unitAt(t.id)
     && !G.game.towns.has(t.id) && RESOURCES.includes(t.terrain));
   check("a resource tile is adjacent", !!stand);
   if (stand) {
     const res = stand.terrain;
     const before = G.yieldOf(me, res);
-    G.moveUnit(trader.id, stand.id);
-    check("the merchant moved onto it", trader.tile === stand.id);
+    G.moveUnit(solo.id, stand.id);
+    check("the merchant moved onto it", solo.tile === stand.id);
     check("that resource now yields one more", G.yieldOf(me, res) === before + 1);
     check("every other resource is unchanged",
       RESOURCES.filter(f => f !== res).every(f => G.yieldOf(me, f) === 1));
@@ -334,15 +361,266 @@ section("merchants");
 
   /* one hit kills a merchant */
   check("a single hit kills a merchant", (() => {
-    const next = landNear(b.tiles[trader.tile]);
+    const next = landNear(b.tiles[solo.tile]);
     if (!next) return true;
     const killer = place(foe, "foot", next);
     G.endTurn(); G.rollDice(DOUBLES);
-    const ok = G.attackUnit(killer.id, trader.tile) === true
-      && G.game.units.has(trader.id) === false;
-    return ok;
+    return G.attackUnit(killer.id, solo.tile) === true
+      && G.game.units.has(solo.id) === false;
   })());
   check("and the income goes with it", RESOURCES.every(f => G.yieldOf(me, f) === 1));
+}
+
+/* ---------- kings ---------- */
+section("kings");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me;
+
+  check("every player seated a king", G.game.kings.size === 2);
+  check("a king sits in its owner's town",
+    G.game.towns.get(G.game.kings.get(me)) === me);
+  check("kingOf finds it", G.kingOf(me).id === G.game.kings.get(me));
+  check("kingAt names the owner", G.kingAt(G.game.kings.get(me)) === me);
+  check("a town without a king reports none",
+    G.kingAt(G.townsOf(me).find(t => t.id !== G.game.kings.get(me)).id) === null);
+  check("nobody owes a king", G.owesKing(me) === false && G.game.crown === null);
+
+  /* the multiplayer seam is open for now, and deliberately so */
+  check("kings are visible to everyone for testing",
+    G.kingVisibleTo(foe, me) === true && G.kingVisibleTo(me, me) === true);
+
+  const other = G.townsOf(me).find(t => t.id !== G.game.kings.get(me));
+  check("a king cannot be seated where it already sits",
+    G.legalKingSeat(me, G.kingOf(me)) === false);
+  check("nor in someone else's town",
+    G.legalKingSeat(me, G.townsOf(foe)[0]) === false);
+  check("but another of your own towns is fine", G.legalKingSeat(me, other) === true);
+}
+
+/* ---------- spies ---------- */
+section("spies");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me, home = G.townsOf(me)[0];
+
+  G.game.hands[me] = { wool: 1, wheat: 1, fish: 1, wood: 9, ore: 9 };
+  check("1 wool is not enough for a spy", G.canAffordUnit(me, "spy") === false);
+  G.game.hands[me].wool = 2;
+  check("2 wool, 1 wheat and 1 fish buys one", G.canAffordUnit(me, "spy") === true);
+
+  rich(me);
+  const spy = ready("spy", home);
+  check("a spy has a single life", spy.lives === 1);
+  check("a spy cannot attack", G.canAttack(spy) === false && UNITS.spy.range === null);
+  check("a spy is an ordinary visible unit", G.unitAt(spy.tile) === spy);
+  check("it is uncapped, unlike a merchant", G.capOf(me, "spy") === Infinity);
+
+  /* three tiles in the clear */
+  const clear = G.reachable(spy);
+  check("a spy ranges 3 tiles when unobserved",
+    [...clear.values()].some(s => s === 3 * STEP), `max ${Math.max(...clear.values())}`);
+
+  /* but one tile once anybody is watching */
+  const near = landNear(home);
+  check("a watching enemy is findable", !!near);
+  if (near) {
+    const sentry = place(foe, "foot", near);
+    check("the sentry overlooks its neighbours", G.watched(spy, b.tiles[spy.tile]) === true);
+    const shy = G.reachable(spy);
+    check("the spy is held to one tile",
+      [...shy.values()].every(s => s <= UNITS.spy.move)
+      && [...shy].every(([id, s]) => !G.watched(spy, b.tiles[id]) || s === UNITS.spy.move));
+    check("no watched tile is reachable after moving", (() => {
+      const step = [...shy].find(([id]) => !G.watched(spy, b.tiles[id]));
+      if (!step) return true;
+      G.moveUnit(spy.id, step[0]);
+      return [...G.reachable(spy).keys()].every(id => !G.watched(spy, b.tiles[id]));
+    })());
+    G.game.units.delete(sentry.id);
+  }
+}
+
+/* ---------- scouting and assassination ---------- */
+section("assassination");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me;
+  rich(me);
+
+  /* put a spy beside the enemy town that holds their king, and beside one that does not */
+  const seat = b.tiles[G.game.kings.get(foe)];
+  const empty = G.townsOf(foe).find(t => t.id !== seat.id);
+  const post = G.around(seat).find(t => settleable(t) && !G.unitAt(t.id) && !G.game.towns.has(t.id));
+  check("a vantage point beside the royal town exists", !!post);
+  if (!post) throw new Error("no vantage point");
+  const spy = place(me, "spy", post);
+
+  check("the spy sees the town as a target",
+    G.spyTargets(spy).some(t => t.id === seat.id));
+  check("it does not target your own towns",
+    G.spyTargets(spy).every(t => G.game.towns.get(t.id) !== me));
+
+  /* scouting */
+  const wheat = G.game.hands[me].wheat;
+  check("scouting finds the king", G.peekTown(spy.id, seat.id) === true);
+  check("it cost a wheat", G.game.hands[me].wheat === wheat - 1);
+  check("and spent the spy's action", spy.acted === true);
+  spy.acted = false;
+  if (empty) check("a kingless town reports nothing", G.peekTown(spy.id, empty.id) === false);
+  spy.acted = false;
+
+  /* assassination */
+  G.game.hands[me].wool = 1;
+  check("1 wool is not enough to assassinate", G.assassinate(spy.id, seat.id) === false);
+  G.game.hands[me].wool = 5;
+  if (empty) {
+    /* the kingless town may not be adjacent, so either refusal is correct here */
+    check("a town without a king yields no assassination",
+      G.assassinate(spy.id, empty.id) === false);
+    check("and it says why", ["No king in that town", "Stand next to the town first"]
+      .includes(G.game.notice), G.game.notice);
+  }
+  check("the assassination lands", G.assassinate(spy.id, seat.id) === true);
+  check("it cost 2 wool", G.game.hands[me].wool === 3);
+  check("the king is gone", G.game.kings.has(foe) === false);
+  check("the spy survives", G.game.units.has(spy.id));
+  check("the victim now owes a king",
+    G.owesKing(foe) === true && G.game.crown.from === seat.id);
+
+  /* the victim must re-seat before doing anything, and not in the same town */
+  G.endTurn();
+  check("it is the victim's turn", G.game.current === foe);
+  check("they cannot roll while a king is owed", G.rollDice() === false);
+  check("and are told why", G.game.notice === "Seat your king first — click one of your towns");
+  check("the ransacked town is refused", G.legalKingSeat(foe, seat) === false);
+  check("with a reason", G.whyNoSeat(foe, seat)
+    === "Choose a different town from the one that was taken");
+  const refuge = G.townsOf(foe).find(t => t.id !== seat.id);
+  if (refuge) {
+    check("another town takes the king", G.seatKing(refuge) === true);
+    check("the debt is settled", G.owesKing(foe) === false && G.game.crown === null);
+    check("and play resumes", G.rollDice(DOUBLES) === true);
+  }
+}
+
+/* ---------- stealing ---------- */
+section("stealing");
+{
+  /* towns on producing ground, since a raid takes what the town's own tile makes */
+  const b = fresh(2, t => RESOURCES.includes(t.terrain));
+  const me = G.game.current, foe = 1 - me;
+  rich(me);
+
+  /* a raid takes the resource the town's own tile makes */
+  const rich_town = G.townsOf(foe).find(t => RESOURCES.includes(t.terrain));
+  const barren = G.townsOf(foe).find(t => !RESOURCES.includes(t.terrain));
+  check("the enemy has a town on resource ground", !!rich_town,
+    G.townsOf(foe).map(t => t.terrain).join("/"));
+
+  if (rich_town) {
+    const res = rich_town.terrain;
+    const post = G.around(rich_town).find(t => settleable(t) && !G.unitAt(t.id)
+      && !G.game.towns.has(t.id));
+    check("a vantage point exists", !!post);
+    if (post) {
+      const spy = place(me, "spy", post);
+
+      /* an empty purse yields nothing */
+      RESOURCES.forEach(f => G.game.hands[foe][f] = 0);
+      check("nothing to steal from an empty purse", G.stealable(spy, rich_town.id) === null);
+      const wheat = G.game.hands[me].wheat;
+      check("the raid fails", G.stealFrom(spy.id, rich_town.id) === false);
+      check("but the wheat is spent anyway", G.game.hands[me].wheat === wheat - 1);
+      check("and it says why", G.game.notice === "Nothing in that town's stores to take");
+      spy.acted = false;
+
+      /* with stock in hand, the raid lands */
+      G.game.hands[foe][res] = 3;
+      check("now there is something to take", G.stealable(spy, rich_town.id) === res);
+      const mine0 = G.game.hands[me][res], theirs0 = G.game.hands[foe][res];
+      const wheat2 = G.game.hands[me].wheat;
+      check("the raid succeeds", G.stealFrom(spy.id, rich_town.id) === true);
+      check("the thief gains one", G.game.hands[me][res] === mine0 + 1);
+      check("the victim loses one", G.game.hands[foe][res] === theirs0 - 1);
+      check("it cost a wheat", G.game.hands[me].wheat === wheat2 - 1);
+      check("and spent the spy's turn", spy.acted === true);
+      check("only that resource moved", RESOURCES
+        .filter(f => f !== res && f !== "wheat")
+        .every(f => G.game.hands[foe][f] === 0));
+
+      check("a spy that has acted cannot raid again",
+        G.stealFrom(spy.id, rich_town.id) === false);
+      G.game.units.delete(spy.id);
+    }
+  }
+
+  /* barren ground makes nothing, so there is nothing to carry off */
+  if (barren) {
+    const post = G.around(barren).find(t => settleable(t) && !G.unitAt(t.id)
+      && !G.game.towns.has(t.id));
+    if (post) {
+      const spy = place(me, "spy", post);
+      rich(foe);
+      check("barren ground yields nothing", G.stealable(spy, barren.id) === null,
+        `${barren.terrain}`);
+      check("the raid comes away empty", G.stealFrom(spy.id, barren.id) === false);
+      check("and says the ground is barren",
+        G.game.notice === "That town sits on barren ground");
+      G.game.units.delete(spy.id);
+    }
+  }
+
+  /* you cannot rob yourself, and you must be adjacent */
+  const own = G.townsOf(me)[0];
+  const inside = place(me, "spy", G.around(own).find(t => settleable(t) && !G.unitAt(t.id)
+    && !G.game.towns.has(t.id)) || own);
+  check("your own town is not a target", G.stealable(inside, own.id) === null);
+  check("and raiding it is refused", G.stealFrom(inside.id, own.id) === false);
+  const far = G.townsOf(foe).find(t => hexDist(t, b.tiles[inside.tile]) > 1);
+  if (far) check("a distant town is out of reach", G.stealFrom(inside.id, far.id) === false);
+}
+
+/* ---------- evading ---------- */
+section("evading");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me, home = G.townsOf(me)[0];
+  rich(me); rich(foe);
+
+  /* Evading needs somewhere to go: a tile beside the spy and further from the attacker.
+     Pick a pair that has one, otherwise the rule correctly declines and proves nothing. */
+  const free = t => settleable(t) && !G.unitAt(t.id) && !G.game.towns.has(t.id);
+  let post = null, spot = null;
+  for (const p of b.tiles.filter(free)) {
+    for (const k of G.around(p).filter(free)) {
+      if (G.around(p).some(x => free(x) && hexDist(x, k) > hexDist(p, k))) { post = p; spot = k; break; }
+    }
+    if (post) break;
+  }
+  check("a spot with a line of retreat exists", !!post && !!spot);
+  if (!post) throw new Error("no evadable position on this board");
+
+  const spy = place(foe, "spy", post);
+  const killer = place(me, "foot", spot);
+
+  const was = spy.tile, wheat = G.game.hands[foe].wheat, fish = G.game.hands[foe].fish;
+  check("the attack resolves", G.attackUnit(killer.id, spy.tile) === true);
+  check("the spy took no damage", G.game.units.has(spy.id) && spy.lives === 1);
+  check("it slipped to another tile", spy.tile !== was);
+  check("further from the attacker",
+    hexDist(b.tiles[spy.tile], b.tiles[killer.tile]) > hexDist(b.tiles[was], b.tiles[killer.tile]));
+  check("evading cost wheat and fish",
+    G.game.hands[foe].wheat === wheat - 1 && G.game.hands[foe].fish === fish - 1);
+
+  /* a spy that cannot pay dies like anything else with one life */
+  G.game.hands[foe].wheat = 0;
+  killer.moved = 0; killer.acted = false;
+  const next = G.around(b.tiles[killer.tile]).find(t => G.unitAt(t.id) === spy);
+  if (next) {
+    check("a penniless spy is killed outright",
+      G.attackUnit(killer.id, spy.tile) === true && G.game.units.has(spy.id) === false);
+  }
 }
 
 /* ---------- terrain and movement ---------- */
@@ -711,9 +989,11 @@ section("boats");
   const before = hand(me);
   const boat = ready("boat", port);
   check("the boat exists", !!boat && boat.kind === "boat");
-  check("wood, wool and ore are paid", Object.entries(UNITS.boat.cost)
+  check("every part of the hull is paid for", Object.entries(UNITS.boat.cost)
     .every(([k, n]) => G.game.hands[me][k] === before[k] - n));
-  check("no fish is spent on a boat", G.game.hands[me].fish === before.fish);
+  check("a crew has to be fed", "fish" in UNITS.boat.cost
+    && G.game.hands[me].fish === before.fish - 1);
+  check("no wheat goes into a boat", G.game.hands[me].wheat === before.wheat);
 
   /* boats sail on water, never onto land */
   const sea = G.reachable(boat);

@@ -58,6 +58,19 @@ boardSvg.onclick = e => {
   const harbour = hit("[data-port]");
   if (harbour) { G.buildPort(G.game.board.tiles[+harbour.dataset.port]); ui.build = null; return render(); }
 
+  const seat = hit("[data-seat]");
+  if (seat) { G.seatKing(G.game.board.tiles[+seat.dataset.seat]); return render(); }
+
+  const plot = hit("[data-plot]");
+  if (plot) {
+    const tid = +plot.dataset.plot;
+    if (ui.spyAct === "kill") G.assassinate(ui.selected, tid);
+    else if (ui.spyAct === "steal") G.stealFrom(ui.selected, tid);
+    else G.peekTown(ui.selected, tid);
+    ui.spyAct = null;
+    return render();
+  }
+
   const rampart = hit("[data-wall]");
   if (rampart) { G.buildWall(G.game.board.tiles[+rampart.dataset.wall]); ui.build = null; return render(); }
 
@@ -96,7 +109,12 @@ $("army").onclick = e => {
     ui.selected = null; ui.build = null;
     return render();
   }
-  if (e.target.closest('[data-order="revive"]')) { G.reviveUnit(ui.selected); render(); }
+  const order = e.target.closest("[data-order]");
+  if (!order) return;
+  if (order.dataset.order === "revive") { G.reviveUnit(ui.selected); return render(); }
+  /* spy work is two-step: arm it here, then click the brass-outlined town */
+  ui.spyAct = ui.spyAct === order.dataset.order ? null : order.dataset.order;
+  render();
 };
 
 $("build").onclick = e => {

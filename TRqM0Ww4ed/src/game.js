@@ -14,7 +14,8 @@ export const game = {
   phase: "idle",            // idle | placing | play
   playerCount: 3,
   towns: new Map(),         // tile id -> player index
-  turn: 0,                  // placement cursor
+  turn: 0,                  // who is placing right now, during setup
+  placed: 0,                // towns founded so far during setup
   hands: PLAYERS.map(blankHand),
   turnNo: 0,
   current: 0,               // whose turn it is
@@ -32,6 +33,8 @@ export const game = {
   nextUnit: 1,
   ports: new Map(),         // tile id -> player index
   walls: new Map(),         // tile id -> { owner, lives, repaired }
+  kings: new Map(),         // player index -> tile id of the town they sit in
+  crown: null,              // { player, from } — a king owed, after an assassination
   notice: "",               // transient feedback for the status line
   varietyReq: RULES.MIN_VARIETY,
   events: [],               // newest-first log, rendered by the panel
@@ -79,6 +82,16 @@ export function whyIllegal(t) {
 
 export const legalCount = () => game.board.tiles.filter(legalTown).length;
 
+/* Setup is a snake draft: everyone founds one town a round, and the round order reverses
+   each time, so whoever picked last in a round picks first in the next. That keeps the
+   first player's advantage from compounding across both of their towns. */
+export const townsToPlace = () => RULES.TOWNS_AT_START * game.playerCount;
+
+export function placingPlayer(placed = game.placed, pc = game.playerCount) {
+  const round = Math.floor(placed / pc), i = placed % pc;
+  return round % 2 === 0 ? i : pc - 1 - i;
+}
+
 /* Placement must never dead-end: relax the variety rule rather than stall. */
 export function ensureSites() {
   while (legalCount() === 0 && game.varietyReq > 1) {
@@ -86,6 +99,56 @@ export function ensureSites() {
     emit(`No sites left — variety requirement relaxed to ${game.varietyReq}`);
   }
 }
+
+/* ---------- kings ---------- */
+
+export const kingOf = pi => game.kings.has(pi) ? tileById(game.kings.get(pi)) : null;
+export const kingAt = tid => { for (const [pi, id] of game.kings) if (id === tid) return pi; return null; };
+
+/* SEAM FOR MULTIPLAYER. A king is meant to be known only to its own player. Every
+   client will eventually be sent only what it may see, and this is the one place that
+   decides it — flip the body to `viewer === owner` (and stop sending other players'
+   kings over the wire at all) once each player has their own screen. Until then the
+   whole table can see every king, which is what makes the rules testable hot-seat. */
+export const kingVisibleTo = (_viewer, _owner) => true;
+
+export const legalKingSeat = (pi, t) => {
+  if (!t || game.towns.get(t.id) !== pi) return false;
+  /* a re-seated king must move house, not sit back down where it was killed */
+  if (game.crown && game.crown.player === pi && game.crown.from === t.id) return false;
+  return game.kings.get(pi) !== t.id;
+};
+
+export function whyNoSeat(pi, t) {
+  if (!t || !game.towns.has(t.id)) return "A king sits in a town";
+  if (game.towns.get(t.id) !== pi) return "That is not your town";
+  if (game.crown && game.crown.player === pi && game.crown.from === t.id)
+    return "Choose a different town from the one that was taken";
+  return "Already seated there";
+}
+
+/* Used both for the opening round and for re-seating after an assassination. */
+export function seatKing(t) {
+  const pi = game.phase === "crowning" ? game.turn
+           : game.crown ? game.crown.player : null;
+  if (pi === null) return false;
+  if (!legalKingSeat(pi, t)) { game.notice = whyNoSeat(pi, t); return false; }
+  game.kings.set(pi, t.id);
+  game.notice = "";
+  emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> seats a king`);
+
+  if (game.phase === "crowning") {
+    game.turn++;
+    if (game.turn >= game.playerCount) {
+      game.phase = "play"; game.current = 0; game.turnNo = 1;
+      emit(`Every king is seated — turn 1, ${PLAYERS[0].name} to roll`);
+    }
+  } else game.crown = null;
+  return true;
+}
+
+/* A player who owes a king must seat it before doing anything else on their turn. */
+export const owesKing = pi => !!game.crown && game.crown.player === pi;
 
 /* ---------- roads, bridges, and the network ---------- */
 
@@ -483,6 +546,10 @@ const addToll = (a, b) => {
 };
 const tollSize = t => Object.values(t).reduce((a, b) => a + b, 0);
 
+/* Is this tile overlooked by an enemy unit? */
+export const watched = (u, t) =>
+  around(t).some(x => { const e = unitAt(x.id); return !!e && e.owner !== u.owner; });
+
 /* Cheapest way to every tile this unit could reach, in steps and in tolls paid along
    the way. Plains cost a horseman nothing, so this has to be a weighted search rather
    than a plain ring-by-ring flood: zero-cost ground can carry a rider any distance.
@@ -503,7 +570,11 @@ export function movePlan(u) {
       if (here.steps !== c) continue;             // superseded by a cheaper route
       for (const n of around(t)) {
         if (!canStand(u, n)) continue;
-        const steps = c + stepCost(u.kind, n.terrain);
+        /* A cautious unit that slips within sight of an enemy spends its whole turn
+           doing it — which is what limits a spy to one tile near anybody's sentries. */
+        const cost = unitSpec(u).cautious && watched(u, n)
+          ? unitSpec(u).move : stepCost(u.kind, n.terrain);
+        const steps = c + cost;
         if (steps > budget) continue;
         const toll = addToll(here.toll, stepToll(n.terrain));
         if (!canAfford(u.owner, toll)) continue;  // no water, no desert crossing
@@ -588,12 +659,119 @@ export function attackUnit(id, tid) {
   const target = unitAt(tid);
   if (!target || target.owner === u.owner) { game.notice = "Nothing to attack there"; return false; }
 
+  /* SEAM FOR MULTIPLAYER: evading is the defender's decision, so once each player has a
+     screen this should pause and ask them. Hot-seat cannot hand control over mid-turn,
+     so for now it fires whenever the defender can pay for it. */
+  if (tryEvade(target, u)) { u.acted = true; game.notice = ""; return true; }
+
   target.lives -= 1;
   u.acted = true;                                 // attacking ends the unit's turn
   game.notice = "";
   const vic = `<b style="color:${PLAYERS[target.owner].color}">${PLAYERS[target.owner].name}</b>`;
   if (target.lives <= 0) { game.units.delete(target.id); emit(`${who} kills ${vic}'s ${unitSpec(target).label.toLowerCase()}`); }
   else emit(`${who} wounds ${vic}'s ${unitSpec(target).label.toLowerCase()}`);
+  return true;
+}
+
+/* ---------- spycraft ---------- */
+
+export const isSpy = u => !!unitSpec(u).spy;
+
+/* Enemy towns a spy is standing next to — everything it can work on. */
+export const spyTargets = u => !isSpy(u) ? []
+  : around(tileById(u.tile)).filter(t => game.towns.has(t.id) && game.towns.get(t.id) !== u.owner);
+
+const spyAct = (id, tid, cost, what) => {
+  const u = mine(id);
+  if (!u) return null;
+  if (!isSpy(u)) { game.notice = `Only a spy can ${what}`; return null; }
+  if (u.acted) { game.notice = "That spy has already acted"; return null; }
+  const t = tileById(tid);
+  if (!spyTargets(u).some(x => x.id === tid)) {
+    game.notice = "Stand next to the town first"; return null;
+  }
+  if (!canAfford(u.owner, cost)) { game.notice = `Needs ${costLabel(cost)}`; return null; }
+  return { u, t, owner: game.towns.get(tid) };
+};
+
+/* Look into an adjacent town and learn whether its king is there. */
+export function peekTown(id, tid) {
+  const act = spyAct(id, tid, COSTS.peek, "scout");
+  if (!act) return false;
+  pay(act.u.owner, COSTS.peek);
+  act.u.acted = true;
+  const found = game.kings.get(act.owner) === tid;
+  game.notice = found ? "The king is in that town" : "No king in that town";
+  /* SEAM FOR MULTIPLAYER: the answer belongs to the scouting player alone. Once each
+     player has a screen, send this to them and log only that a town was scouted. */
+  emit(`<b style="color:${PLAYERS[act.u.owner].color}">${PLAYERS[act.u.owner].name}</b>` +
+       ` scouts ${PLAYERS[act.owner].name}'s town — ${found ? "the king is there" : "no king"}`);
+  return found;
+}
+
+/* What a raid on this town would actually carry off: the resource its own tile makes,
+   but only if the town's owner has any of it. Null means the trip is wasted — barren
+   ground produces nothing to steal, and you cannot take what nobody holds. */
+export function stealable(u, tid) {
+  const owner = game.towns.get(tid);
+  if (owner === undefined || owner === u.owner) return null;
+  const res = tileById(tid).terrain;
+  if (!RESOURCES.includes(res)) return null;
+  return game.hands[owner][res] > 0 ? res : null;
+}
+
+/* The wheat is spent on the attempt, not on the result — a raid on barren ground or on
+   an empty purse still costs the spy its turn. Everything it depends on is public, so
+   an empty-handed raid is a choice rather than a gamble. */
+export function stealFrom(id, tid) {
+  const act = spyAct(id, tid, COSTS.steal, "steal");
+  if (!act) return false;
+  pay(act.u.owner, COSTS.steal);
+  act.u.acted = true;
+  game.notice = "";
+
+  const res = stealable(act.u, tid);
+  const who = `<b style="color:${PLAYERS[act.u.owner].color}">${PLAYERS[act.u.owner].name}</b>`;
+  const from = `<b style="color:${PLAYERS[act.owner].color}">${PLAYERS[act.owner].name}</b>`;
+  if (!res) {
+    game.notice = RESOURCES.includes(tileById(tid).terrain)
+      ? "Nothing in that town's stores to take" : "That town sits on barren ground";
+    emit(`${who} raids ${from}'s town and comes away with nothing`);
+    return false;
+  }
+  game.hands[act.owner][res] -= 1;
+  game.hands[act.u.owner][res] += 1;
+  emit(`${who} steals ${TERRAIN[res].label} from ${from}`);
+  return true;
+}
+
+export function assassinate(id, tid) {
+  const act = spyAct(id, tid, COSTS.assassinate, "assassinate");
+  if (!act) return false;
+  if (game.kings.get(act.owner) !== tid) {
+    game.notice = "No king in that town"; return false;
+  }
+  pay(act.u.owner, COSTS.assassinate);
+  act.u.acted = true;
+  game.kings.delete(act.owner);
+  game.crown = { player: act.owner, from: tid };
+  game.notice = "";
+  emit(`<b style="color:${PLAYERS[act.u.owner].color}">${PLAYERS[act.u.owner].name}</b>` +
+       ` assassinates <b style="color:${PLAYERS[act.owner].color}">${PLAYERS[act.owner].name}</b>'s king`);
+  return true;
+}
+
+/* A spy shrugs off a blow and slips away, if its owner can pay for it. The tile it
+   retreats to must be further from the attacker than the one it left. */
+function tryEvade(target, attacker) {
+  if (!unitSpec(target).spy || !canAfford(target.owner, COSTS.evade)) return false;
+  const from = tileById(attacker.tile), here = tileById(target.tile);
+  const away = around(here)
+    .filter(t => canStand(target, t) && hexDist(t, from) > hexDist(here, from));
+  if (!away.length) return false;
+  pay(target.owner, COSTS.evade);
+  target.tile = away[0].id;
+  emit(`<b style="color:${PLAYERS[target.owner].color}">${PLAYERS[target.owner].name}</b>'s spy evades and slips away`);
   return true;
 }
 
@@ -613,13 +791,15 @@ const refreshUnits = pi => {
 
 /* ---------- lifecycle ---------- */
 function clearRound() {
-  game.towns = new Map(); game.turn = 0; game.turnNo = 0; game.current = 0;
+  game.towns = new Map(); game.turn = 0; game.placed = 0;
+  game.turnNo = 0; game.current = 0;
   game.roller = null; game.awaiting = false; game.dice = [null, null];
   game.keptIndex = null; game.doubles = false; game.award = null;
   game.pick = { mine: null, theirs: null }; game.needWild = null;
   game.rolled = false; game.roads = new Map();
   game.units = new Map(); game.nextUnit = 1;
   game.ports = new Map(); game.walls = new Map();
+  game.kings = new Map(); game.crown = null;
   game.notice = ""; game.varietyReq = RULES.MIN_VARIETY;
   game.hands = PLAYERS.map(blankHand);
 }
@@ -630,10 +810,11 @@ export function setPlayers(n)   { game.playerCount = n; game.phase = "idle"; cle
 export function startGame() {
   clearRound();
   game.phase = "placing";
+  game.turn = placingPlayer();
   ensureSites();
-  const sites = legalCount();
-  emit(`— new game, ${game.playerCount} players · ${sites} legal sites —`);
-  if (sites < game.playerCount) emit(`<span class="bad">Board is too tight for ${game.playerCount} — reroll or size up</span>`);
+  const sites = legalCount(), need = townsToPlace();
+  emit(`— new game, ${game.playerCount} players · ${RULES.TOWNS_AT_START} towns each · ${sites} legal sites —`);
+  if (sites < need) emit(`<span class="bad">Board is too tight for ${need} towns — reroll or size up</span>`);
 }
 
 export function resetGame() { clearRound(); game.phase = "idle"; emit("— reset —"); }
@@ -645,16 +826,23 @@ export function placeTown(t) {
   game.notice = "";
   game.towns.set(t.id, game.turn);
   emit(`<b style="color:${PLAYERS[game.turn].color}">${PLAYERS[game.turn].name}</b> settles ${TERRAIN[t.terrain].label} at ${t.col},${t.row}`);
-  game.turn++;
-  if (game.turn >= game.playerCount) {
-    game.phase = "play"; game.current = 0; game.turnNo = 1;
-    emit(`All towns placed — turn 1, ${PLAYERS[0].name} to roll`);
-  } else ensureSites();
+  game.placed++;
+  if (game.placed >= townsToPlace()) {
+    game.phase = "crowning"; game.turn = 0;
+    emit(`All towns placed — each player now seats a king`);
+  } else {
+    game.turn = placingPlayer();
+    ensureSites();
+  }
   return true;
 }
 
 export function rollDice(rand = Math.random) {
   if (game.phase !== "play" || game.awaiting || game.rolled) return false;
+  if (owesKing(game.current)) {   // seat the new king before anything else
+    game.notice = "Seat your king first — click one of your towns";
+    return false;
+  }
   game.rolled = true;
   const n = DIE_FACES.length;
   game.dice = [DIE_FACES[Math.floor(rand() * n)], DIE_FACES[Math.floor(rand() * n)]];
@@ -668,10 +856,14 @@ export function rollDice(rand = Math.random) {
      identical faces, so the turn resolves itself. Two wilds are still doubles, but the
      roller then names both resources, so the choice moves rather than disappearing. */
   if (game.doubles) {
-    emit(a === WILD
-      ? `Double wild — ${PLAYERS[game.current].name} names both resources`
-      : `Doubles — no choice, everyone produces ${faceSpec(a).label}`);
-    resolveRoll(0);
+    if (a === WILD) {
+      emit(`<b>Famine</b> — two wilds, nobody produces`);
+      game.awaiting = false; game.keptIndex = null;
+      famine();
+    } else {
+      emit(`Doubles — no choice, everyone produces ${faceSpec(a).label}`);
+      resolveRoll(0);
+    }
   }
   return true;
 }
@@ -686,6 +878,34 @@ export function resolveRoll(keepIdx) {
   game.awaiting = false;
   game.pick = { mine: game.dice[keepIdx], theirs: game.dice[1 - keepIdx] };
   return settlePicks();
+}
+
+export const held = pi => RESOURCES.reduce((a, f) => a + game.hands[pi][f], 0);
+
+/* Two wilds is a famine, not a windfall: nobody produces at all, and every player gives
+   up one card for every FAMINE_PER they are sitting on. It scales with the size of the
+   pile, so it bites whoever has been hoarding and passes over anyone living hand to
+   mouth — the one thing in the game that pulls a runaway leader back. */
+function famine() {
+  const parts = [];
+  for (let i = 0; i < game.playerCount; i++) {
+    let owed = Math.floor(held(i) / RULES.FAMINE_PER);
+    const lost = {};
+    while (owed-- > 0) {
+      /* SEAM FOR MULTIPLAYER: which card to give up is the player's choice. Until each
+         has their own screen there is nobody to ask mid-turn, so take from the largest
+         pile — what a player would usually pick anyway. */
+      const f = RESOURCES.reduce((a, b) => game.hands[i][b] > game.hands[i][a] ? b : a);
+      if (game.hands[i][f] <= 0) break;
+      game.hands[i][f]--; lost[f] = (lost[f] || 0) + 1;
+    }
+    if (Object.keys(lost).length)
+      parts.push(`<b style="color:${PLAYERS[i].color}">${PLAYERS[i].name}</b> −${costLabel(lost)}`);
+  }
+  game.award = { roller: game.roller, mine: WILD, theirs: WILD,
+                 kept: 0, given: 0, doubles: true, famine: true };
+  emit(parts.length ? "→ " + parts.join(", ")
+                    : "→ nobody had stores enough to lose any");
 }
 
 /* Ask for the next outstanding wild, or pay out once both faces are real resources. */

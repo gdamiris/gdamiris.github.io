@@ -5,7 +5,8 @@ import { TERRAIN } from "../terrain.js";
 import { hexPoints, corner } from "../hex.js";
 import { game, legalTown, canBuild, legalEdge, legalExpansion, networkVerts,
          movePlan, targetsOf, wallTargetsOf, canAttack, injured, legalRecruit, legalPort,
-         legalWall, canRepairWall, sheltered, isCoastalEdge, edgeKinds, unitAt } from "../game.js";
+         legalWall, canRepairWall, sheltered, isCoastalEdge, edgeKinds, unitAt,
+         kingVisibleTo, legalKingSeat, owesKing, spyTargets, isSpy } from "../game.js";
 import { WALL } from "../config.js";
 import { ui } from "./state.js";
 
@@ -27,6 +28,9 @@ export function renderBoard(svg) {
   svg.style.maxWidth = "100%";
 
   const placing = game.phase === "placing";
+  /* a king is owed either at setup, or by whoever just lost one */
+  const seating = game.phase === "crowning" || owesKing(game.current);
+  const seatingFor = game.phase === "crowning" ? game.turn : game.current;
   const building = canBuild();
   const net = building ? networkVerts(game.current) : null;
   const kept = game.keptIndex === null ? null : game.dice[game.keptIndex];
@@ -115,6 +119,11 @@ export function renderBoard(svg) {
           left >= STEP ? " · can still attack" : ""}${priced ? ` · costs ${toll}` : ""}</title></polygon>`;
   }).join("");
 
+  /* enemy towns a selected spy is standing next to */
+  const plots = !(ordering && isSpy(sel)) ? "" : spyTargets(sel).map(t =>
+    `<polygon class="plot" data-plot="${t.id}" points="${hex(t)}"
+       fill="none" stroke="var(--brass)" stroke-width="3"/>`).join("");
+
   const attacks = !ordering || !canAttack(sel) ? "" :
     [...targetsOf(sel).map(e => e.tile), ...wallTargetsOf(sel)].map(tid =>
       `<polygon class="strike" data-attack="${tid}" points="${hex(b.tiles[tid])}"
@@ -167,6 +176,30 @@ export function renderBoard(svg) {
       </g>`;
   }).join("");
 
+  /* Kings, on the towns that hold them. `kingVisibleTo` is the multiplayer seam — it
+     returns true for everyone today, so the whole table can see every crown. */
+  const crowns = [...game.kings].filter(([owner]) => kingVisibleTo(game.current, owner))
+    .map(([owner, id]) => {
+      const t = b.tiles[id], c = PLAYERS[owner].color;
+      const w = S * 0.34, y = t.y - S * 0.26;
+      return `<g pointer-events="none">
+          <path d="M${(t.x - w).toFixed(1)} ${(y + w * 0.9).toFixed(1)}
+                   L${(t.x - w).toFixed(1)} ${(y - w * 0.5).toFixed(1)}
+                   L${(t.x - w * 0.45).toFixed(1)} ${y.toFixed(1)}
+                   L${t.x.toFixed(1)} ${(y - w * 0.75).toFixed(1)}
+                   L${(t.x + w * 0.45).toFixed(1)} ${y.toFixed(1)}
+                   L${(t.x + w).toFixed(1)} ${(y - w * 0.5).toFixed(1)}
+                   L${(t.x + w).toFixed(1)} ${(y + w * 0.9).toFixed(1)} Z"
+             fill="${c}" stroke="#06101A" stroke-width="1"/>
+        </g>`;
+    }).join("");
+
+  /* towns that can take a king, while one is owed */
+  const seats = !seating ? "" : b.tiles
+    .filter(t => legalKingSeat(seatingFor, t))
+    .map(t => `<polygon class="drop" data-seat="${t.id}" points="${hex(t)}"
+       fill="none" stroke="${PLAYERS[seatingFor].color}" stroke-width="3"/>`).join("");
+
   /* a port: the same ring as a town, dashed, with its pip centred rather than below */
   const harbours = [...game.ports].map(([id, owner]) => {
     const t = b.tiles[id], c = PLAYERS[owner].color;
@@ -190,8 +223,8 @@ export function renderBoard(svg) {
   }).join("");
 
   svg.innerHTML = terrain + glyphs + slots + built + sites + moves + attacks
-                + drops + portSites + wallSites + mendSites
-                + marks + harbours + ramparts + army;
-  svg.parentElement.classList.toggle("placing", placing);
+                + drops + portSites + wallSites + mendSites + seats + plots
+                + marks + harbours + ramparts + crowns + army;
+  svg.parentElement.classList.toggle("placing", placing || seating);
   svg.parentElement.classList.toggle("building", building);
 }

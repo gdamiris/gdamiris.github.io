@@ -58,8 +58,14 @@ Things this project does deliberately so Pages works:
 
 ## Rules as they stand
 
-**Setup.** Each player founds one town on a land tile, at least `MIN_TOWN_GAP` tiles from
-every other town — a town blocks all six of its neighbours.
+**Setup is a snake draft.** Each player founds **two** towns before play, one per round,
+and the round order reverses each time: with three players the picks go 0, 1, 2 — then
+2, 1, 0. Whoever chose last in a round chooses first in the next, so the first seat's
+advantage does not compound across both of its towns. Every town must sit on land, at
+least `MIN_TOWN_GAP` tiles from every other — a town blocks all six of its neighbours.
+
+Two towns each is not just a head start: towns are muster points and the merchant cap is
+one per town, so everyone begins able to field two traders and recruit from two places.
 
 **Production is flat, and merchants are the only way to raise it.** Every player gains
 exactly **1** of the rolled resource, however many towns they hold. A **merchant** standing
@@ -81,10 +87,18 @@ goes to everyone else. Two matching faces are not a special rule, there is simpl
 to choose, so everyone produces that resource and the roll resolves itself. You then build
 as much as you can afford and end the turn explicitly.
 
-**Double wild is the strongest roll in the game.** It is still doubles — no die to choose —
-but because both faces need naming, the roller picks one resource for themselves *and a
-different one for everyone else*. Nothing is paid until both are named, and neither
-building nor ending the turn is possible while a wild is outstanding.
+**One wild in play** is named by the roller — for themselves if they kept it, for the table
+if they gave it away. Nothing is paid until it is named, and neither building nor ending
+the turn is possible while a wild is outstanding.
+
+**Two wilds is a famine.** Nobody produces at all. Instead every player gives up one card
+for every `RULES.FAMINE_PER` they are sitting on — so a player holding 40 loses 8, and one
+holding 4 loses nothing. It is the only thing in the game that pulls a runaway leader
+back, and the only pressure against hoarding. It lands on about 1 roll in 36, roughly
+three times a game.
+
+Which card to give up should be the player's choice; hot-seat cannot ask three people
+mid-turn, so for now it takes from the largest pile — marked as a seam like the others.
 
 **Roads and bridges run along hex edges and meet at corners.** A town blocks its own
 hexagon's perimeter, so it has exactly six ways out — one radiating edge per corner (fewer
@@ -133,6 +147,16 @@ recruited there was shelled before it could move, and being wounded it could the
 move at all. Its owner's only option was to spend a fish a turn keeping it barely alive.
 Anything that can move can now always move, wounded or fresh.
 
+**Armies eat.** A foot soldier costs rations, a horseman fodder, a boat a fed crew — which
+is why fish and wheat appear in unit costs rather than more timber. Before that, wood
+carried 14 units of demand across everything buildable against fish's 5, at identical
+supply, so keeping the wood die was correct every single turn and the keep-one/give-one
+choice made itself. It now runs wood 11, ore 10, wool 9, wheat 8, fish 7 — close enough
+that which face is worth keeping depends on what you are building.
+
+Fish deliberately sits lowest: it is the one resource a merchant cannot walk onto, since
+every fish tile is water. Reaching one needs a bridge, or a **fishing port** built on it.
+
 Wool is the infantry tax — foot, horse and boat all need it, the cannon does not. **Fish is
 the medical supply**: patching up a damaged unit costs 1 fish — except a boat, whose hull is
 planked back together with **1 wood**.
@@ -142,11 +166,12 @@ the fixed cost), but no unit uses it any more.
 
 | unit | cost | move | strikes at | mustered on |
 |---|---|---|---|---|
-| foot soldier | 1 wool + 1 wood | 1 tile | 1 | your town |
-| horseman | 2 wool + 1 wood | 2 tiles | 1 | your town |
+| foot soldier | 1 wool + 1 fish | 1 tile | 1 | your town |
+| horseman | 2 wool + 1 wheat | 2 tiles | 1 | your town |
 | **merchant** | 1 wool + 1 wheat + 1 fish | 1 tile | — cannot fight | your town |
+| **spy** | 2 wool + 1 wheat + 1 fish | 3 tiles | — cannot fight | your town |
 | cannon | 2 ore + 2 wood | 1 tile | **2–3** | your town |
-| boat | 2 wood + 1 wool + 1 ore | 2 tiles | **exactly 2** | your port |
+| boat | 1 wood + 1 fish + 1 wool + 1 ore | 2 tiles | **exactly 2** | your port |
 
 **A port** costs 2 wood + 1 ore + 1 wheat and sits **on the water** — a sea or fish tile
 touching land — anywhere your network reaches. It is not a town: it produces nothing, does
@@ -187,6 +212,44 @@ kills it and the income dies with it; it cannot attack anything; and you may hol
 **one per town**, so raising income means founding towns and defending the ground your
 traders stand on. A merchant on barren ground earns nothing — and since fish is a water
 tile, working a fish bed means bridging out to it first.
+
+**Every player has one king**, seated in one of their towns once the draft is over, and
+re-seated in a *different* town if it is ever killed. A player who owes a king must seat
+it before they may roll. There are two ways to take one: conquering the town — not built
+yet — or assassination.
+
+Kings are meant to be secret. This is a hot-seat build, so for now every king is drawn for
+everyone; `kingVisibleTo(viewer, owner)` in `game.js` is the single place that decides it,
+and returns true for all. Multiplayer flips it to `viewer === owner` and stops sending
+other players' kings at all. Two more seams are marked the same way: the answer a spy gets
+from scouting, and the decision to evade.
+
+**The spy is a civilian that ranges three tiles** — and is the only way to reach a king
+that has not been besieged. It cannot fight, has one life, and dies to a single hit like a
+merchant. It has three pieces of work, all needing it to stand **next to** the target town:
+
+| | cost | |
+|---|---|---|
+| Scout | 1 wheat | learn whether that town holds a king |
+| Steal | 1 wheat | take 1 of whatever that town's own tile produces |
+| Assassinate | 2 wool | kill the king there; the spy survives |
+| Evade | 1 wheat + 1 fish | shrug off a blow and slip one tile away |
+
+**A raid takes only what the ground makes.** Stealing carries off one unit of the town
+tile's own resource — so a town on ore yields ore, and a town on mountain, plain or desert
+yields nothing at all. Nor can you take what the owner does not hold. The wheat is spent
+on the attempt either way, but since terrain and every hand are public, an empty-handed
+raid is a bad decision rather than bad luck. Two of the four barren tiles are common
+enough that **where a town sits now decides how robbable it is**.
+
+**Sentries are what stop assassins.** A spy is `cautious`: stepping onto any tile
+overlooked by an enemy unit costs it *the whole turn*, so near anybody's soldiers it
+manages one tile instead of three. Screening the ground around your royal town is the
+counter-espionage game.
+
+Evade is a reaction, and hot-seat cannot hand control to another player mid-turn, so it
+currently fires automatically whenever the defender can pay. A spy whose owner is out of
+wheat or fish dies like anything else with one life.
 
 **The cannon is artillery**, and priced like a siege piece at 2 ore + 2 wood. It moves 1 tile,
 and shells anything 2 or 3 tiles away — including boats out at sea. It cannot fire on an

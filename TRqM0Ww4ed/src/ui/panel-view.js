@@ -1,11 +1,12 @@
 /* Draws the side panel: turn colour, player chips and hands, dice, legend, stats, log. */
 
-import { PLAYERS, RESOURCES, COSTS, UNITS, WALL } from "../config.js";
+import { PLAYERS, RESOURCES, COSTS, UNITS, WALL, RULES } from "../config.js";
 import { TERRAIN, faceSpec } from "../terrain.js";
 import { tileCounts, deadFaces } from "../generate.js";
 import { game, canBuild, canAfford, canAffordUnit, canMove, canAttack, canRevive,
          injured, unitsOf, portsOf, atPort, hasBerth, blockaders, rangeLabel,
-         canRepairWall, wallsOf, sheltered, withinCap, countOf, capOf } from "../game.js";
+         canRepairWall, wallsOf, sheltered, withinCap, countOf, capOf,
+         townsOf, merchantsOf, owesKing, isSpy, spyTargets, kingOf, stealable } from "../game.js";
 import { glyph } from "./icons.js";
 import { ui } from "./state.js";
 
@@ -28,11 +29,16 @@ function activePlayer() {
 
 function renderChips() {
   $("chips").innerHTML = PLAYERS.slice(0, game.playerCount).map((p, i) => {
-    const town = [...game.towns].find(([, pi]) => pi === i);
     const active = (game.phase === "placing" && game.turn === i) || (game.phase === "play" && game.current === i);
     const hand = game.hands[i];
-    const label = town ? TERRAIN[game.board.tiles[town[0]].terrain].label
-                 : (game.phase === "placing" && game.turn === i ? "placing…" : "—");
+    /* towns and merchants are what a player's position amounts to: muster points, and
+       the income standing on the ground */
+    const towns = townsOf(i).length, traders = merchantsOf(i).length;
+    const crowned = kingOf(i) ? " ♚" : "";
+    const label = game.phase === "placing" && game.turn === i ? "placing…"
+                : towns ? `${towns} town${towns > 1 ? "s" : ""}` +
+                          (traders ? ` · ${traders}M` : "") + crowned
+                : "—";
     return `<div class="chip ${active ? "active" : ""}">
         <span class="dot" style="background:${p.color}"></span>${p.name}
         <span class="done">${label}</span>
@@ -53,13 +59,20 @@ function renderStatus() {
   const st = $("status");
   st.classList.toggle("bad", !!game.notice);
   st.textContent = game.notice ? game.notice
-    : game.phase === "placing" ? `${PLAYERS[game.turn].name}: click a tile to found your town`
+    : game.phase === "placing"
+      ? `${PLAYERS[game.turn].name}: found town ${Math.floor(game.placed / game.playerCount) + 1}`
+        + ` of ${RULES.TOWNS_AT_START} — click a tile`
+    : game.phase === "crowning"
+      ? `${PLAYERS[game.turn].name}: seat your king — click one of your towns`
+    : owesKing(game.current)
+      ? `${PLAYERS[game.current].name}: seat a new king — click a different town`
     : game.phase === "play" ? (game.awaiting ? `Turn ${game.turnNo} — ${PLAYERS[game.current].name}: keep one die`
                             : game.rolled    ? `Turn ${game.turnNo} — ${PLAYERS[game.current].name}: build or end turn`
                                              : `Turn ${game.turnNo} — ${PLAYERS[game.current].name} to roll`)
     : "Pick player count, then start";
 
-  $("roll").disabled     = game.phase !== "play" || game.awaiting || game.rolled;
+  $("roll").disabled     = game.phase !== "play" || game.awaiting || game.rolled
+                           || owesKing(game.current);
   $("endturn").disabled  = !canBuild();
 }
 
@@ -74,10 +87,12 @@ function renderDice() {
     const tag = game.awaiting ? "click to keep"
               : game.needWild ? "naming…"
               : !a ? "—"
+              : a.famine ? "famine"
               : a.doubles ? `everyone +${a.kept + a.given}`
               : isKept ? `${PLAYERS[a.roller].name} +${a.kept}`
               : `everyone else +${a.given}`;
-    return `<div class="die ${isKept ? "keep" : ""} ${!game.awaiting && a && a.doubles ? "dbl" : ""}"
+    return `<div class="die ${isKept ? "keep" : ""} ${!game.awaiting && a && a.doubles ? "dbl" : ""}
+        ${a && a.famine ? "famine" : ""}"
         ${game.awaiting ? "data-armed" : ""} data-i="${i}"
         style="${isKept ? `border-color:${rc};box-shadow:inset 0 0 0 1px ${rc}` : ""}">
         <div class="face" style="background:${spec.color}">${glyph(f)}</div>
@@ -153,6 +168,32 @@ function renderBuild() {
       : "Click a highlighted edge or circled tile"}</div>`;
 }
 
+/* A spy's work, armed here and aimed by clicking a brass-outlined town. */
+function spyOrders(sel) {
+  const towns = spyTargets(sel).length;
+  if (!towns) return `<div class="hint">Move beside an enemy town to work</div>`;
+  if (sel.acted) return `<div class="hint">This spy has already acted</div>`;
+  const btn = (act, label, cost) =>
+    `<button class="recruit ${ui.spyAct === act ? "armed" : ""}" data-order="${act}"
+       ${canAfford(sel.owner, cost) ? "" : "disabled"}>
+       <span class="what">${label}</span>
+       <span class="price">${Object.entries(cost).map(([k, n]) =>
+         `${n}${glyph(k, TERRAIN[k].color)}`).join("")}</span>
+     </button>`;
+  /* say up front what a raid would come away with — it is all public knowledge anyway */
+  const loot = spyTargets(sel).map(t => stealable(sel, t.id)).filter(Boolean);
+  const spoils = loot.length
+    ? [...new Set(loot)].map(r => glyph(r, TERRAIN[r].color)).join("")
+    : "<span class='muted'>nothing to take</span>";
+
+  return btn("peek", "Scout", COSTS.peek)
+    + btn("steal", "Steal", COSTS.steal)
+    + btn("kill", "Assassinate", COSTS.assassinate)
+    + `<div class="hint">${ui.spyAct === "steal" ? `Would take ${spoils}`
+        : ui.spyAct ? "Click an outlined town"
+        : `${towns} town${towns > 1 ? "s" : ""} in reach`}</div>`;
+}
+
 /* Your walls and how much of each is left standing, so their strength is never something
    you had to be watching the log to know. */
 function wallList(pi) {
@@ -217,6 +258,7 @@ function renderArmy() {
             : spec.range[0] > 1 ? ` · strikes at ${rangeLabel(sel.kind)}` : ""}
           ${spec.trades ? ` · trading ${TERRAIN[game.board.tiles[sel.tile].terrain].label}` : ""}</div>
         ${canRevive(sel) ? `<button class="wide" data-order="revive">Revive</button>` : ""}
+        ${isSpy(sel) ? spyOrders(sel) : ""}
         ${stranded ? `<div class="hint">Sail back into one of your ports to repair</div>` : ""}
         ${injured(sel) && spec.noRevive ? `<div class="hint">Damage to a ${spec.label.toLowerCase()} is permanent</div>` : ""}
       </div>`;

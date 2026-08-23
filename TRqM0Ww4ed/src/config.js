@@ -55,6 +55,11 @@ export const COSTS = {
   port:   { wood: 2, ore: 1, wheat: 1 },
   revive: { fish: 1 },      // patching up any unit costs a fish
   wall:   { ore: 2, wood: 2 },
+  /* what a spy can do, none of which is an attack */
+  peek:        { wheat: 1 },           // is there a king in that town?
+  steal:       { wheat: 1 },           // take 1 of whatever the town's own tile makes
+  evade:       { wheat: 1, fish: 1 },  // shrug off a blow and slip a tile away
+  assassinate: { wool: 2 },            // kill the king in an adjacent town
 };
 
 /* Walls go up around a town you already hold. Infantry cannot touch them and cannot
@@ -95,10 +100,12 @@ export const TERRAIN_MOVE = {
    `perTown` a cap: at most this many of the kind per town the player holds.
    `trades`  standing on a resource tile adds 1 to that resource whenever it is rolled. */
 export const UNITS = {
+  /* Armies eat, and that is what stops wood being the only face worth keeping: rations
+     and fodder carry a third of wood's demand across to fish and wheat. */
   foot:  { label: "Foot soldier", short: "F", move: STEP, lives: 2, domain: "land", range: [1, 1],
-           cost: { wool: 1, wood: 1 }, either: null, home: "town" },
+           cost: { wool: 1, fish: 1 }, either: null, home: "town" },
   horse: { label: "Horseman",     short: "H", move: RIDE, lives: 2, domain: "land", range: [1, 1],
-           cost: { wool: 2, wood: 1 }, either: null, home: "town" },
+           cost: { wool: 2, wheat: 1 }, either: null, home: "town" },
   /* The merchant is the whole economy: production is otherwise flat at 1 per roll, and
      a merchant parked on a resource tile adds 1 more of it. Civilians cannot fight, die
      to a single hit, and are capped at one per town — so income is bought with territory
@@ -106,6 +113,12 @@ export const UNITS = {
   merchant:{ label: "Merchant",   short: "M", move: STEP, lives: 1, domain: "land", range: null,
            cost: { wool: 1, wheat: 1, fish: 1 }, either: null, home: "town",
            perTown: 1, trades: true },
+  /* The spy is the only way to reach a king that has not been besieged. It ranges three
+     tiles at a time, but `cautious` means slipping past anyone's sentries costs it the
+     rest of its turn — so a screen of units is what keeps assassins at arm's length. */
+  spy:   { label: "Spy",          short: "S", move: 3 * STEP, lives: 1, domain: "land", range: null,
+           cost: { wool: 2, wheat: 1, fish: 1 }, either: null, home: "town",
+           cautious: true, spy: true },
   /* Artillery: outranges everything but cannot fire close in, so it needs infantry to
      screen it. Damage is permanent — alone among the units, a cannon has no way to
      repair at all, so a crippled gun stays crippled for the rest of the game.
@@ -119,13 +132,15 @@ export const UNITS = {
            noRevive: true },
   /* Boats launch from a port and must sail back into one to be mended. */
   boat:  { label: "Boat",         short: "B", move: 2 * STEP, lives: 2, domain: "water", range: [2, 2],
-           cost: { wood: 2, wool: 1, ore: 1 }, either: null, home: "port",
+           cost: { wood: 1, fish: 1, wool: 1, ore: 1 }, either: null, home: "port",
            reviveAtPort: true,
            repair: { wood: 1 } },          // timber, not fish: a hull is planked back up
 };
 
 /* Placement rules. Set a minimum to 1 to disable it. */
 export const RULES = {
+  TOWNS_AT_START: 2,  // towns each player founds before play, one per round, snaking back
+  FAMINE_PER:     5,  // on a double wild, one card is lost for every this many held
   MIN_TOWN_GAP:  2,   // no two towns within this many tiles
   MIN_FOOTPRINT: 1,   // own tile + ring must be at least this many tiles
   MIN_VARIETY:   1,   // ...covering at least this many distinct resources

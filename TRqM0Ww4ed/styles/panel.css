@@ -56,6 +56,9 @@ aside svg { width: 13px; height: 13px; display: block; }
 /* doubles: both dice paid out equally, so neither is singled out as a keep */
 .die.dbl { border-style: dashed; border-color: var(--brass); }
 .die.dbl .tag { color: var(--brass); }
+/* two wilds: nobody produces and the hoarders pay */
+.die.famine { border-color: var(--bad); border-style: dashed; }
+.die.famine .tag { color: var(--bad); }
 .die .face { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(0,0,0,.4);
   display: grid; place-items: center; }
 .die .face svg { width: 23px; height: 23px; display: block; }

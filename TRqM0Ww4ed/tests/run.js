@@ -75,14 +75,19 @@ section("game loop");
       G.setBoard(generateBoard("g" + s, 13, 15));
       G.setPlayers(pc);
       G.startGame();
-      for (let p = 0; p < pc; p++) {
+      /* setup is a snake draft over TOWNS_AT_START rounds, so keep going until it ends */
+      for (let n = 0; n < G.townsToPlace(); n++) {
         const opts = G.game.board.tiles.filter(G.legalTown);
-        check("legal sites available", opts.length > 0, `seed g${s} pc${pc} player ${p}`);
+        check("legal sites available", opts.length > 0, `seed g${s} pc${pc} town ${n}`);
         if (!opts.length) break;
-        G.placeTown(opts[Math.floor(opts.length * (p + 1) / (pc + 1))]);
+        G.placeTown(opts[Math.floor(opts.length * (n + 1) / (G.townsToPlace() + 1))]);
       }
+      seatKings();
       check("placement completed", G.game.phase === "play", `seed g${s} pc${pc}`);
-      check("one town per player", G.game.towns.size === pc);
+      check("every player seated a king", G.game.kings.size === pc);
+      check("every player got their towns", G.game.towns.size === RULES.TOWNS_AT_START * pc);
+      check("and each got the same number", Array.from({ length: pc },
+        (_, i) => G.townsOf(i).length).every(n => n === RULES.TOWNS_AT_START));
       check("towns respect the gap rule", [...G.game.towns.keys()].every((a, i, arr) =>
         arr.slice(i + 1).every(b => hexDist(G.game.board.tiles[a], G.game.board.tiles[b]) >= RULES.MIN_TOWN_GAP)));
       check("no town on water", [...G.game.towns.keys()].every(id => settleable(G.game.board.tiles[id])));
@@ -120,7 +125,7 @@ section("production");
   G.setBoard(generateBoard("halcyon", 13, 15));
   G.setPlayers(3);
   G.startGame();
-  for (let p = 0; p < 3; p++) G.placeTown(G.game.board.tiles.filter(G.legalTown)[p * 3 + 1]);
+  seedTowns();
 
   check("every player produces every resource", [0, 1, 2].every(i =>
     RESOURCES.every(f => G.yieldOf(i, f) === 1)),
@@ -147,7 +152,7 @@ section("keep one, give one");
   G.setBoard(generateBoard("halcyon", 13, 15));
   G.setPlayers(3);
   G.startGame();
-  for (let p = 0; p < 3; p++) G.placeTown(G.game.board.tiles.filter(G.legalTown)[p * 3 + 1]);
+  seedTowns();
 
   let n = 0;
   const roller = G.game.current;
@@ -165,10 +170,11 @@ section("keep one, give one");
 
 /* Settle `n` players inland and as far apart as the board allows, so neither the board
    rim nor a neighbour's blocked perimeter skews what follows. */
-function seedTowns(n) {
+/* Play out the entire snake draft, inland and as spread out as the board allows. */
+function seedTowns() {
   const b = G.game.board;
   const inland = t => t.col > 1 && t.row > 1 && t.col < b.cols - 2 && t.row < b.rows - 2;
-  for (let p = 0; p < n; p++) {
+  for (let p = 0; p < G.townsToPlace(); p++) {
     const opts = b.tiles.filter(t => G.legalTown(t) && inland(t));
     const placed = [...G.game.towns.keys()].map(id => b.tiles[id]);
     const pick = placed.length
@@ -179,6 +185,49 @@ function seedTowns(n) {
       : opts[Math.floor(opts.length / 2)];
     G.placeTown(pick);
   }
+  seatKings();
+}
+
+/* Kings are seated after the draft, one per player, each in their first town. */
+function seatKings() {
+  while (G.game.phase === "crowning") G.seatKing(G.townsOf(G.game.turn)[0]);
+}
+
+/* ---- setup is a snake draft ---- */
+section("snake draft");
+for (const pc of [2, 3, 4, 6]) {
+  G.setBoard(generateBoard("halcyon", 13, 15));
+  G.setPlayers(pc);
+  G.startGame();
+
+  check("setup asks for every player's towns", G.townsToPlace() === RULES.TOWNS_AT_START * pc, `pc${pc}`);
+  check("the first pick belongs to player 0", G.game.turn === 0, `pc${pc}`);
+
+  const order = [];
+  while (G.game.phase === "placing") {
+    order.push(G.game.turn);
+    G.placeTown(G.game.board.tiles.filter(G.legalTown)[0]);
+  }
+
+  const first = order.slice(0, pc), second = order.slice(pc, pc * 2);
+  check("round one runs in seat order", first.join() === first.map((_, i) => i).join(), `pc${pc} ${first}`);
+  check("round two runs backwards", second.join() === first.slice().reverse().join(), `pc${pc} ${second}`);
+  check("whoever picked last picks first again", second[0] === first[pc - 1], `pc${pc}`);
+  check("nobody picks twice in a round", new Set(first).size === pc && new Set(second).size === pc, `pc${pc}`);
+  check("everyone ends with the same number of towns",
+    Array.from({ length: pc }, (_, i) => G.townsOf(i).length)
+      .every(n => n === RULES.TOWNS_AT_START), `pc${pc}`);
+  check("the draft hands over to crowning", G.game.phase === "crowning", `pc${pc}`);
+  seatKings();
+  check("play begins once every king is seated",
+    G.game.phase === "play" && G.game.current === 0 && G.game.turnNo === 1, `pc${pc}`);
+  check("each player has exactly one king", G.game.kings.size === pc, `pc${pc}`);
+  check("every king sits in its owner's town",
+    [...G.game.kings].every(([pi, tid]) => G.game.towns.get(tid) === pi), `pc${pc}`);
+  check("towns still respect the gap rule", [...G.game.towns.keys()].every((a, i, arr) =>
+    arr.slice(i + 1).every(b => hexDist(G.game.board.tiles[a], G.game.board.tiles[b]) >= RULES.MIN_TOWN_GAP)), `pc${pc}`);
+  check("income is still flat with two towns",
+    RESOURCES.every(f => G.yieldOf(0, f) === 1), `pc${pc}`);
 }
 
 /* ---- the wild face ---- */
@@ -192,7 +241,7 @@ section("wild");
     G.setBoard(generateBoard("halcyon", 13, 15));
     G.setPlayers(3);
     G.startGame();
-    for (let p = 0; p < 3; p++) G.placeTown(G.game.board.tiles.filter(G.legalTown)[p * 3 + 1]);
+    seedTowns();
   };
 
   check("wild is a die face but not a resource",
@@ -226,24 +275,41 @@ section("wild");
   check("the table takes what the roller named", [0, 1, 2].filter(i => i !== roller)
     .every(i => G.game.hands[i].wheat === 1 && G.game.hands[i].wood === 0));
 
-  /* double wild: doubles, but the roller names both sides */
+  /* double wild is a famine: nobody produces, and the hoarders pay for it */
   setup();
   roller = G.game.current;
+  const rich = [0, 1, 2].map(i => i * 6);           // 0, 6 and 12 in hand
+  [0, 1, 2].forEach(i => { G.game.hands[i].wood = rich[i]; });
   G.rollDice(seq(WILD_IDX, WILD_IDX));
+
   check("two wilds are doubles", G.game.doubles === true);
-  check("doubles resolve the die choice", G.game.awaiting === false);
-  check("but the roller still owes a name", G.game.needWild === "mine");
-  G.nameWild("ore");
-  check("then owes a second name", G.game.needWild === "theirs");
-  check("still nothing paid", G.game.hands[roller].ore === 0);
-  G.nameWild("fish");
-  check("the roller gets their own pick", G.game.hands[roller].ore === 1);
-  check("the table gets the roller's other pick", [0, 1, 2].filter(i => i !== roller)
-    .every(i => G.game.hands[i].fish === 1 && G.game.hands[i].ore === 0));
-  check("a double wild lets the roller take one thing and give another",
-    G.game.award.mine === "ore" && G.game.award.theirs === "fish");
-  check("the build window opens once both are named", G.canBuild() === true);
+  check("no die choice is offered", G.game.awaiting === false);
+  check("and no wild is ever named", G.game.needWild === null);
+  check("the roll is marked a famine", G.game.award.famine === true);
+  check("nobody produced anything",
+    G.game.award.kept === 0 && G.game.award.given === 0);
+
+  /* one card for every RULES.FAMINE_PER held, so it scales with the pile */
+  check("a player with nothing loses nothing", G.game.hands[0].wood === 0);
+  check("a modest pile loses one",
+    G.game.hands[1].wood === 6 - Math.floor(6 / RULES.FAMINE_PER), `${G.game.hands[1].wood}`);
+  check("a large pile loses more",
+    G.game.hands[2].wood === 12 - Math.floor(12 / RULES.FAMINE_PER), `${G.game.hands[2].wood}`);
+  check("the biggest hoarder loses the most",
+    12 - G.game.hands[2].wood > 6 - G.game.hands[1].wood);
+  check("it takes from the largest pile", G.held(2) === 12 - Math.floor(12 / RULES.FAMINE_PER));
+
+  check("the build window opens straight away", G.canBuild() === true);
   check("naming when nothing is pending is refused", G.nameWild("wood") === false);
+
+  /* a famine cannot drive anyone below nothing */
+  setup();
+  [0, 1, 2].forEach(i => { RESOURCES.forEach(f => G.game.hands[i][f] = 0); });
+  G.game.hands[1].ore = 4;
+  G.rollDice(seq(WILD_IDX, WILD_IDX));
+  check("4 held is under the threshold, so nothing is lost", G.game.hands[1].ore === 4);
+  check("hands never go negative",
+    [0, 1, 2].every(i => RESOURCES.every(f => G.game.hands[i][f] >= 0)));
 }
 
 /* ---- edge graph: roads on land, bridges on water, oceans crossable ---- */
@@ -281,14 +347,19 @@ section("building");
   check("build window opens after rolling", G.canBuild() === true);
 
   const net = G.networkVerts(me);
-  check("a town contributes its 6 corners", net.size === 6);
+  const ownCorners = new Set(G.townsOf(me).flatMap(t => b.corners[t.id]));
+  check("the network is exactly the corners of your towns", net.size === ownCorners.size
+    && [...ownCorners].every(c => net.has(c)));
+  check("which is 6 per town, spread apart", net.size === 6 * G.townsOf(me).length,
+    `${net.size} for ${G.townsOf(me).length} towns`);
   check("a town blocks its own perimeter",
     G.tileEdges(home).every(id => G.legalEdge(me, id) === false));
 
   /* 6 corners, each with one edge radiating away from the town */
   G.game.hands[me].ore = 99; G.game.hands[me].wood = 99;
   const open = b.edges.filter(e => G.legalEdge(me, e.id));
-  check("a town has exactly 6 ways out", open.length === 6, `got ${open.length}`);
+  check("each town has exactly 6 ways out", open.length === 6 * G.townsOf(me).length,
+    `got ${open.length} for ${G.townsOf(me).length} towns`);
 
   const first = open[0];
   check("cost matches edge type", JSON.stringify(G.edgeCost(first))
@@ -298,7 +369,7 @@ section("building");
   check("cost is deducted", first.water ? G.game.hands[me].wood === wood - 2
                                         : G.game.hands[me].ore === ore - 2);
   check("edge is occupied once only", G.buildEdge(first.id) === false);
-  check("network grew past the new edge", G.networkVerts(me).size === 7);
+  check("network grew past the new edge", G.networkVerts(me).size === net.size + 1);
 
   /* poverty must block, even when the geometry is fine */
   G.game.hands[me].ore = 0; G.game.hands[me].wood = 0;
