@@ -7,7 +7,13 @@
 
    Resources are then assigned by percentile bands so every resource gets an identical
    tile count, and a de-clumping pass swaps labels (a pure permutation, counts untouched)
-   to break up monocultures while leaving small groves intact. */
+   to break up monocultures while leaving small groves intact.
+
+   Each of the five resources takes `TUNING.resourcePct` of the whole board, so barren
+   ground is simply whatever land is left over. And because islands may never touch, the
+   ISLAND COUNT is what really decides the land/sea split: every extra island costs a
+   ring of forced ocean, and `TUNING.water` only bites once its quota drops below what
+   the island layout would have produced on its own. */
 
 import { TUNING, RESOURCES } from "./config.js";
 import { TERRAIN, isWater, settleable } from "./terrain.js";
@@ -98,11 +104,16 @@ export function generateBoard(seed, cols, rows, tuning = TUNING) {
 
   /* --- equal-share resources --- */
   /* Four resources come from land (ore, wool, wheat, wood); fish comes from the sea.
-     Every one of the five ends up with exactly `per` tiles. */
+     Every one of the five ends up with exactly `per` tiles, sized as a share of the
+     whole board — so barren ground is simply whatever land is left over. The clamps
+     keep that promise on boards too small to honour the share. */
   const bTot = Object.values(T.barrenMix).reduce((a, b) => a + b, 0) || 1;
-  let barrenN = Math.min(land.length, Math.round(land.length * T.barren / 100));
-  const per = Math.max(0, Math.floor((land.length - barrenN) / 4));
-  barrenN = land.length - per * 4;                      // remainder absorbed by barren
+  const coastalSea = tiles.filter(t => t.island < 0 && nbrs(t).some(n => n.island >= 0)).length;
+  const per = Math.max(0, Math.min(
+    Math.round(tiles.length * T.resourcePct / 100),
+    Math.floor(land.length / 4),                        // the four land resources
+    coastalSea));                                       // and the shallows for fish
+  const barrenN = land.length - per * 4;
   const need = {}; let used = 0;
   BARREN_ORDER.forEach((k, i) => {
     need[k] = i === BARREN_ORDER.length - 1 ? barrenN - used

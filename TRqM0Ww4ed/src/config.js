@@ -28,11 +28,16 @@ export const PLAYERS = [
 
 /* Map generation. */
 export const TUNING = {
-  islands:    10,   // number of separate landmasses
-  water:      34,   // % of board that ends up ocean + shallows
+  /* Islands may never touch, so every extra island costs a ring of forced ocean. That
+     makes `islands` the real control over the land/sea split: `water` only bites once
+     its quota falls below what the island layout would have produced anyway. At 8
+     islands the two are balanced, and a 13x15 board lands on ~36 sea tiles. */
+  islands:     8,   // number of separate landmasses
+  water:      28,   // % of board that ends up ocean + shallows (an upper bound on land)
   evenness:   55,   // 100 = islands all the same size, 0 = one continent + scraps
   roughness:  35,   // 0 = smooth blobs, 100 = ragged fjords
-  barren:     12,   // % of land with no resource
+  resourcePct: 10,  // % of the whole board each of the five resources gets
+                    // barren is whatever land is left after that
   grain:       5,   // resource region size: low = few big provinces, high = many small
   scatter:    15,   // 0 = pure geography, 100 = shuffled bag
   mixing:     70,   // strength of the de-clumping pass (counts always preserved)
@@ -49,6 +54,16 @@ export const COSTS = {
   town:   { wheat: 1, ore: 1, wood: 1, fish: 1 },
   port:   { wood: 2, ore: 1, wheat: 1 },
   revive: { fish: 1 },      // patching up any unit costs a fish
+  wall:   { ore: 2, wood: 2 },
+};
+
+/* Walls go up around a town you already hold. Infantry cannot touch them and cannot
+   reach what shelters behind them — only siege weapons can, and they must batter the
+   wall down first. Masonry is rebuilt a course at a time: one life per turn, no more. */
+export const WALL = {
+  lives: 4,
+  repair: { ore: 1 },               // 1 ore buys back 1 life, once per wall per turn
+  breachedBy: ["cannon", "boat"],
 };
 
 /* Units. `either` is a choice of one resource from the list, on top of `cost`.

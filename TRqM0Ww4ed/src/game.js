@@ -1,7 +1,7 @@
 /* All game state and rules. No DOM access lives here, which is what lets the
    whole rule set be driven headlessly from tests (and later from netcode). */
 
-import { PLAYERS, DIE_FACES, RESOURCES, WILD, RULES, COSTS, UNITS } from "./config.js";
+import { PLAYERS, DIE_FACES, RESOURCES, WILD, RULES, COSTS, UNITS, WALL } from "./config.js";
 import { TERRAIN, faceSpec, settleable, isWater, isBlocked } from "./terrain.js";
 import { hexDist, neighbours } from "./hex.js";
 
@@ -30,6 +30,7 @@ export const game = {
   units: new Map(),         // unit id -> { id, owner, kind, tile, lives, moved, acted }
   nextUnit: 1,
   ports: new Map(),         // tile id -> player index
+  walls: new Map(),         // tile id -> { owner, lives, repaired }
   notice: "",               // transient feedback for the status line
   varietyReq: RULES.MIN_VARIETY,
   events: [],               // newest-first log, rendered by the panel
@@ -88,7 +89,17 @@ function indexEdges() {
 }
 export const edgeBetween = (u, v) => EDGE_AT.get(u < v ? `${u}-${v}` : `${v}-${u}`);
 export const edgeById = id => game.board.edges[id];
-export const edgeCost = e => e.water ? COSTS.bridge : COSTS.road;
+
+/* What may be built on an edge, decided by how much land it touches. A coastal edge —
+   land on one side, water on the other — takes either: a road runs along the shore, a
+   bridge reaches out over the water. Bridge comes first, so it stays the default. */
+export const edgeKinds = e => {
+  const land = e.tiles.filter(id => !isWater(tileById(id))).length;
+  return land === 2 ? ["road"] : land === 0 ? ["bridge"] : ["bridge", "road"];
+};
+export const isCoastalEdge = e => edgeKinds(e).length > 1;
+export const edgeCost = (e, kind = edgeKinds(e)[0]) =>
+  kind === "bridge" ? COSTS.bridge : COSTS.road;
 
 export const canAfford = (pi, cost) => Object.entries(cost).every(([k, n]) => game.hands[pi][k] >= n);
 const pay = (pi, cost) => { for (const [k, n] of Object.entries(cost)) game.hands[pi][k] -= n; };
@@ -116,36 +127,56 @@ export function networkVerts(pi) {
 export const canBuild = () =>
   game.phase === "play" && game.rolled && !game.awaiting && !game.needWild;
 
-export function legalEdge(pi, id, net = networkVerts(pi)) {
+export function legalEdge(pi, id, net = networkVerts(pi), kind = null) {
   const e = edgeById(id);
   if (!e || game.roads.has(id)) return false;
   for (const tid of e.tiles) if (game.towns.has(tid)) return false;   // a town blocks its perimeter
   if (!net.has(e.a) && !net.has(e.b)) return false;
-  return canAfford(pi, edgeCost(e));
+  const kinds = edgeKinds(e);
+  if (kind && !kinds.includes(kind)) return false;
+  return (kind ? [kind] : kinds).some(k => canAfford(pi, edgeCost(e, k)));
 }
 
-export function whyEdgeIllegal(pi, id, net = networkVerts(pi)) {
+export function whyEdgeIllegal(pi, id, net = networkVerts(pi), kind = null) {
   const e = edgeById(id);
   if (!e) return "Not a buildable edge";
+  const kinds = edgeKinds(e);
+  /* the terrain reason comes first: it holds however the network runs */
+  if (kind && !kinds.includes(kind)) return wrongKind(kind);
   if (game.roads.has(id)) return "Something is built there already";
   if (e.tiles.some(tid => game.towns.has(tid))) return "A town blocks that edge";
   if (!net.has(e.a) && !net.has(e.b)) return "Must connect to your network";
-  return `Needs ${costLabel(edgeCost(e))}`;
+  return `Needs ${(kind ? [kind] : kinds).map(k => costLabel(edgeCost(e, k))).join(" or ")}`;
 }
+
+const wrongKind = kind =>
+  kind === "road" ? "A road needs land on both sides" : "A bridge needs water on one side";
 
 export const costLabel = cost => Object.entries(cost).map(([k, n]) => `${n} ${k}`).join(" + ");
 
-export function buildEdge(id) {
+export function buildEdge(id, kind = null) {
   if (!canBuild()) return false;
-  const pi = game.current;
-  if (!legalEdge(pi, id)) { game.notice = whyEdgeIllegal(pi, id); return false; }
-  const e = edgeById(id);
-  pay(pi, edgeCost(e));
-  game.roads.set(id, { owner: pi, bridge: e.water });
+  const pi = game.current, e = edgeById(id);
+  if (!e) { game.notice = "Not a buildable edge"; return false; }
+  const kinds = edgeKinds(e);
+  if (kind && !kinds.includes(kind)) { game.notice = wrongKind(kind); return false; }
+  /* with no kind asked for, take the first the player can actually pay for */
+  const pick = kind || kinds.find(k => canAfford(pi, edgeCost(e, k))) || kinds[0];
+  if (!legalEdge(pi, id, undefined, pick)) {
+    game.notice = whyEdgeIllegal(pi, id, undefined, kind); return false;
+  }
+  pay(pi, edgeCost(e, pick));
+  game.roads.set(id, { owner: pi, bridge: pick === "bridge" });
   game.notice = "";
-  emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> builds a ${e.water ? "bridge" : "road"}`);
+  emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> builds a ${pick}`);
   return true;
 }
+
+/* A water tile with a bridge on any of its edges can be walked on: that is what lets a
+   land unit cross a one-tile strait. Ownership is irrelevant — masonry is masonry, and
+   your bridge carries your enemy just as well as it carries you. */
+export const bridged = tid => tileEdges(tileById(tid))
+  .some(eid => { const r = game.roads.get(eid); return !!r && r.bridge; });
 
 /* Founding a town after setup: everything legalTown asks, plus the network must already
    touch one of the tile's corners, plus the cost. */
@@ -207,6 +238,68 @@ export function buildPort(t) {
   emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> opens a port at ${t.col},${t.row}`);
   return true;
 }
+
+/* ---------- walls ---------- */
+
+export const wallAt = tid => game.walls.get(tid) || null;
+export const wallsOf = pi => [...game.walls].filter(([, w]) => w.owner === pi).map(([id]) => tileById(id));
+
+/* A tile whose wall still stands. Nothing behind it can be struck at all. */
+export const sheltered = tid => { const w = game.walls.get(tid); return !!w && w.lives > 0; };
+export const isSiege = u => WALL.breachedBy.includes(u.kind);
+
+export function legalWall(pi, t) {
+  if (!t || game.towns.get(t.id) !== pi) return false;   // walls ring a town you hold
+  if (game.walls.has(t.id)) return false;
+  return canAfford(pi, COSTS.wall);
+}
+
+export function whyWallIllegal(pi, t) {
+  if (!t || !game.towns.has(t.id)) return "Walls go around a town";
+  if (game.towns.get(t.id) !== pi) return "That is not your town";
+  if (game.walls.has(t.id)) return "Already walled";
+  return `Needs ${costLabel(COSTS.wall)}`;
+}
+
+export function buildWall(t) {
+  if (!canBuild()) return false;
+  const pi = game.current;
+  if (!legalWall(pi, t)) { game.notice = whyWallIllegal(pi, t); return false; }
+  pay(pi, COSTS.wall);
+  game.walls.set(t.id, { owner: pi, lives: WALL.lives, repaired: false });
+  game.notice = "";
+  emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> walls the town at ${t.col},${t.row}`);
+  return true;
+}
+
+export function canRepairWall(pi, t) {
+  const w = t && game.walls.get(t.id);
+  return !!w && w.owner === pi && w.lives < WALL.lives && !w.repaired
+      && canAfford(pi, WALL.repair);
+}
+
+export function whyNoWallRepair(pi, t) {
+  const w = t && game.walls.get(t.id);
+  if (!w) return "No wall there";
+  if (w.owner !== pi) return "That is not your wall";
+  if (w.lives >= WALL.lives) return "That wall is intact";
+  if (w.repaired) return "That wall has been repaired this turn";
+  return `Needs ${costLabel(WALL.repair)}`;
+}
+
+export function repairWall(t) {
+  if (!canBuild()) return false;
+  const pi = game.current;
+  if (!canRepairWall(pi, t)) { game.notice = whyNoWallRepair(pi, t); return false; }
+  const w = game.walls.get(t.id);
+  pay(pi, WALL.repair);
+  w.lives++; w.repaired = true;                 // one course a turn, no more
+  game.notice = "";
+  emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> repairs a wall (${w.lives}/${WALL.lives})`);
+  return true;
+}
+
+const refreshWalls = pi => { for (const [, w] of game.walls) if (w.owner === pi) w.repaired = false; };
 
 /* ---------- units ---------- */
 
@@ -311,7 +404,13 @@ export const rangeLabel = kind => {
    ports deliberately are not — an enemy boat that parks in your harbour blockades it,
    because a port needs an empty tile to launch from and to repair in. */
 export function canStand(u, t) {
-  if (unitSpec(u).domain === "water" ? !isWater(t) : !settleable(t)) return false;
+  const afloat = unitSpec(u).domain === "water";
+  /* Land units keep to land, except where a bridge spans the water for them. */
+  const ground = afloat ? isWater(t) : (settleable(t) || (isWater(t) && bridged(t.id)));
+  if (!ground) return false;
+  /* A harbour is a berth, not a checkpoint: only boats may sit in one, so no marching
+     column can blockade a port. */
+  if (!afloat && game.ports.has(t.id)) return false;
   if (unitAt(t.id)) return false;
   const town = game.towns.get(t.id);
   return town === undefined || town === u.owner;
@@ -349,10 +448,16 @@ export const inRange = (u, t) => {
   return d >= lo && d <= hi;
 };
 
-/* Everything this unit could strike. A boat's [2, 2] means adjacent enemies are safe
-   from it — and free to hit back, which is the counter to outranging everything. */
+/* Enemy units this unit could strike. A boat's [2, 2] means adjacent enemies are safe
+   from it — and free to hit back, which is the counter to outranging everything.
+   Anything behind a standing wall is off the table entirely. */
 export const targetsOf = u => [...game.units.values()]
-  .filter(e => e.owner !== u.owner && inRange(u, tileById(e.tile)));
+  .filter(e => e.owner !== u.owner && !sheltered(e.tile) && inRange(u, tileById(e.tile)));
+
+/* Enemy walls this unit could batter. Siege weapons only. */
+export const wallTargetsOf = u => !isSiege(u) ? []
+  : [...game.walls].filter(([tid, w]) =>
+      w.owner !== u.owner && w.lives > 0 && inRange(u, tileById(tid))).map(([tid]) => tid);
 
 const mine = id => {
   const u = game.units.get(id);
@@ -371,17 +476,32 @@ export function moveUnit(id, tid) {
 export function attackUnit(id, tid) {
   const u = mine(id);
   if (!u || !canAttack(u)) return false;
-  const target = unitAt(tid);
-  if (!target || target.owner === u.owner) { game.notice = "Nothing to attack there"; return false; }
   if (!inRange(u, tileById(tid))) {
     game.notice = `That unit strikes at ${rangeLabel(u.kind)} tiles`;
     return false;
   }
+  const who = `<b style="color:${PLAYERS[u.owner].color}">${PLAYERS[u.owner].name}</b>`;
+
+  /* A standing wall takes every blow aimed at its tile, and only siege weapons land. */
+  const wall = game.walls.get(tid);
+  if (wall && wall.lives > 0 && wall.owner !== u.owner) {
+    if (!isSiege(u)) {
+      game.notice = `A ${unitSpec(u).label.toLowerCase()} cannot breach a wall`;
+      return false;
+    }
+    wall.lives--; u.acted = true; game.notice = "";
+    const whose = `<b style="color:${PLAYERS[wall.owner].color}">${PLAYERS[wall.owner].name}</b>`;
+    if (wall.lives <= 0) { game.walls.delete(tid); emit(`${who} breaches ${whose}'s wall`); }
+    else emit(`${who} batters ${whose}'s wall (${wall.lives}/${WALL.lives})`);
+    return true;
+  }
+
+  const target = unitAt(tid);
+  if (!target || target.owner === u.owner) { game.notice = "Nothing to attack there"; return false; }
 
   target.lives -= 1;
   u.acted = true;                                 // attacking ends the unit's turn
   game.notice = "";
-  const who = `<b style="color:${PLAYERS[u.owner].color}">${PLAYERS[u.owner].name}</b>`;
   const vic = `<b style="color:${PLAYERS[target.owner].color}">${PLAYERS[target.owner].name}</b>`;
   if (target.lives <= 0) { game.units.delete(target.id); emit(`${who} kills ${vic}'s ${unitSpec(target).label.toLowerCase()}`); }
   else emit(`${who} wounds ${vic}'s ${unitSpec(target).label.toLowerCase()}`);
@@ -407,7 +527,8 @@ function clearRound() {
   game.keptIndex = null; game.doubles = false; game.award = null;
   game.pick = { mine: null, theirs: null }; game.needWild = null;
   game.rolled = false; game.roads = new Map();
-  game.units = new Map(); game.nextUnit = 1; game.ports = new Map();
+  game.units = new Map(); game.nextUnit = 1;
+  game.ports = new Map(); game.walls = new Map();
   game.notice = ""; game.varietyReq = RULES.MIN_VARIETY;
   game.hands = PLAYERS.map(blankHand);
 }
@@ -517,6 +638,7 @@ export function endTurn() {
   game.current = (game.current + 1) % game.playerCount;
   game.notice = "";
   refreshUnits(game.current);      // the incoming player's units are ready again
+  refreshWalls(game.current);      // and their masons can lay another course
   return true;
 }
 

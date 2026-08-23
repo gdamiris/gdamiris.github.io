@@ -1,10 +1,11 @@
 /* Draws the side panel: turn colour, player chips and hands, dice, legend, stats, log. */
 
-import { PLAYERS, RESOURCES, COSTS, UNITS } from "../config.js";
+import { PLAYERS, RESOURCES, COSTS, UNITS, WALL } from "../config.js";
 import { TERRAIN, faceSpec } from "../terrain.js";
 import { tileCounts, deadFaces } from "../generate.js";
 import { game, canBuild, canAfford, canAffordUnit, canMove, canAttack, canRevive,
-         injured, unitsOf, portsOf, atPort, hasBerth, blockaders, rangeLabel } from "../game.js";
+         injured, unitsOf, portsOf, atPort, hasBerth, blockaders, rangeLabel,
+         canRepairWall, wallsOf, sheltered } from "../game.js";
 import { glyph } from "./icons.js";
 import { ui } from "./state.js";
 
@@ -116,20 +117,39 @@ function renderBuild() {
         <span class="note">${note}</span>
       </div>`;
   };
-  const portOk = open && canAfford(pi, COSTS.port);
+  const priceOf = cost => Object.entries(cost)
+    .map(([k, n]) => `${n}${glyph(k, TERRAIN[k].color)}`).join("");
+  const arm = (mode, label, cost, ok) =>
+    `<button class="recruit ${ui.build === mode ? "armed" : ""}" data-build="${mode}"
+       ${ok ? "" : "disabled"}>
+       <span class="what">${label}</span><span class="price">${priceOf(cost)}</span>
+     </button>`;
+
+  const mendable = open && game.board
+    && game.board.tiles.some(t => canRepairWall(pi, t));
+
+  /* A coastal edge takes either kind, so the player says which a click means. */
+  const shore = `<div class="cost shore">
+      <span class="what">Shore</span>
+      <span class="toggle">${["bridge", "road"].map(k =>
+        `<button class="${ui.edgeKind === k ? "on" : ""}" data-edgekind="${k}"
+           ${open ? "" : "disabled"}>${k}</button>`).join("")}</span>
+      <span class="note">coastal edge</span>
+    </div>`;
+
   $("build").innerHTML =
-    row("Road", COSTS.road, "land edge") +
-    row("Bridge", COSTS.bridge, "sea or fish edge") +
+    row("Road", COSTS.road, "land on both sides") +
+    row("Bridge", COSTS.bridge, "water on one side") +
+    shore +
     row("Town", COSTS.town, "reachable tile") +
-    `<button class="recruit ${ui.build === "port" ? "armed" : ""}" data-build="port"
-       ${portOk ? "" : "disabled"}>
-       <span class="what">Port</span>
-       <span class="price">${Object.entries(COSTS.port).map(([k, n]) =>
-         `${n}${glyph(k, TERRAIN[k].color)}`).join("")}</span>
-     </button>` +
+    arm("port", "Port", COSTS.port, open && canAfford(pi, COSTS.port)) +
+    arm("wall", "Wall", COSTS.wall, open && canAfford(pi, COSTS.wall)) +
+    (wallsOf(pi).length ? arm("mend", "Repair wall", WALL.repair, mendable) : "") +
     `<div class="hint">${!open
       ? (game.phase === "play" ? "Roll first" : "No game running")
       : ui.build === "port" ? "Click an outlined water tile beside land"
+      : ui.build === "wall" ? "Click one of your towns to wall it"
+      : ui.build === "mend" ? "Click an outlined wall — one life per turn"
       : "Click a highlighted edge or circled tile"}</div>`;
 }
 

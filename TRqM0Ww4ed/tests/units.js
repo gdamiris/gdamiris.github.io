@@ -4,7 +4,7 @@
    The action economy is the fiddly part — a foot soldier moves OR acts, a horseman may
    spend one of its two steps and still attack, and an injured unit cannot move at all. */
 
-import { RESOURCES, UNITS, COSTS } from "../src/config.js";
+import { RESOURCES, UNITS, COSTS, WALL } from "../src/config.js";
 import { settleable, isWater } from "../src/terrain.js";
 import { hexDist } from "../src/hex.js";
 import { generateBoard } from "../src/generate.js";
@@ -160,6 +160,68 @@ section("movement");
   check("units cannot stack", (() => {
     const other = ready("foot", home);
     return G.moveUnit(other.id, horse.tile) === false;
+  })());
+}
+
+/* ---------- bridges carry land units over water ---------- */
+section("crossing on bridges");
+{
+  const b = fresh(2);
+  const me = G.game.current, home = G.townsOf(me)[0];
+  rich(me);
+
+  /* a water tile next to the town, with no bridge on it yet */
+  const strait = G.around(home).find(isWater);
+  check("the fixture town is coastal", !!strait, "need water beside the town");
+  if (!strait) throw new Error("no coastal town in fixture");
+
+  const foot = ready("foot", home);
+  check("unbridged water is not walkable", G.bridged(strait.id) === false);
+  check("and the foot soldier cannot step onto it",
+    G.reachable(foot).has(strait.id) === false);
+
+  /* bridge one of that tile's own edges */
+  const edge = G.tileEdges(strait).find(id => {
+    const e = b.edges[id];
+    return e && !G.game.roads.has(id) && G.edgeKinds(e).includes("bridge");
+  });
+  check("the water tile has a bridgeable edge", edge !== undefined);
+  G.game.roads.set(edge, { owner: me, bridge: true });
+
+  check("the tile is now bridged", G.bridged(strait.id) === true);
+  check("a foot soldier may step onto it", G.reachable(foot).has(strait.id) === true);
+  check("the move actually works", G.moveUnit(foot.id, strait.id) === true);
+  check("the soldier is standing on water", isWater(b.tiles[foot.tile]));
+
+  /* a road on that same tile's edge would NOT have done it */
+  G.game.roads.set(edge, { owner: me, bridge: false });
+  check("a road does not carry anyone over water", G.bridged(strait.id) === false);
+  G.game.roads.set(edge, { owner: me, bridge: true });
+
+  /* crossing a one-tile strait: land -> bridged water -> land */
+  const far = G.around(strait).find(t => settleable(t) && !G.unitAt(t.id)
+    && !G.game.towns.has(t.id) && hexDist(t, home) === 2);
+  if (far) {
+    G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
+    check("the crossing continues to the far shore",
+      G.reachable(foot).has(far.id) === true);
+    check("and the soldier lands there", G.moveUnit(foot.id, far.id) === true);
+  }
+
+  /* an enemy may use your bridge too */
+  const raider = place(1 - me, "foot", home);
+  G.game.units.delete(raider.id);
+  const nearWater = G.around(strait).find(t => settleable(t) && !G.unitAt(t.id));
+  if (nearWater) {
+    const theirs = place(1 - me, "foot", nearWater);
+    check("your bridge carries the enemy as well",
+      G.reachable(theirs).has(strait.id) === (G.unitAt(strait.id) === null));
+  }
+
+  /* boats are unaffected by bridges */
+  check("water is still water for boats", (() => {
+    const boat = place(me, "boat", b.tiles.find(t => isWater(t) && !G.unitAt(t.id)));
+    return [...G.reachable(boat).keys()].every(id => isWater(b.tiles[id]));
   })());
 }
 
@@ -480,6 +542,23 @@ section("blockade");
   }
   const siege = place(foe, "boat", port);
 
+  /* only boats may sit in a harbour: no marching column can shut a port down */
+  check("a land unit can never enter a port", (() => {
+    const shore = G.around(port).find(t => settleable(t) && !G.unitAt(t.id)
+      && !G.game.towns.has(t.id));
+    if (!shore) return true;
+    const marine = place(foe, "foot", shore);
+    /* bridge the port tile so the only thing stopping him is the harbour itself */
+    const edge = G.tileEdges(port).find(id => b.edges[id] && !G.game.roads.has(id)
+      && G.edgeKinds(b.edges[id]).includes("bridge"));
+    if (edge !== undefined) G.game.roads.set(edge, { owner: foe, bridge: true });
+    const barred = G.reachable(marine).has(port.id) === false;
+    const bridgedNow = G.bridged(port.id);
+    G.game.units.delete(marine.id);
+    if (edge !== undefined) G.game.roads.delete(edge);
+    return barred && bridgedNow;      // bridged, and still refused
+  })(), "a bridged port tile must still refuse infantry");
+
   check("the port is blockaded", G.blockaders(me).length === 1);
   check("no berth while blockaded", G.hasBerth(me, "boat") === false);
   check("launching is refused", G.legalRecruit(me, "boat", port) === false);
@@ -621,6 +700,143 @@ section("cannon versus boat");
     check("a cannon stays on land", [...G.reachable(gun).keys()]
       .every(id => settleable(b.tiles[id])));
   }
+}
+
+/* ---------- walls ---------- */
+section("walls");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me, home = G.townsOf(me)[0];
+
+  G.game.hands[me] = { wood: 1, wool: 0, fish: 0, wheat: 0, ore: 2 };
+  check("1 wood is not enough", G.legalWall(me, home) === false);
+  G.game.hands[me].wood = 2;
+  check("2 ore and 2 wood build a wall", G.legalWall(me, home) === true);
+
+  check("walls need a town", (() => {
+    const open = b.tiles.find(t => settleable(t) && !G.game.towns.has(t.id));
+    return G.legalWall(me, open) === false
+      && G.whyWallIllegal(me, open) === "Walls go around a town";
+  })());
+  check("you cannot wall someone else's town", (() => {
+    const theirs = b.tiles[[...G.game.towns].find(([, o]) => o !== me)[0]];
+    return G.legalWall(me, theirs) === false
+      && G.whyWallIllegal(me, theirs) === "That is not your town";
+  })());
+
+  const before = hand(me);
+  check("the wall goes up", G.buildWall(home) === true);
+  check("ore and wood are paid", Object.entries(COSTS.wall)
+    .every(([k, n]) => G.game.hands[me][k] === before[k] - n));
+  check("a new wall has 4 lives", G.wallAt(home.id).lives === WALL.lives);
+  check("it belongs to its builder", G.wallAt(home.id).owner === me);
+  check("the tile is sheltered", G.sheltered(home.id) === true);
+  rich(me);
+  check("a town cannot be walled twice", G.buildWall(home) === false);
+  check("and it says why", G.game.notice === "Already walled");
+}
+
+/* ---------- only siege weapons touch a wall ---------- */
+section("wall under siege");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me, home = G.townsOf(me)[0];
+  rich(me);
+  G.buildWall(home);
+  const garrison = ready("foot", home);
+
+  /* infantry: cannot hurt the wall, cannot reach what is behind it */
+  const spot = landNear(home);
+  const raider = place(foe, "foot", spot);
+  check("a sheltered unit is not a target", G.targetsOf(raider).includes(garrison) === false);
+  check("infantry cannot batter a wall", G.wallTargetsOf(raider).length === 0);
+
+  G.endTurn(); G.rollDice(DOUBLES);
+  check("it is the raider's turn", G.game.current === foe);
+  check("infantry attacking a walled tile is refused",
+    G.attackUnit(raider.id, home.id) === false);
+  check("the refusal names the wall",
+    G.game.notice === "A foot soldier cannot breach a wall");
+  check("the garrison is untouched", garrison.lives === UNITS.foot.lives);
+  check("the wall is untouched", G.wallAt(home.id).lives === WALL.lives);
+
+  /* but the garrison can still shoot out */
+  G.endTurn(); G.rollDice(DOUBLES);
+  check("back to the defender", G.game.current === me);
+  garrison.moved = 0; garrison.acted = false;
+  check("a sheltered unit can still attack out",
+    G.canAttack(garrison) === true && G.targetsOf(garrison).includes(raider) === true);
+  check("and the shot lands", G.attackUnit(garrison.id, raider.tile) === true);
+  check("the raider takes damage", raider.lives === UNITS.foot.lives - 1);
+
+  /* a cannon can batter it down: 4 hits */
+  const spot3 = b.tiles.find(t => settleable(t) && hexDist(t, home) === 3 && !G.unitAt(t.id));
+  check("a firing position at 3 exists", !!spot3);
+  const gun = place(foe, "cannon", spot3);
+  check("a cannon sees the wall", G.wallTargetsOf(gun).includes(home.id) === true);
+  check("but still not the garrison", G.targetsOf(gun).includes(garrison) === false);
+
+  G.endTurn(); G.rollDice(DOUBLES);              // the gun only fires on its owner's turn
+  check("it is the besieger's turn", G.game.current === foe);
+
+  for (let hit = 1; hit <= WALL.lives; hit++) {
+    gun.moved = 0; gun.acted = false;
+    check(`hit ${hit} lands`, G.attackUnit(gun.id, home.id) === true);
+    if (hit < WALL.lives) {
+      check(`wall down to ${WALL.lives - hit}`, G.wallAt(home.id).lives === WALL.lives - hit);
+      check("still sheltered", G.sheltered(home.id) === true);
+    }
+  }
+  check("four hits breach the wall", G.wallAt(home.id) === null);
+  check("the tile is no longer sheltered", G.sheltered(home.id) === false);
+  check("the garrison is exposed again", G.targetsOf(gun).includes(garrison) === true);
+
+  gun.moved = 0; gun.acted = false;
+  check("and can now be shot", G.attackUnit(gun.id, home.id) === true);
+  check("the garrison takes the hit", garrison.lives === UNITS.foot.lives - 1);
+}
+
+/* ---------- masonry: one course a turn ---------- */
+section("wall repair");
+{
+  const b = fresh(2);
+  const me = G.game.current, home = G.townsOf(me)[0];
+  rich(me);
+  G.buildWall(home);
+  const w = G.wallAt(home.id);
+
+  check("an intact wall needs no repair", G.canRepairWall(me, home) === false);
+  check("and it says so", G.whyNoWallRepair(me, home) === "That wall is intact");
+
+  w.lives = 1;
+  G.game.hands[me].ore = 0;
+  check("no ore, no repair", G.canRepairWall(me, home) === false);
+  check("and it says why", G.whyNoWallRepair(me, home) === `Needs ${G.costLabel(WALL.repair)}`);
+
+  G.game.hands[me].ore = 5;
+  check("repair is available", G.canRepairWall(me, home) === true);
+  check("repairing works", G.repairWall(home) === true);
+  check("one life is restored", w.lives === 2);
+  check("one ore is spent", G.game.hands[me].ore === 4);
+  check("only one course per turn", G.canRepairWall(me, home) === false);
+  check("a second repair is refused", G.repairWall(home) === false);
+  check("and it says why",
+    G.game.notice === "That wall has been repaired this turn");
+
+  /* next turn the masons are back */
+  G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
+  check("back to the wall's owner", G.game.current === me);
+  check("repair is available again", G.canRepairWall(me, home) === true);
+  G.repairWall(home);
+  check("and restores another life", w.lives === 3);
+
+  /* never past full */
+  G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
+  G.repairWall(home);
+  check("a wall reaches full strength", w.lives === WALL.lives);
+  G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
+  check("and never goes past it", G.canRepairWall(me, home) === false);
+  check("repair beyond full is refused", G.repairWall(home) === false);
 }
 
 console.log(failures

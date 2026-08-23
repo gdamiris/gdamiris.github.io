@@ -49,10 +49,20 @@ boardSvg.onclick = e => {
   const hit = sel => e.target.closest(sel);
 
   const edge = hit("line[data-edge]");
-  if (edge) { G.buildEdge(+edge.dataset.edge); return render(); }
+  if (edge) {
+    const e = G.game.board.edges[+edge.dataset.edge];
+    G.buildEdge(e.id, G.isCoastalEdge(e) ? ui.edgeKind : null);
+    return render();
+  }
 
   const harbour = hit("[data-port]");
   if (harbour) { G.buildPort(G.game.board.tiles[+harbour.dataset.port]); ui.build = null; return render(); }
+
+  const rampart = hit("[data-wall]");
+  if (rampart) { G.buildWall(G.game.board.tiles[+rampart.dataset.wall]); ui.build = null; return render(); }
+
+  const mend = hit("[data-mend]");
+  if (mend) { G.repairWall(G.game.board.tiles[+mend.dataset.mend]); return render(); }
 
   const drop = hit("[data-recruit]");
   if (drop) { G.recruit(ui.recruit, G.game.board.tiles[+drop.dataset.recruit]); ui.recruit = null; return render(); }
@@ -90,6 +100,9 @@ $("army").onclick = e => {
 };
 
 $("build").onclick = e => {
+  const k = e.target.closest("[data-edgekind]");
+  if (k) { ui.edgeKind = k.dataset.edgekind; return render(); }
+
   const b = e.target.closest("[data-build]");
   if (!b) return;
   ui.build = ui.build === b.dataset.build ? null : b.dataset.build;

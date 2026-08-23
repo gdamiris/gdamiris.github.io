@@ -4,7 +4,8 @@
 export const ui = {
   selected: null,   // unit id the player is giving orders to
   recruit: null,    // unit kind armed for placement, or null
-  build: null,      // structure armed for placement ("port"), or null
+  build: null,      // structure armed for placement ("port" | "wall" | "mend"), or null
+  edgeKind: "bridge",   // what a click builds on a coastal edge, which takes either
 };
 
 export const clearUi = () => { ui.selected = null; ui.recruit = null; ui.build = null; };

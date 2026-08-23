@@ -78,6 +78,11 @@ button:disabled:hover { background: transparent; }
 .cost .note { margin-left: auto; font-size: 10px; letter-spacing: .08em;
   text-transform: uppercase; color: var(--mute); }
 .build .hint { font-size: 11px; color: var(--mute); margin-top: 2px; }
+.cost.shore .toggle { display: inline-flex; gap: 4px; }
+.cost.shore .toggle button { font-size: 9px; padding: 3px 7px; border-color: var(--line);
+  color: var(--mute); }
+.cost.shore .toggle button.on { border-color: var(--brass); color: var(--brass);
+  background: rgba(228,179,99,.12); }
 
 /* army */
 .army { display: flex; flex-direction: column; gap: 6px; }

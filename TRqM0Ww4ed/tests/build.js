@@ -222,11 +222,86 @@ section("bridges");
   const water = openTo(me2).find(e => e.water);
   if (water) {
     G.game.hands[me2].ore = 99; G.game.hands[me2].wood = 0;
-    check("ore does not buy a bridge", G.legalEdge(me2, water.id) === false);
+    check("ore does not buy a bridge",
+      G.legalEdge(me2, water.id, undefined, "bridge") === false);
     G.game.hands[me2].wood = 2;
-    check("wood buys a bridge", G.legalEdge(me2, water.id) === true);
+    check("wood buys a bridge",
+      G.legalEdge(me2, water.id, undefined, "bridge") === true);
   } else {
     console.log("  (skipped: this fixture's town has no water exit)");
+  }
+}
+
+/* ---------- coastal edges take either kind ---------- */
+section("coastal edges");
+{
+  const b = fresh(2);
+  const me = G.game.current;
+  rich(me);
+  const landCount = e => e.tiles.filter(id => !isWater(b.tiles[id])).length;
+
+  check("land-to-land edges take a road only", b.edges.filter(e => landCount(e) === 2)
+    .every(e => JSON.stringify(G.edgeKinds(e)) === JSON.stringify(["road"])));
+  check("open-water edges take a bridge only", b.edges.filter(e => landCount(e) === 0)
+    .every(e => JSON.stringify(G.edgeKinds(e)) === JSON.stringify(["bridge"])));
+  check("coastal edges take either", b.edges.filter(e => landCount(e) === 1)
+    .every(e => G.edgeKinds(e).includes("road") && G.edgeKinds(e).includes("bridge")));
+  check("coastal edges are flagged", b.edges
+    .every(e => G.isCoastalEdge(e) === (landCount(e) === 1)));
+  check("there are coastal edges to build on",
+    b.edges.filter(G.isCoastalEdge).length > 0);
+
+  check("a road on open water is refused", (() => {
+    const e = b.edges.find(x => landCount(x) === 0);
+    return G.legalEdge(me, e.id, undefined, "road") === false
+      && G.whyEdgeIllegal(me, e.id, undefined, "road") === "A road needs land on both sides";
+  })());
+  check("a bridge between two land tiles is refused", (() => {
+    const e = b.edges.find(x => landCount(x) === 2);
+    return G.legalEdge(me, e.id, undefined, "bridge") === false
+      && G.whyEdgeIllegal(me, e.id, undefined, "bridge") === "A bridge needs water on one side";
+  })());
+
+  /* walk out to a coastal edge and build a ROAD on it */
+  let steps = 0;
+  while (steps < 14 && !openTo(me).some(G.isCoastalEdge)) {
+    const e = openTo(me)[0];
+    if (!e) break;
+    G.buildEdge(e.id); steps++;
+  }
+  const coast = openTo(me).find(G.isCoastalEdge);
+  check("a coastal edge comes into reach", !!coast, `after ${steps} builds`);
+
+  if (coast) {
+    check("both kinds cost differently",
+      JSON.stringify(G.edgeCost(coast, "road")) === JSON.stringify(COSTS.road)
+      && JSON.stringify(G.edgeCost(coast, "bridge")) === JSON.stringify(COSTS.bridge));
+
+    const ore = G.game.hands[me].ore, wood = G.game.hands[me].wood;
+    check("a road can be built on the shore", G.buildEdge(coast.id, "road") === true);
+    check("it is recorded as a road", G.game.roads.get(coast.id).bridge === false);
+    check("it was paid for in ore", G.game.hands[me].ore === ore - 2
+      && G.game.hands[me].wood === wood);
+  }
+
+  /* and the same kind of edge can instead take a bridge */
+  const coast2 = openTo(me).find(G.isCoastalEdge);
+  if (coast2) {
+    const ore = G.game.hands[me].ore, wood = G.game.hands[me].wood;
+    check("a bridge can be built on the shore", G.buildEdge(coast2.id, "bridge") === true);
+    check("it is recorded as a bridge", G.game.roads.get(coast2.id).bridge === true);
+    check("it was paid for in wood", G.game.hands[me].wood === wood - 2
+      && G.game.hands[me].ore === ore);
+  }
+
+  /* affordability is per kind: ore alone still buys the coastal road */
+  const coast3 = openTo(me).find(G.isCoastalEdge);
+  if (coast3) {
+    G.game.hands[me].wood = 0; G.game.hands[me].ore = 2;
+    check("with ore but no wood the shore still takes a road",
+      G.legalEdge(me, coast3.id) === true
+      && G.legalEdge(me, coast3.id, undefined, "road") === true
+      && G.legalEdge(me, coast3.id, undefined, "bridge") === false);
   }
 }
 

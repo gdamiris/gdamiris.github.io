@@ -86,9 +86,22 @@ on the board rim, where the radiating edge borders no second tile). Every new ed
 touch a vertex your network already owns, so the network stays connected by construction.
 An edge holds one road, ever, and nobody may build on a tile that carries a town.
 
-Edge type is decided by terrain, not chosen: any edge touching sea or fish is a **bridge**,
-everything else is a **road**. Open-ocean edges are deliberately kept in the graph, so
-bridge chains can island-hop.
+**What an edge takes depends on how much land it touches.** With land on both sides it can
+only be a **road**; with water on both sides only a **bridge**; and a **coastal** edge — land
+one side, water the other — takes **either**, so the player chooses whether to run a road
+along the shore or throw a bridge out over the water. Open-ocean edges are deliberately
+kept in the graph, so bridge chains can island-hop.
+
+| edge | takes |
+|---|---|
+| land ↔ land | road (2 ore) |
+| land ↔ water | road **or** bridge — your choice |
+| water ↔ water | bridge (2 wood) |
+
+**Bridges carry land units over water.** A water tile with a bridge on any of its edges is
+walkable, so a foot soldier can cross a one-tile strait by land → bridged water → land. A
+*road* on a coastal edge does not do this; only a bridge does. Ownership is irrelevant —
+your bridge carries your enemy just as well as it carries you.
 
 **Founding a town later** needs the spacing rule, one of the tile's six corners already on
 your network, and the full cost. In practice that means about two links out from an
@@ -100,7 +113,9 @@ existing town.
 | bridge | 2 wood |
 | town | 1 wheat + 1 ore + 1 wood + 1 fish |
 | port | 2 wood + 1 ore + 1 wheat |
+| wall | 2 ore + 2 wood |
 | repairing any unit | 1 fish |
+| repairing a wall | 1 ore per life, once per turn |
 
 **Units are what wool buys.** Recruit on a town you own; one unit to a tile, and a fresh
 unit is spent on arrival, so it takes orders from its owner's next turn. Wool is the
@@ -125,16 +140,30 @@ repair boats, and it is the only sink for wheat besides towns. Because the port 
 the water, boats muster on the port tile itself and sail back into it to repair — the same
 rule that puts land units on a town.
 
-**Roads and bridges do not carry armies.** Land units walk on land only and boats sail on
-water only, so on land each island is its own military theatre. Nothing may stack, pass
-through another unit, or enter an opponent's town.
+**Land units keep to land, except across bridges.** Boats sail on water only. A land unit
+walks on land, plus any water tile a bridge spans — so bridging a strait opens a road for
+armies as well as for settlers, in both directions. Nothing may stack, pass through
+another unit, or enter an opponent's town.
 
-**Ports, unlike towns, are open to the enemy.** A hostile boat may sail straight into your
-harbour and sit there, which **blockades** it: a port needs an empty tile both to launch a
+**Ports, unlike towns, are open to enemy boats — but only boats.** A harbour is a berth,
+not a checkpoint: no land unit may ever stand in one, even where a bridge makes the tile
+walkable, so a marching column can never shut a port down. A hostile *boat*, though, may
+sail straight in and sit there, which **blockades** it: a port needs an empty tile both to launch a
 boat and to repair one, so while an enemy occupies it you can do neither — and your own
 damaged boats cannot get home. The blockader gets no benefit from the harbour either; it
 can only repair in a port of its own. Breaking a siege means killing the boat, which takes
 two hits from something that can reach it.
+
+**A wall rings a town you already hold**, costs 2 ore + 2 wood, and has **4 lives** of its
+own. While it stands, whatever shelters on that tile **cannot be attacked at all** — but it
+can still shoot out, at whatever its own range reaches. Only **cannons and boats** can
+touch a wall; every blow aimed at a walled tile lands on the masonry instead, and a foot
+soldier or horseman simply cannot attack it. Four siege hits breach it, at which point the
+wall is gone and the garrison is exposed.
+
+Walls mend at 1 ore for 1 life, and **only one life per wall per turn** — so a besieger
+firing every turn will always out-pace the masons, but slowly enough that relief has time
+to arrive.
 
 **The cannon is artillery.** It is the cheapest unit in the game at 2 ore, moves 1 tile,
 and shells anything 2 or 3 tiles away — including boats out at sea. It cannot fire on an
@@ -161,7 +190,8 @@ Not settled yet: **the victory condition**.
 
 | Change | File |
 |---|---|
-| map feel (islands, water, mixing, barren) | `src/config.js` → `TUNING` |
+| map feel (islands, water, mixing) | `src/config.js` → `TUNING` |
+| how many tiles of each resource | `src/config.js` → `TUNING.resourcePct` |
 | placement legality (gap, footprint, variety) | `src/config.js` → `RULES` |
 | what roads, bridges and towns cost | `src/config.js` → `COSTS` |
 | unit stats, costs and movement | `src/config.js` → `UNITS` |
@@ -180,8 +210,8 @@ size, and the `TUNING` object to derive a byte-identical map.
 
     npm test          # all three suites
     node tests/run.js       # geometry, generation, turn loop
-    node tests/build.js     # roads, bridges, town construction (82 checks)
-    node tests/units.js     # recruiting, combat, ports, boats, cannon (169 checks)
+    node tests/build.js     # roads, bridges, coastal edges, towns (97 checks)
+    node tests/units.js     # units, crossings, ports, boats, cannon, walls (243 checks)
 
 `tests/build.js` covers construction specifically, and most of it asserts what must be
 **refused**: building outside the window, on an occupied edge, on a town's perimeter, off
@@ -200,7 +230,10 @@ never a harbour, and covers the blockade from both sides: an enemy boat may ente
 port but gains no repair from it, you can neither launch nor sail home while it sits
 there, and lifting the siege restores both. For the cannon it walks the whole range band —
 adjacent refused, 2 and 3 allowed, 4 refused — confirms a land gun can shell a boat at
-sea, and checks that a wounded cannon can retreat but never repairs.
+sea, and checks that a wounded cannon can retreat but never repairs. Walls are covered
+from both sides of a siege: infantry can neither breach the wall nor reach the garrison,
+the garrison can still shoot out from behind it, four cannon hits breach it and expose
+what was sheltering, and masonry goes up exactly one course per turn.
 
 Covers hex geometry against true distances, generation invariants across seeds and
 sizes (equal resource counts, island count, determinism), the de-clumping pass

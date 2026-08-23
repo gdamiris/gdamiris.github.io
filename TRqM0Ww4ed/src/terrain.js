@@ -6,7 +6,7 @@ export const TERRAIN = {
   wheat:    { label: "Wheat",    color: "var(--wheat)",    ink: "#4A3708", kind: "resource" },
   wool:     { label: "Wool",     color: "var(--wool)",     ink: "#3A4636", kind: "resource" },
   ore:      { label: "Ore",      color: "var(--ore)",      ink: "#212D38", kind: "resource" },
-  fish:     { label: "Fish",     color: "var(--fish)",     ink: "#E2F4F5", kind: "resource", water: true },
+  fish:     { label: "Fish",     color: "var(--fish)",     ink: "#0B3A45", kind: "resource", water: true },
   desert:   { label: "Desert",   color: "var(--desert)",   ink: "#5A4520", kind: "barren" },
   plain:    { label: "Plain",    color: "var(--plain)",    ink: "#DDE6CE", kind: "barren" },
   mountain: { label: "Mountain", color: "var(--mountain)", ink: "#C3CCD6", kind: "barren" },

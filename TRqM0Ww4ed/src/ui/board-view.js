@@ -4,7 +4,9 @@ import { S, PLAYERS, UNITS } from "../config.js";
 import { TERRAIN } from "../terrain.js";
 import { hexPoints, corner } from "../hex.js";
 import { game, legalTown, canBuild, legalEdge, legalExpansion, networkVerts,
-         reachable, targetsOf, canAttack, injured, legalRecruit, legalPort } from "../game.js";
+         reachable, targetsOf, wallTargetsOf, canAttack, injured, legalRecruit, legalPort,
+         legalWall, canRepairWall, sheltered, isCoastalEdge, edgeKinds } from "../game.js";
+import { WALL } from "../config.js";
 import { ui } from "./state.js";
 
 export function renderBoard(svg) {
@@ -55,9 +57,12 @@ export function renderBoard(svg) {
     `stroke="${PLAYERS[r.owner].color}" stroke-width="4" stroke-linecap="round"
      ${r.bridge ? 'stroke-dasharray="5 3"' : ""} pointer-events="none"`)).join("");
 
-  /* Buildable edges for the player whose build window is open. */
-  const slots = !building ? "" : b.edges.filter(e => legalEdge(game.current, e.id, net))
-    .map(e => line(e, `class="slot ${e.water ? "bridge" : ""}" data-edge="${e.id}"
+  /* Buildable edges for the player whose build window is open. A coastal edge takes
+     either kind, so it previews whichever the panel currently has armed. */
+  const kindFor = e => isCoastalEdge(e) ? ui.edgeKind : edgeKinds(e)[0];
+  const slots = !building ? "" : b.edges
+    .filter(e => legalEdge(game.current, e.id, net, isCoastalEdge(e) ? ui.edgeKind : null))
+    .map(e => line(e, `class="slot ${kindFor(e) === "bridge" ? "bridge" : ""}" data-edge="${e.id}"
       stroke="${PLAYERS[game.current].color}" stroke-width="7" stroke-linecap="round"`)).join("");
 
   /* Tiles the network can reach and the player can pay for. */
@@ -76,9 +81,10 @@ export function renderBoard(svg) {
     `<polygon class="move" data-move="${id}" points="${hex(b.tiles[id])}"
        fill="${PLAYERS[sel.owner].color}"/>`).join("");
 
-  const attacks = !ordering || !canAttack(sel) ? "" : targetsOf(sel).map(e =>
-    `<polygon class="strike" data-attack="${e.tile}" points="${hex(b.tiles[e.tile])}"
-       fill="none" stroke="var(--bad)" stroke-width="3"/>`).join("");
+  const attacks = !ordering || !canAttack(sel) ? "" :
+    [...targetsOf(sel).map(e => e.tile), ...wallTargetsOf(sel)].map(tid =>
+      `<polygon class="strike" data-attack="${tid}" points="${hex(b.tiles[tid])}"
+         fill="none" stroke="var(--bad)" stroke-width="3"/>`).join("");
 
   /* tiles that can take the armed recruit: your towns, or water beside your ports */
   const drops = !(building && ui.recruit) ? "" : b.tiles
@@ -91,6 +97,33 @@ export function renderBoard(svg) {
     .filter(t => legalPort(game.current, t, net))
     .map(t => `<polygon class="drop" data-port="${t.id}" points="${hex(t)}"
        fill="none" stroke="${PLAYERS[game.current].color}" stroke-width="3"/>`).join("");
+
+  /* towns that could be walled, or walls that could be patched, while armed */
+  const wallSites = !(building && ui.build === "wall") ? "" : b.tiles
+    .filter(t => legalWall(game.current, t))
+    .map(t => `<polygon class="drop" data-wall="${t.id}" points="${hex(t)}"
+       fill="none" stroke="${PLAYERS[game.current].color}" stroke-width="3"/>`).join("");
+
+  const mendSites = !(building && ui.build === "mend") ? "" : b.tiles
+    .filter(t => canRepairWall(game.current, t))
+    .map(t => `<polygon class="drop" data-mend="${t.id}" points="${hex(t)}"
+       fill="none" stroke="${PLAYERS[game.current].color}" stroke-width="3"/>`).join("");
+
+  /* standing walls: a heavy ring just inside the hex, with one notch per life lost */
+  const ramparts = [...game.walls].map(([id, w]) => {
+    const t = b.tiles[id], c = PLAYERS[w.owner].color;
+    const ring = [0, 1, 2, 3, 4, 5].map(n => {
+      const [cx, cy] = corner(t.col, t.row, n);
+      return [(t.x + (cx - t.x) * 0.97).toFixed(1), (t.y + (cy - t.y) * 0.97).toFixed(1)].join(",");
+    }).join(" ");
+    const pips = Array.from({ length: WALL.lives }, (_, i) =>
+      `<rect x="${(t.x - S * 0.42 + i * S * 0.22).toFixed(1)}" y="${(t.y - S * 0.82).toFixed(1)}"
+         width="${(S * 0.15).toFixed(1)}" height="${(S * 0.15).toFixed(1)}"
+         fill="${i < w.lives ? c : "none"}" stroke="${c}" stroke-width="1"/>`).join("");
+    return `<g pointer-events="none">
+        <polygon points="${ring}" fill="none" stroke="${c}" stroke-width="3.5" opacity="0.9"/>
+        ${pips}</g>`;
+  }).join("");
 
   /* every port on the board, as a small anchor mark */
   const harbours = [...game.ports].map(([id, owner]) => {
@@ -118,7 +151,8 @@ export function renderBoard(svg) {
   }).join("");
 
   svg.innerHTML = terrain + glyphs + slots + built + sites + moves + attacks
-                + drops + portSites + marks + harbours + army;
+                + drops + portSites + wallSites + mendSites
+                + marks + harbours + ramparts + army;
   svg.parentElement.classList.toggle("placing", placing);
   svg.parentElement.classList.toggle("building", building);
 }
