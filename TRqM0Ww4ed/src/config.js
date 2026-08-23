@@ -103,8 +103,8 @@ export const UNITS = {
            cost: { wool: 1, wheat: 1, fish: 1 }, either: null, home: "town",
            perTown: 1, trades: true },
   /* Artillery: outranges everything but cannot fire close in, so it needs infantry to
-     screen it. Damage is permanent — a cannon has no way to repair — but a wounded one
-     can still be pulled back, unlike a wounded soldier.
+     screen it. Damage is permanent — alone among the units, a cannon has no way to
+     repair at all, so a crippled gun stays crippled for the rest of the game.
 
      Priced as a siege piece rather than a cheap unit: covering 30 tiles at range 2-3 is
      the widest reach in the game, and a foot soldier cannot close on one from 3 without
@@ -112,12 +112,12 @@ export const UNITS = {
      gun it answers, which is the way round it should be. */
   cannon:{ label: "Cannon",       short: "C", move: STEP, lives: 2, domain: "land",  range: [2, 3],
            cost: { ore: 2, wood: 2 }, either: null, home: "town",
-           movesInjured: true, noRevive: true },
-  /* Boats launch from a port and must return to one to recover. They keep moving while
-     injured — rooting them would make reaching a port impossible. */
+           noRevive: true },
+  /* Boats launch from a port and must sail back into one to be mended. */
   boat:  { label: "Boat",         short: "B", move: 2 * STEP, lives: 2, domain: "water", range: [2, 2],
            cost: { wood: 2, wool: 1, ore: 1 }, either: null, home: "port",
-           movesInjured: true, reviveAtPort: true },
+           reviveAtPort: true,
+           repair: { wood: 1 } },          // timber, not fish: a hull is planked back up
 };
 
 /* Placement rules. Set a minimum to 1 to disable it. */

@@ -2,7 +2,8 @@
    Run with: node tests/units.js
 
    The action economy is the fiddly part — a foot soldier moves OR acts, a horseman may
-   spend one of its two steps and still attack, and an injured unit cannot move at all. */
+   spend one of its two steps and still attack, and a unit recruited this turn may march
+   but not strike. Anything that can move at all can always move, wounded or fresh. */
 
 import { RESOURCES, UNITS, COSTS, WALL, STEP } from "../src/config.js";
 import { settleable, isWater } from "../src/terrain.js";
@@ -47,18 +48,20 @@ function fresh(n = 2) {
   return G.game.board;
 }
 
-/* Recruit and then hand the unit its turn, since a fresh unit is spent on arrival. */
+/* Recruit and then hand the unit a full turn: a fresh unit may march but not strike, so
+   clearing `fresh` is what makes it a veteran for the purposes of a fixture. */
 function ready(kind, tile) {
   const id = G.recruit(kind, tile);
   const u = G.game.units.get(id);
-  u.moved = 0; u.acted = false;
+  u.moved = 0; u.acted = false; u.fresh = false;
   return u;
 }
 
 /* Drop a unit straight onto a tile, bypassing recruitment, for combat fixtures. */
 function place(owner, kind, tile) {
   const id = G.game.nextUnit++;
-  const u = { id, owner, kind, tile: tile.id, lives: UNITS[kind].lives, moved: 0, acted: false };
+  const u = { id, owner, kind, tile: tile.id, lives: UNITS[kind].lives,
+              moved: 0, acted: false, fresh: false };
   G.game.units.set(id, u);
   return u;
 }
@@ -103,8 +106,11 @@ section("recruiting");
     RESOURCES.filter(f => f !== "wool" && f !== "wood")
       .every(f => G.game.hands[me][f] === before[f]));
 
-  check("a fresh unit cannot act this turn",
-    G.canMove(u) === false && G.canAttack(u) === false);
+  /* a fresh unit may march off the tile it was born on, but not strike from it —
+     rooting it let a cannon outside retaliation range lock the town forever */
+  check("a fresh unit may move at once", G.canMove(u) === true);
+  check("but cannot attack until next turn", G.canAttack(u) === false);
+  check("it is flagged fresh", u.fresh === true);
   check("one unit to a tile", G.legalRecruit(me, "foot", home) === false);
   check("cannot recruit on an opponent's town", (() => {
     const theirs = [...G.game.towns].find(([, o]) => o !== me);
@@ -112,6 +118,13 @@ section("recruiting");
   })());
   check("cannot recruit on open ground",
     G.legalRecruit(me, "foot", b.tiles.find(t => settleable(t) && !G.game.towns.has(t.id))) === false);
+
+  /* the whole point of the change: it can leave the tile it was born on, this turn */
+  check("escaping the spawn tile works", (() => {
+    const out = [...G.reachable(u).keys()];
+    return out.length > 0 && G.moveUnit(u.id, out[0]) === true && u.tile !== home.id;
+  })());
+  check("and still cannot attack after marching", G.canAttack(u) === false);
 
   G.endTurn();
   check("cannot recruit outside the build window", G.recruit("foot", home) === false);
@@ -501,7 +514,7 @@ section("combat");
   /* an injured unit is rooted but can still fight or recover */
   G.endTurn(); G.rollDice(DOUBLES);
   check("it is the victim's turn", G.game.current === victim.owner);
-  check("an injured unit cannot move", G.canMove(victim) === false);
+  check("an injured unit may still retreat", G.canMove(victim) === true);
   check("an injured unit may still attack", G.canAttack(victim) === true);
 
   /* repairs are paid for in fish */
@@ -609,6 +622,25 @@ section("ports");
 
   G.game.hands[me].wheat = 0;
   check("no wheat, no port", b.tiles.every(t => G.legalPort(me, t) === false));
+
+  /* a port built on a fish tile works the shallows it stands in */
+  rich(me);
+  const onFish = b.tiles.filter(t => G.legalPort(me, t) && t.terrain === "fish")[0];
+  const onSea = b.tiles.filter(t => G.legalPort(me, t) && t.terrain === "sea")[0];
+  check("a deep-water port earns nothing", (() => {
+    if (!onSea) return true;
+    const before = G.yieldOf(me, "fish");
+    G.buildPort(onSea);
+    return G.yieldOf(me, "fish") === before;
+  })());
+  check("a port on a fish tile lands an extra fish", (() => {
+    if (!onFish) return true;
+    const before = G.yieldOf(me, "fish");
+    G.buildPort(onFish);
+    return G.yieldOf(me, "fish") === before + 1;
+  })(), onFish ? "" : "(no reachable fish tile in this fixture)");
+  check("and only fish", onFish
+    ? RESOURCES.filter(f => f !== "fish").every(f => G.yieldOf(me, f) === 1) : true);
 }
 
 /* ---------- boats ---------- */
@@ -702,8 +734,24 @@ section("boat repair");
   boat.lives = 1;
   check("the boat is injured", G.injured(boat) === true);
   check("an injured boat is sitting in its port", G.atPort(boat) === true);
+
+  /* a hull is planked back up with wood, not fed with fish */
+  check("a boat repairs with wood",
+    JSON.stringify(G.repairCost(boat)) === JSON.stringify({ wood: 1 }));
+  check("a land unit still repairs with fish", (() => {
+    const foot = place(me, "foot", G.around(port).find(t => settleable(t) && !G.unitAt(t.id)));
+    return JSON.stringify(G.repairCost(foot)) === JSON.stringify(COSTS.revive);
+  })());
+  G.game.hands[me].wood = 0; G.game.hands[me].fish = 9;
+  check("fish does not mend a hull", G.canRevive(boat) === false);
+  check("and it says what is needed",
+    G.whyNoRevive(boat) === `Needs ${G.costLabel({ wood: 1 })}`);
+  G.game.hands[me].wood = 3;
   check("it may revive at the port", G.canRevive(boat) === true);
+  const timber = G.game.hands[me].wood, fishHeld = G.game.hands[me].fish;
   check("reviving restores it", G.reviveUnit(boat.id) === true && boat.lives === UNITS.boat.lives);
+  check("the repair cost a wood, not a fish",
+    G.game.hands[me].wood === timber - 1 && G.game.hands[me].fish === fishHeld);
 
   /* sail away, then it may not repair */
   G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
@@ -716,10 +764,10 @@ section("boat repair");
     check("it cannot repair at sea", G.canRevive(boat) === false);
     check("reviving at sea is refused", G.reviveUnit(boat.id) === false);
     check("an injured boat may still sail", G.canMove(boat) === true);
-    check("an injured land unit may not move", (() => {
+    check("an injured land unit may retreat too", (() => {
       const foot = place(me, "foot", b.tiles.find(t => settleable(t) && !G.unitAt(t.id) && !G.game.towns.has(t.id)));
       foot.lives = 1;
-      return G.canMove(foot) === false;
+      return G.canMove(foot) === true;
     })());
   }
 }
@@ -881,10 +929,10 @@ section("cannon damage");
   check("reviving is refused outright", G.reviveUnit(gun.id) === false);
   check("but a wounded cannon may still move", G.canMove(gun) === true);
   check("and may still fire", G.canAttack(gun) === true);
-  check("a wounded foot soldier still may not move", (() => {
+  check("a wounded foot soldier may withdraw as well", (() => {
     const foot = place(me, "foot", G.around(home).find(t => settleable(t) && !G.unitAt(t.id)));
     foot.lives = 1;
-    return G.canMove(foot) === false;
+    return G.canMove(foot) === true;
   })());
 
   const away = [...G.reachable(gun).keys()][0];

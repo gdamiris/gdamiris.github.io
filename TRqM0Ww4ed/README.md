@@ -120,14 +120,22 @@ existing town.
 | town | 1 wheat + 1 ore + 1 wood + 1 fish |
 | port | 2 wood + 1 ore + 1 wheat |
 | wall | 2 ore + 2 wood |
-| repairing any unit | 1 fish |
+| repairing a unit | 1 fish — or 1 wood for a boat |
 | repairing a wall | 1 ore per life, once per turn |
 
-**Units are what wool buys.** Recruit on a town you own; one unit to a tile, and a fresh
-unit is spent on arrival, so it takes orders from its owner's next turn. Wool is the
-infantry tax — foot, horse and boat all need it, the cannon does not. **Fish is the medical
-supply**: patching up any damaged unit costs 1 fish, on top of whatever else that unit's
-repair requires.
+**Units are what wool buys.** Recruit on a town you own; one unit to a tile. A unit
+recruited this turn may **march at once but not strike** — so it can leave the tile it was
+born on, while there is still no recruit-and-ambush.
+
+That is not a detail. When a fresh unit was frozen for a turn *and* a wounded unit was
+rooted, a single cannon parked 2–3 tiles from a town locked it forever: every unit
+recruited there was shelled before it could move, and being wounded it could then never
+move at all. Its owner's only option was to spend a fish a turn keeping it barely alive.
+Anything that can move can now always move, wounded or fresh.
+
+Wool is the infantry tax — foot, horse and boat all need it, the cannon does not. **Fish is
+the medical supply**: patching up a damaged unit costs 1 fish — except a boat, whose hull is
+planked back together with **1 wood**.
 
 `UNITS` still supports an `either` field (a choice of one resource from a list, on top of
 the fixed cost), but no unit uses it any more.
@@ -143,7 +151,9 @@ the fixed cost), but no unit uses it any more.
 **A port** costs 2 wood + 1 ore + 1 wheat and sits **on the water** — a sea or fish tile
 touching land — anywhere your network reaches. It is not a town: it produces nothing, does
 not block the edges around it, and does not extend your network. It exists to launch and
-repair boats, and it is the only sink for wheat besides towns. Because the port stands in
+repair boats, and it is a sink for wheat besides towns. A port built on a **fish** tile
+works the shallows it stands in: it lands **1 extra fish** whenever fish is rolled, exactly
+as a merchant would. A deep-water port on plain sea earns nothing. Because the port stands in
 the water, boats muster on the port tile itself and sail back into it to repair — the same
 rule that puts land units on a town.
 
@@ -212,8 +222,8 @@ cannot pay the desert toll simply cannot enter the desert.
 **One action per unit per turn.** A foot soldier moves *or* acts; a horseman may spend one
 of its two steps and still attack, but not both. Every attack deals exactly 1 damage
 whatever the attacker is, and units have 2 lives: the first hit leaves a unit **injured**,
-which roots it in place — an injured unit may only attack or spend its turn reviving back
-to full. A second hit kills. Towns cannot be attacked or captured.
+and a second kills. A wounded unit fights and moves as normal — it can withdraw — it simply
+has no life to spare until it is repaired. Towns cannot be attacked or captured.
 
 Not settled yet: **the victory condition**.
 

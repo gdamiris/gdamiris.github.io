@@ -47,11 +47,15 @@ export const footprint = pi => townsOf(pi).flatMap(t => [t, ...around(t)]);
 
 /* Production is flat: every player gains 1 of the rolled resource, however many towns
    they hold. The only way to earn more is to put a merchant on the ground that makes it
-   — so income is bought with territory you have to hold, and never compounds on its own. */
+   — so income is bought with territory you have to hold, and never compounds on its own.
+
+   A port works its own water the same way: one built on a fish tile lands an extra fish
+   whenever fish comes up. Sea tiles produce nothing, so a deep-water port earns nothing. */
 export const merchantsOf = pi => unitsOf(pi).filter(u => unitSpec(u).trades);
 
-export const yieldOf = (pi, res) => 1 + merchantsOf(pi)
-  .filter(u => tileById(u.tile).terrain === res).length;
+export const yieldOf = (pi, res) => 1
+  + merchantsOf(pi).filter(u => tileById(u.tile).terrain === res).length
+  + portsOf(pi).filter(t => t.terrain === res).length;
 
 /* ---------- placement rules ---------- */
 export function legalTown(t) {
@@ -375,31 +379,39 @@ export function recruit(kind, t) {
     return false;
   }
   const paid = payUnit(pi, kind), spec = UNITS[kind], id = game.nextUnit++;
-  /* A fresh unit is spent for the turn — it acts from its owner's next turn on. */
-  game.units.set(id, { id, owner: pi, kind, tile: t.id, lives: spec.lives, moved: spec.move, acted: true });
+  /* A fresh unit can march away at once but cannot strike until its owner's next turn. */
+  game.units.set(id, { id, owner: pi, kind, tile: t.id, lives: spec.lives,
+                       moved: 0, acted: false, fresh: true });
   game.notice = "";
   emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> ${spec.home === "port" ? "launches" : "recruits"} a ${spec.label.toLowerCase()}${paid ? ` (${paid})` : ""}`);
   return id;
 }
 
 /* One action per unit per turn. A foot soldier moves OR acts; a horseman and a boat may
-   spend one of their two steps and still attack, but not both steps. Injured land units
-   are rooted; boats are not, or they could never sail home to a port. */
-export const canMove = u => !u.acted && u.moved < unitSpec(u).move
-  && (!injured(u) || !!unitSpec(u).movesInjured);
+   spend one of their two steps and still attack, but not both steps.
+
+   Anything that can move at all can always move: a wounded unit may retreat, and a unit
+   recruited this turn may march off the tile it was born on. Rooting either of them let
+   a single cannon parked outside retaliation range lock a town forever — the unit could
+   neither leave nor be defended, only bleed a fish a turn staying alive. */
+export const canMove = u => !u.acted && u.moved < unitSpec(u).move;
 /* Room left for one ordinary tile of movement means the unit still has an attack in it:
    a foot soldier must not have moved at all, a horseman may have spent one tile.
-   A civilian has no range at all and can never attack. */
-export const canAttack = u => !u.acted && !!unitSpec(u).range
+   A civilian has no range at all and can never attack, and neither does a unit recruited
+   this turn — it may march, but the ambush has to wait for its owner's next turn. */
+export const canAttack = u => !u.acted && !u.fresh && !!unitSpec(u).range
   && u.moved <= unitSpec(u).move - STEP;
 
 export const atPort = u => game.ports.get(u.tile) === u.owner;
 
-/* Patching a unit up costs a fish, whatever the unit is. */
+/* Patching a unit up costs a fish, unless the unit says otherwise — a boat is planked
+   back together with wood rather than fed. */
+export const repairCost = u => unitSpec(u).repair || COSTS.revive;
+
 export const canRevive = u => {
   const spec = unitSpec(u);
   if (spec.noRevive || u.acted || u.moved !== 0 || !injured(u)) return false;
-  if (!canAfford(u.owner, COSTS.revive)) return false;
+  if (!canAfford(u.owner, repairCost(u))) return false;
   return spec.reviveAtPort ? atPort(u) : true;
 };
 
@@ -407,7 +419,7 @@ export function whyNoRevive(u) {
   const spec = unitSpec(u);
   if (spec.noRevive) return `Damage to a ${spec.label.toLowerCase()} is permanent`;
   if (!injured(u)) return "Not damaged";
-  if (!canAfford(u.owner, COSTS.revive)) return `Needs ${costLabel(COSTS.revive)}`;
+  if (!canAfford(u.owner, repairCost(u))) return `Needs ${costLabel(repairCost(u))}`;
   if (spec.reviveAtPort && !atPort(u)) return "Sail back into one of your ports";
   if (u.moved !== 0 || u.acted) return "Already acted this turn";
   return "";
@@ -581,13 +593,15 @@ export function reviveUnit(id) {
   const u = mine(id);
   if (!u) return false;
   if (!canRevive(u)) { game.notice = whyNoRevive(u); return false; }
-  pay(u.owner, COSTS.revive);
+  pay(u.owner, repairCost(u));
   u.lives = unitSpec(u).lives; u.acted = true; game.notice = "";
   emit(`<b style="color:${PLAYERS[u.owner].color}">${PLAYERS[u.owner].name}</b>'s ${unitSpec(u).label.toLowerCase()} recovers`);
   return true;
 }
 
-const refreshUnits = pi => { for (const u of unitsOf(pi)) { u.moved = 0; u.acted = false; } };
+const refreshUnits = pi => {
+  for (const u of unitsOf(pi)) { u.moved = 0; u.acted = false; u.fresh = false; }
+};
 
 /* ---------- lifecycle ---------- */
 function clearRound() {
