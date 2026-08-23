@@ -42,6 +42,26 @@ export const COSTS = {
   road:   { ore: 2 },
   bridge: { wood: 2 },
   town:   { wheat: 1, ore: 1, wood: 1, fish: 1, deer: 1 },
+  port:   { wood: 2, ore: 1, wheat: 1 },
+};
+
+/* Units. `either` is a choice of one resource from the list, on top of `cost`.
+   Every attack deals exactly 1 damage whatever the attacker is.
+
+   `domain`  where the unit may stand: land units never touch water, boats never touch land.
+   `range`   [min, max] distance in tiles it may strike. A boat's [2, 2] means it cannot
+             hit anything adjacent, which is exactly what makes closing on it the counter.
+   Roads and bridges do not carry armies, so on land each island is its own theatre. */
+export const UNITS = {
+  foot:  { label: "Foot soldier", short: "F", move: 1, lives: 2, domain: "land", range: [1, 1],
+           cost: { wool: 1, wood: 1 }, either: ["fish", "deer"], home: "town" },
+  horse: { label: "Horseman",     short: "H", move: 2, lives: 2, domain: "land", range: [1, 1],
+           cost: { wool: 2, wood: 1 }, either: ["deer", "fish"], home: "town" },
+  /* Boats launch beside a port and must return to one to recover. They keep moving while
+     injured — rooting them would make reaching a port impossible. */
+  boat:  { label: "Boat",         short: "B", move: 2, lives: 2, domain: "water", range: [2, 2],
+           cost: { wood: 2, wool: 1, ore: 1 }, either: null, home: "port",
+           movesInjured: true, reviveAtPort: true },
 };
 
 /* Placement rules. Set a minimum to 1 to disable it. */

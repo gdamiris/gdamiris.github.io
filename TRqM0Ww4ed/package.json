@@ -1,1 +1,1 @@
-{ "name": "hex-board", "type": "module", "private": true, "scripts": { "test": "node tests/run.js" } }
+{ "name": "hex-board", "type": "module", "private": true, "scripts": { "test": "node tests/run.js && node tests/build.js && node tests/units.js" } }

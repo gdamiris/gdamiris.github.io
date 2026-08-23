@@ -1,10 +1,12 @@
 /* Draws the side panel: turn colour, player chips and hands, dice, legend, stats, log. */
 
-import { PLAYERS, DIE_FACES, COSTS } from "../config.js";
+import { PLAYERS, DIE_FACES, COSTS, UNITS } from "../config.js";
 import { TERRAIN } from "../terrain.js";
 import { tileCounts, deadFaces } from "../generate.js";
-import { game, canBuild, canAfford } from "../game.js";
+import { game, canBuild, canAfford, canAffordUnit, canMove, canAttack, canRevive,
+         injured, unitsOf, portsOf, atPort, hasBerth, blockaders } from "../game.js";
 import { glyph } from "./icons.js";
+import { ui } from "./state.js";
 
 const $ = id => document.getElementById(id);
 
@@ -13,6 +15,7 @@ export function renderPanel() {
   renderStatus();
   renderDice();
   renderBuild();
+  renderArmy();
   renderLegend();
   renderStats();
   renderLog();
@@ -94,13 +97,76 @@ function renderBuild() {
         <span class="note">${note}</span>
       </div>`;
   };
+  const portOk = open && canAfford(pi, COSTS.port);
   $("build").innerHTML =
     row("Road", COSTS.road, "land edge") +
     row("Bridge", COSTS.bridge, "sea or fish edge") +
     row("Town", COSTS.town, "reachable tile") +
-    `<div class="hint">${open
-      ? "Click a highlighted edge or circled tile"
-      : game.phase === "play" ? "Roll first" : "No game running"}</div>`;
+    `<button class="recruit ${ui.build === "port" ? "armed" : ""}" data-build="port"
+       ${portOk ? "" : "disabled"}>
+       <span class="what">Port</span>
+       <span class="price">${Object.entries(COSTS.port).map(([k, n]) =>
+         `${n}${glyph(k, TERRAIN[k].color)}`).join("")}</span>
+     </button>` +
+    `<div class="hint">${!open
+      ? (game.phase === "play" ? "Roll first" : "No game running")
+      : ui.build === "port" ? "Click an outlined water tile beside land"
+      : "Click a highlighted edge or circled tile"}</div>`;
+}
+
+/* Recruiting is two-step: arm a unit kind here, then click one of your towns.
+   Below it, the orders available to whichever unit is selected. */
+function renderArmy() {
+  const open = canBuild(), pi = game.current;
+  const price = spec =>
+    Object.entries(spec.cost).map(([k, n]) => `${n}${glyph(k, TERRAIN[k].color)}`).join("") +
+    (spec.either ? ` +1${spec.either.map(r => glyph(r, TERRAIN[r].color)).join("")}` : "");
+
+  /* a boat needs a port; either kind also needs somewhere free to muster */
+  const why = k => {
+    if (UNITS[k].home === "port" && portsOf(pi).length === 0) return "Needs a port";
+    if (!hasBerth(pi, k)) return UNITS[k].home === "port"
+      ? "Every port is blockaded or occupied" : "Every town already holds a unit";
+    return "";
+  };
+
+  const buttons = Object.entries(UNITS).map(([k, spec]) => {
+    const blocked = why(k);
+    return `<button class="recruit ${ui.recruit === k ? "armed" : ""}" data-recruit="${k}"
+       ${open && canAffordUnit(pi, k) && !blocked ? "" : "disabled"}
+       title="${blocked}">
+       <span class="what">${spec.label}</span><span class="price">${price(spec)}</span>
+     </button>`;
+  }).join("");
+
+  const siege = blockaders(pi);
+
+  const sel = ui.selected === null ? null : game.units.get(ui.selected);
+  let orders;
+  if (!open) {
+    orders = `<div class="hint">${game.phase === "play" ? "Roll first" : "No game running"}</div>`;
+  } else if (ui.recruit) {
+    orders = `<div class="hint">Click one of your towns to place the ${UNITS[ui.recruit].label.toLowerCase()}</div>`;
+  } else if (!sel || sel.owner !== pi) {
+    const n = unitsOf(pi).length;
+    orders = `<div class="hint">${n ? "Click one of your units to give it orders" : "No units yet"}</div>`;
+  } else {
+    const spec = UNITS[sel.kind];
+    const can = [canMove(sel) && "move", canAttack(sel) && "attack"].filter(Boolean);
+    const stranded = injured(sel) && spec.reviveAtPort && !atPort(sel);
+    orders = `<div class="orders">
+        <div><b>${spec.label}</b> · ${sel.lives}/${spec.lives} lives
+          ${injured(sel) ? `<span class="bad">injured</span>` : ""}</div>
+        <div class="can">${can.length ? `can ${can.join(" or ")}` : "spent for this turn"}
+          ${spec.range[0] > 1 ? ` · strikes at ${spec.range[0]}` : ""}</div>
+        ${canRevive(sel) ? `<button class="wide" data-order="revive">Revive</button>` : ""}
+        ${stranded ? `<div class="hint">Sail back into one of your ports to repair</div>` : ""}
+      </div>`;
+  }
+  const warning = siege.length
+    ? `<div class="hint bad">${siege.length} of your port${siege.length > 1 ? "s are" : " is"} blockaded</div>`
+    : "";
+  $("army").innerHTML = buttons + warning + orders;
 }
 
 function renderLegend() {

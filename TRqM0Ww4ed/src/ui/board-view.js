@@ -1,9 +1,11 @@
 /* Draws the hex board: terrain polygons, terrain glyphs, and town markers. */
 
-import { S, PLAYERS } from "../config.js";
+import { S, PLAYERS, UNITS } from "../config.js";
 import { TERRAIN } from "../terrain.js";
 import { hexPoints, corner } from "../hex.js";
-import { game, legalTown, canBuild, legalEdge, legalExpansion, networkVerts } from "../game.js";
+import { game, legalTown, canBuild, legalEdge, legalExpansion, networkVerts,
+         reachable, targetsOf, canAttack, injured, legalRecruit, legalPort } from "../game.js";
+import { ui } from "./state.js";
 
 export function renderBoard(svg) {
   const b = game.board;
@@ -64,7 +66,59 @@ export function renderBoard(svg) {
        fill="none" stroke="${PLAYERS[game.current].color}" stroke-width="2"
        stroke-dasharray="3 3" pointer-events="none"/>`).join("");
 
-  svg.innerHTML = terrain + glyphs + slots + built + sites + marks;
+  /* ---- army ---- */
+  const sel = ui.selected === null ? null : game.units.get(ui.selected);
+  const ordering = building && sel && sel.owner === game.current;
+  const hex = t => hexPoints(t.col, t.row);
+
+  /* where the selected unit may go, and who it may hit */
+  const moves = !ordering ? "" : [...reachable(sel).keys()].map(id =>
+    `<polygon class="move" data-move="${id}" points="${hex(b.tiles[id])}"
+       fill="${PLAYERS[sel.owner].color}"/>`).join("");
+
+  const attacks = !ordering || !canAttack(sel) ? "" : targetsOf(sel).map(e =>
+    `<polygon class="strike" data-attack="${e.tile}" points="${hex(b.tiles[e.tile])}"
+       fill="none" stroke="var(--bad)" stroke-width="3"/>`).join("");
+
+  /* tiles that can take the armed recruit: your towns, or water beside your ports */
+  const drops = !(building && ui.recruit) ? "" : b.tiles
+    .filter(t => legalRecruit(game.current, ui.recruit, t))
+    .map(t => `<polygon class="drop" data-recruit="${t.id}" points="${hex(t)}"
+       fill="none" stroke="${PLAYERS[game.current].color}" stroke-width="3"/>`).join("");
+
+  /* water tiles touching land that a port could open on, while port building is armed */
+  const portSites = !(building && ui.build === "port") ? "" : b.tiles
+    .filter(t => legalPort(game.current, t, net))
+    .map(t => `<polygon class="drop" data-port="${t.id}" points="${hex(t)}"
+       fill="none" stroke="${PLAYERS[game.current].color}" stroke-width="3"/>`).join("");
+
+  /* every port on the board, as a small anchor mark */
+  const harbours = [...game.ports].map(([id, owner]) => {
+    const t = b.tiles[id], c = PLAYERS[owner].color;
+    return `<g pointer-events="none">
+        <circle cx="${t.x.toFixed(1)}" cy="${(t.y - S * 0.05).toFixed(1)}" r="${(S * 0.3).toFixed(1)}"
+          fill="none" stroke="${c}" stroke-width="2.5"/>
+        <path d="M${(t.x - S * 0.22).toFixed(1)} ${(t.y - S * 0.05).toFixed(1)}
+                 h${(S * 0.44).toFixed(1)} M${t.x.toFixed(1)} ${(t.y - S * 0.3).toFixed(1)}
+                 v${(S * 0.5).toFixed(1)}" stroke="${c}" stroke-width="2" fill="none"/>
+      </g>`;
+  }).join("");
+
+  const army = [...game.units.values()].map(u => {
+    const t = b.tiles[u.tile], c = PLAYERS[u.owner].color;
+    const on = ui.selected === u.id;
+    return `<g class="unit" pointer-events="none">
+        <circle cx="${t.x.toFixed(1)}" cy="${t.y.toFixed(1)}" r="${(S * 0.36).toFixed(1)}"
+          fill="var(--void)" stroke="${c}" stroke-width="${on ? 3.5 : 2}"
+          ${injured(u) ? 'stroke-dasharray="3 2"' : ""} opacity="0.95"/>
+        <text x="${t.x.toFixed(1)}" y="${t.y.toFixed(1)}" fill="${c}"
+          font-size="${(S * 0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="central"
+          font-family="var(--sans, sans-serif)">${UNITS[u.kind].short}</text>
+      </g>`;
+  }).join("");
+
+  svg.innerHTML = terrain + glyphs + slots + built + sites + moves + attacks
+                + drops + portSites + marks + harbours + army;
   svg.parentElement.classList.toggle("placing", placing);
   svg.parentElement.classList.toggle("building", building);
 }

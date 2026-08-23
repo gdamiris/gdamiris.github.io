@@ -19,3 +19,12 @@ line.slot { opacity: .18; cursor: pointer; }
 line.slot.bridge { stroke-dasharray: 5 3; }
 line.slot:hover { opacity: .85; }
 circle.site { opacity: .8; }
+
+/* army: move targets, strike targets, recruit drops */
+polygon.move { opacity: .22; cursor: pointer; }
+polygon.move:hover { opacity: .5; }
+polygon.strike { cursor: pointer; }
+polygon.strike:hover { fill: var(--bad); fill-opacity: .3; }
+polygon.drop { cursor: pointer; stroke-dasharray: 4 3; }
+polygon.drop:hover { fill: currentColor; fill-opacity: .2; }
+g.unit text { font-weight: 600; letter-spacing: 0; }

@@ -24,6 +24,10 @@ jobs:
           node-version: 20
       - name: Run headless rule checks
         run: node tests/run.js
+      - name: Run construction checks
+        run: node tests/build.js
+      - name: Run unit checks
+        run: node tests/units.js
 
   deploy:
     needs: test

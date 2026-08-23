@@ -39,7 +39,7 @@ Things this project does deliberately so Pages works:
       board.css             map surface
       panel.css             side panel: controls, chips, dice, legend, log
     src/
-      config.js             board sizes, players, TUNING, placement RULES
+      config.js             board sizes, players, TUNING, COSTS, UNITS, placement RULES
       terrain.js            terrain table + passable/settleable predicates
       rng.js                seeded PRNG and value noise
       hex.js                odd-r offset geometry and neighbour lookup
@@ -47,10 +47,14 @@ Things this project does deliberately so Pages works:
       game.js               game state and rules (no DOM)
       main.js               DOM wiring
       ui/
+        state.js            selection and armed-recruit state (visual only)
         icons.js            terrain glyph sprite sheet
-        board-view.js       draws the map
+        board-view.js       draws the map, roads, towns and units
         panel-view.js       draws the side panel
-    tests/run.js            headless checks over the pure modules
+    tests/
+      run.js                geometry, generation, turn loop
+      build.js              roads, bridges, town construction
+      units.js              recruiting, movement, combat, revival
 
 ## Rules as they stand
 
@@ -85,9 +89,49 @@ existing town.
 | road | 2 ore |
 | bridge | 2 wood |
 | town | 1 wheat + 1 ore + 1 wood + 1 fish + 1 deer |
+| port | 2 wood + 1 ore + 1 wheat |
 
-Not settled yet: **the victory condition**, and **what wool buys** — it currently appears
-in no cost, so a wool die is always a wasted keep.
+**Units are what wool buys.** Recruit on a town you own; one unit to a tile, and a fresh
+unit is spent on arrival, so it takes orders from its owner's next turn.
+
+| unit | cost | move | strikes at | mustered on |
+|---|---|---|---|---|
+| foot soldier | 1 wool + 1 wood + 1 fish **or** deer | 1 tile | 1 | your town |
+| horseman | 2 wool + 1 wood + 1 deer **or** fish | 2 tiles | 1 | your town |
+| boat | 2 wood + 1 wool + 1 ore | 2 tiles | **exactly 2** | your port |
+
+**A port** costs 2 wood + 1 ore + 1 wheat and sits **on the water** — a sea or fish tile
+touching land — anywhere your network reaches. It is not a town: it produces nothing, does
+not block the edges around it, and does not extend your network. It exists to launch and
+repair boats, and it is the only sink for wheat besides towns. Because the port stands in
+the water, boats muster on the port tile itself and sail back into it to repair — the same
+rule that puts land units on a town.
+
+**Roads and bridges do not carry armies.** Land units walk on land only and boats sail on
+water only, so on land each island is its own military theatre. Nothing may stack, pass
+through another unit, or enter an opponent's town.
+
+**Ports, unlike towns, are open to the enemy.** A hostile boat may sail straight into your
+harbour and sit there, which **blockades** it: a port needs an empty tile both to launch a
+boat and to repair one, so while an enemy occupies it you can do neither — and your own
+damaged boats cannot get home. The blockader gets no benefit from the harbour either; it
+can only repair in a port of its own. Breaking a siege means killing the boat, which takes
+two hits from something that can reach it.
+
+**Boats trade reach for vulnerability.** A boat strikes at *exactly* 2 tiles and can hit
+land units, so it bombards coasts — but it cannot touch anything adjacent, while an
+adjacent land unit can hit it. Closing the distance is the counter. A damaged boat is not
+rooted the way a wounded land unit is (it could never get home otherwise), but it may only
+repair while sitting in one of its owner's ports, and sailing there and repairing are two
+separate turns.
+
+**One action per unit per turn.** A foot soldier moves *or* acts; a horseman may spend one
+of its two steps and still attack, but not both. Every attack deals exactly 1 damage
+whatever the attacker is, and units have 2 lives: the first hit leaves a unit **injured**,
+which roots it in place — an injured unit may only attack or spend its turn reviving back
+to full. A second hit kills. Towns cannot be attacked or captured.
+
+Not settled yet: **the victory condition**.
 
 ## Where to change things
 
@@ -96,6 +140,7 @@ in no cost, so a wool die is always a wasted keep.
 | map feel (islands, water, mixing, barren) | `src/config.js` → `TUNING` |
 | placement legality (gap, footprint, variety) | `src/config.js` → `RULES` |
 | what roads, bridges and towns cost | `src/config.js` → `COSTS` |
+| unit stats, costs and movement | `src/config.js` → `UNITS` |
 | terrain colours, glyph ink, passability | `src/terrain.js` |
 | production rule (`yieldOf`) | `src/game.js` |
 | turn flow (roll, keep, resolve, build, end) | `src/game.js` |
@@ -109,7 +154,27 @@ size, and the `TUNING` object to derive a byte-identical map.
 
 ## Tests
 
-    node tests/run.js
+    npm test          # all three suites
+    node tests/run.js       # geometry, generation, turn loop
+    node tests/build.js     # roads, bridges, town construction (82 checks)
+    node tests/units.js     # recruiting, movement, combat, ports, boats (117 checks)
+
+`tests/build.js` covers construction specifically, and most of it asserts what must be
+**refused**: building outside the window, on an occupied edge, on a town's perimeter, off
+your own network, or without the exact cost. It also builds a route to another island to
+prove bridge chains can cross open ocean, and runs 60 turns of blind spending to confirm
+no hand can go negative.
+
+`tests/units.js` pins down the action economy, which is the fiddly part: that a foot
+soldier which moved can no longer attack, that a horseman which spent one of two steps
+still can, that an injured unit is rooted but may still fight or revive, that two hits
+kill, and that a unit refreshes only on its owner's turn. It also pins the naval rules: a
+port needs coastal land within reach, boats launch only beside your own port, a boat's
+shot at an adjacent enemy is refused *and costs it nothing*, and a damaged boat can sail
+but can only repair in a port. It also checks that open ocean with no land beside it is
+never a harbour, and covers the blockade from both sides: an enemy boat may enter your
+port but gains no repair from it, you can neither launch nor sail home while it sits
+there, and lifting the siege restores both.
 
 Covers hex geometry against true distances, generation invariants across seeds and
 sizes (equal resource counts, island count, determinism), the de-clumping pass
