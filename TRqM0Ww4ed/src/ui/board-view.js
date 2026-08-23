@@ -9,8 +9,10 @@ import { game, legalTown, canBuild, legalEdge, legalExpansion, networkVerts,
 import { WALL } from "../config.js";
 import { ui } from "./state.js";
 
-/* Screen pixels per SVG unit at full size. Raise it for chunkier hexes on every board. */
-const PX_PER_UNIT = 1.7;
+/* Screen pixels per SVG unit. This is the one knob for how big the map draws: it fixes
+   the hex size, so a bigger board is genuinely bigger rather than the same box redrawn
+   with finer hexes. Boards wider than the window still shrink to fit. */
+const PX_PER_UNIT = 3.0;
 
 export function renderBoard(svg) {
   const b = game.board;

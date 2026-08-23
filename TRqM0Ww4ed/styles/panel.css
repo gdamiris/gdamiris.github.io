@@ -17,6 +17,11 @@ button:disabled { opacity: .35; cursor: default; }
 button:disabled:hover { background: transparent; }
 #roll:not(:disabled) { border-color: var(--turn, var(--brass)); color: var(--turn, var(--brass)); }
 
+/* Safety net: an inline SVG with no width falls back to roughly 300x150px, which blows
+   the panel apart. Every glyph in the sidebar is icon-sized unless something more
+   specific says otherwise. */
+aside svg { width: 13px; height: 13px; display: block; }
+
 .stack { display: flex; flex-direction: column; gap: 7px; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
 
@@ -86,14 +91,15 @@ button:disabled:hover { background: transparent; }
 
 /* army */
 .army { display: flex; flex-direction: column; gap: 6px; }
-.army .recruit { display: flex; align-items: center; gap: 8px; text-transform: none;
+/* Shared by the Army panel and the Build panel: both hold these buttons. */
+.recruit { display: flex; align-items: center; gap: 8px; text-transform: none;
   letter-spacing: 0; font-size: 12px; padding: 7px 9px; color: var(--chalk);
   border-color: var(--line); }
-.army .recruit:not(:disabled):hover { border-color: var(--turn, var(--brass)); }
-.army .recruit.armed { border-color: var(--turn, var(--brass)); background: rgba(228,179,99,.12); }
-.army .recruit .price { margin-left: auto; display: inline-flex; align-items: center;
+.recruit:not(:disabled):hover { border-color: var(--turn, var(--brass)); }
+.recruit.armed { border-color: var(--turn, var(--brass)); background: rgba(228,179,99,.12); }
+.recruit .price { margin-left: auto; display: inline-flex; align-items: center;
   gap: 2px; color: var(--brass); font-variant-numeric: tabular-nums; }
-.army .recruit .price svg { width: 13px; height: 13px; display: block; margin: 0 3px 0 1px; }
+.recruit .price svg { width: 13px; height: 13px; display: block; margin: 0 3px 0 1px; }
 .army .hint { font-size: 11px; color: var(--mute); }
 .orders { font-size: 12px; color: var(--chalk); display: flex; flex-direction: column; gap: 5px; }
 .orders .can { font-size: 11px; color: var(--mute); text-transform: uppercase; letter-spacing: .08em; }
