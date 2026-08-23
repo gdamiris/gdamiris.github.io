@@ -9,11 +9,17 @@ import { game, legalTown, canBuild, legalEdge, legalExpansion, networkVerts,
 import { WALL } from "../config.js";
 import { ui } from "./state.js";
 
+/* Screen pixels per SVG unit at full size. Raise it for chunkier hexes on every board. */
+const PX_PER_UNIT = 1.7;
+
 export function renderBoard(svg) {
   const b = game.board;
   if (!b) return;
   const w = S * Math.sqrt(3) * (b.cols + 0.5), h = S * 1.5 * b.rows + S * 0.5;
   svg.setAttribute("viewBox", `${-S * 1.9} ${-S * 1.4} ${w + S * 2} ${h + S * 1.6}`);
+  /* Cap the drawn width to the board's own size, so a bigger board actually looks
+     bigger instead of being rescaled to the same box with smaller hexes. */
+  svg.style.maxWidth = `${Math.round((w + S * 2) * PX_PER_UNIT)}px`;
 
   const placing = game.phase === "placing";
   const building = canBuild();
@@ -36,13 +42,16 @@ export function renderBoard(svg) {
        style="color:${TERRAIN[t.terrain].ink}"
        opacity="${dimmed(t) ? 0.3 : t.terrain === "sea" ? 0.5 : 0.95}"/>`).join("");
 
+  /* One shared shape language: everything a player owns on a tile is an inset hex ring
+     in their colour, distinguished by dash and by the pip it carries. */
+  const insetRing = (t, k) => [0, 1, 2, 3, 4, 5].map(n => {
+    const [cx, cy] = corner(t.col, t.row, n);
+    return [(t.x + (cx - t.x) * k).toFixed(1), (t.y + (cy - t.y) * k).toFixed(1)].join(",");
+  }).join(" ");
+
   const marks = [...game.towns].map(([id, pi]) => {
     const t = b.tiles[id], c = PLAYERS[pi].color;
-    const ring = [0, 1, 2, 3, 4, 5].map(n => {
-      const [cx, cy] = corner(t.col, t.row, n);
-      return [(t.x + (cx - t.x) * 0.86).toFixed(1), (t.y + (cy - t.y) * 0.86).toFixed(1)].join(",");
-    }).join(" ");
-    return `<polygon points="${ring}" fill="none" stroke="${c}" stroke-width="3" pointer-events="none"/>
+    return `<polygon points="${insetRing(t, 0.86)}" fill="none" stroke="${c}" stroke-width="3" pointer-events="none"/>
             <circle cx="${t.x.toFixed(1)}" cy="${(t.y + S * 0.58).toFixed(1)}" r="4.2" fill="${c}"
                     stroke="#0B1620" stroke-width="1.2" pointer-events="none"/>`;
   }).join("");
@@ -112,10 +121,7 @@ export function renderBoard(svg) {
   /* standing walls: a heavy ring just inside the hex, with one notch per life lost */
   const ramparts = [...game.walls].map(([id, w]) => {
     const t = b.tiles[id], c = PLAYERS[w.owner].color;
-    const ring = [0, 1, 2, 3, 4, 5].map(n => {
-      const [cx, cy] = corner(t.col, t.row, n);
-      return [(t.x + (cx - t.x) * 0.97).toFixed(1), (t.y + (cy - t.y) * 0.97).toFixed(1)].join(",");
-    }).join(" ");
+    const ring = insetRing(t, 0.97);
     const pips = Array.from({ length: WALL.lives }, (_, i) =>
       `<rect x="${(t.x - S * 0.42 + i * S * 0.22).toFixed(1)}" y="${(t.y - S * 0.82).toFixed(1)}"
          width="${(S * 0.15).toFixed(1)}" height="${(S * 0.15).toFixed(1)}"
@@ -125,16 +131,13 @@ export function renderBoard(svg) {
         ${pips}</g>`;
   }).join("");
 
-  /* every port on the board, as a small anchor mark */
+  /* a port: the same ring as a town, dashed, with its pip centred rather than below */
   const harbours = [...game.ports].map(([id, owner]) => {
     const t = b.tiles[id], c = PLAYERS[owner].color;
-    return `<g pointer-events="none">
-        <circle cx="${t.x.toFixed(1)}" cy="${(t.y - S * 0.05).toFixed(1)}" r="${(S * 0.3).toFixed(1)}"
-          fill="none" stroke="${c}" stroke-width="2.5"/>
-        <path d="M${(t.x - S * 0.22).toFixed(1)} ${(t.y - S * 0.05).toFixed(1)}
-                 h${(S * 0.44).toFixed(1)} M${t.x.toFixed(1)} ${(t.y - S * 0.3).toFixed(1)}
-                 v${(S * 0.5).toFixed(1)}" stroke="${c}" stroke-width="2" fill="none"/>
-      </g>`;
+    return `<polygon points="${insetRing(t, 0.86)}" fill="none" stroke="${c}" stroke-width="2.5"
+              stroke-dasharray="5 3" pointer-events="none"/>
+            <circle cx="${t.x.toFixed(1)}" cy="${t.y.toFixed(1)}" r="3.2" fill="${c}"
+              stroke="#0B1620" stroke-width="1.2" pointer-events="none"/>`;
   }).join("");
 
   const army = [...game.units.values()].map(u => {
