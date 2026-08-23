@@ -19,9 +19,12 @@ export function renderBoard(svg) {
   if (!b) return;
   const w = S * Math.sqrt(3) * (b.cols + 0.5), h = S * 1.5 * b.rows + S * 0.5;
   svg.setAttribute("viewBox", `${-S * 1.9} ${-S * 1.4} ${w + S * 2} ${h + S * 1.6}`);
-  /* Cap the drawn width to the board's own size, so a bigger board actually looks
-     bigger instead of being rescaled to the same box with smaller hexes. */
-  svg.style.maxWidth = `${Math.round((w + S * 2) * PX_PER_UNIT)}px`;
+  /* Draw at the board's own size, so a bigger board actually looks bigger instead of
+     being rescaled to the same box with smaller hexes. This has to be an explicit width
+     rather than 100%: the stage is a flex item, and a percentage width there gives it no
+     size of its own for the row to lay out against. */
+  svg.style.width = `${Math.round((w + S * 2) * PX_PER_UNIT)}px`;
+  svg.style.maxWidth = "100%";
 
   const placing = game.phase === "placing";
   const building = canBuild();
