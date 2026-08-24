@@ -420,14 +420,16 @@ section("town life");
     return n === 0;
   })());
 
-  /* a fighting garrison adds its remaining lives; a civilian adds nothing */
+  /* a fighting garrison's lives are counted into the town's own; a civilian adds nothing */
   check("an empty town defends with its own life alone",
     G.townDefence(mine0) === G.townLife(mine0));
+  const lone = G.townLife(mine0);
   const guard = place(me, "foot", mine0);
   check("a soldier is a garrison", G.garrisonOf(mine0) === guard);
-  check("and adds its lives", G.townDefence(mine0) === G.townLife(mine0) + guard.lives);
+  check("and its lives are counted into the town's",
+    G.townLife(mine0) === lone + guard.lives);
   guard.lives = 1;
-  check("a wounded garrison adds less", G.townDefence(mine0) === G.townLife(mine0) + 1);
+  check("a wounded garrison counts for less", G.townLife(mine0) === lone + 1);
   G.game.units.delete(guard.id);
 
   const trader = place(me, "merchant", mine0);
@@ -487,14 +489,14 @@ section("storming");
     if (post2) {
       const defender = place(foe, "foot", second);
       const attacker = place(me, "foot", post2);
-      check("a garrisoned town is not a town target",
-        G.townTargetsOf(attacker).includes(second.id) === false);
-      check("but the garrison is a unit target",
-        G.targetsOf(attacker).includes(defender));
+      check("a garrisoned town is still a town target",
+        G.townTargetsOf(attacker).includes(second.id) === true);
+      check("but the garrison inside cannot be struck",
+        G.targetsOf(attacker).includes(defender) === false);
       const life = G.townLife(second);
       G.attackUnit(attacker.id, second.id);
-      check("the blow fell on the garrison", defender.lives === UNITS.foot.lives - 1);
-      check("and the town is untouched", G.townLife(second) === life);
+      check("the blow fell on the town", G.townLife(second) === life - 1);
+      check("and the garrison is untouched", defender.lives === UNITS.foot.lives);
     }
   }
 }
@@ -755,14 +757,22 @@ section("scoring");
   check("a fallen town still scores for its owner", G.scoreOf(me) === before);
   G.game.townHurt.delete(mine0.id);
 
-  /* ports are standing points too */
+  /* a port is a shipyard, not a point */
   const port = b.tiles.find(t => G.isHarbour(t) && !G.game.ports.has(t.id));
+  check("a harbour site exists to test with", !!port);
   if (port) {
     const was = G.scoreOf(me);
     G.game.ports.set(port.id, me);
-    check("a port is worth a point", G.scoreOf(me) === was + SCORE.port);
+    check("a port scores nothing", G.scoreOf(me) === was);
     G.game.ports.delete(port.id);
   }
+
+  /* a wall is a standing point, and it is the one point an enemy can take back */
+  const wasWalled = G.scoreOf(me);
+  G.game.walls.set(mine0.id, { owner: me, lives: WALL.lives });
+  check("a wall is worth a point", G.scoreOf(me) === wasWalled + SCORE.wall);
+  G.game.walls.delete(mine0.id);
+  check("and breaching it takes the point straight back", G.scoreOf(me) === wasWalled);
 
   /* raids pay in batches, not one at a time */
   const runs = SCORE.stealRuns;
@@ -1869,13 +1879,18 @@ section("wall under siege");
       check("still sheltered", G.sheltered(home.id) === true);
     }
   }
-  check("four hits breach the wall", G.wallAt(home.id) === null);
+  check("enough hits breach the wall", G.wallAt(home.id) === null);
   check("the tile is no longer sheltered", G.sheltered(home.id) === false);
-  check("the garrison is exposed again", G.targetsOf(gun).includes(garrison) === true);
+  /* the wall is down, but the town behind it is not: the garrison is still not a target,
+     and the gun's blows now fall on the town itself */
+  check("the garrison is still not a target", G.targetsOf(gun).includes(garrison) === false);
+  check("the town is what is exposed", G.townTargetsOf(gun).includes(home.id) === true);
 
+  const standing = G.townLife(home);
   gun.moved = 0; gun.acted = false;
-  check("and can now be shot", G.attackUnit(gun.id, home.id) === true);
-  check("the garrison takes the hit", garrison.lives === UNITS.foot.lives - 1);
+  check("and the town can now be shelled", G.attackUnit(gun.id, home.id) === true);
+  check("the town takes the hit", G.townLife(home) === standing - 1);
+  check("the garrison is untouched", garrison.lives === UNITS.foot.lives);
 }
 
 /* ---------- masonry: one course a turn ---------- */
@@ -1901,10 +1916,14 @@ section("wall repair");
   check("repairing works", G.repairWall(home) === true);
   check("one life is restored", w.lives === 2);
   check("one ore is spent", G.game.hands[me].ore === 4);
+  check("that fills a two-life wall", w.lives === WALL.lives);
   check("only one repair per turn", G.canRepairWall(me, home) === false);
   check("a second repair is refused", G.repairWall(home) === false);
+  /* batter it again in the same turn: the refusal is now the allowance, not fullness */
+  w.lives = 1;
   check("and it says why",
-    G.game.notice === "Something there has already been repaired this turn");
+    G.whyNoWallRepair(me, home) === "Something there has already been repaired this turn");
+  w.lives = WALL.lives;
   /* the allowance is shared: having mended the wall, the masonry must wait too */
   G.game.townHurt.set(home.id, 1);
   check("the town cannot also be rebuilt this turn", G.canRepairTown(me, home) === false);
@@ -1916,20 +1935,188 @@ section("wall repair");
     return no;
   })());
 
-  /* next turn the masons are back */
+  /* next turn the masons are back, but there is nothing left to mend */
   G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
   check("back to the wall's owner", G.game.current === me);
-  check("repair is available again", G.canRepairWall(me, home) === true);
-  G.repairWall(home);
-  check("and restores another life", w.lives === 3);
-
-  /* never past full */
-  G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
-  G.repairWall(home);
-  check("a wall reaches full strength", w.lives === WALL.lives);
-  G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
-  check("and never goes past it", G.canRepairWall(me, home) === false);
+  check("a full wall needs no second course", G.canRepairWall(me, home) === false);
+  check("and never goes past full", G.whyNoWallRepair(me, home) === "That wall is intact");
   check("repair beyond full is refused", G.repairWall(home) === false);
+
+  /* knock a course off again and the masons have work */
+  w.lives = 1;
+  check("a battered wall can be mended again", G.canRepairWall(me, home) === true);
+  check("and it takes", G.repairWall(home) === true);
+  check("back to full strength", w.lives === WALL.lives);
+}
+
+/* ---------- artillery does not chase civilians ---------- */
+section("civilians under fire");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me;
+  rich(me); rich(foe);
+  const home = G.townsOf(foe)[0];
+
+  /* park a merchant out in the open, well clear of any town */
+  const open = b.tiles.find(t => settleable(t) && !G.unitAt(t.id) && !G.game.towns.has(t.id)
+    && [...G.game.towns.keys()].every(id => hexDist(t, G.tileById(id)) > 1));
+  check("open ground exists", !!open);
+  const trader = place(foe, "merchant", open);
+  check("a merchant carries no weapon", !G.unitSpec(trader).range);
+
+  /* a cannon three tiles off can see the tile but not the man on it */
+  const far = b.tiles.find(t => settleable(t) && !G.unitAt(t.id) && hexDist(t, open) === 3);
+  if (far) {
+    const gun = place(me, "cannon", far);
+    check("the cannon reaches that far", G.inRange(gun, open) === true);
+    check("but a civilian is no target for it", G.targetsOf(gun).includes(trader) === false);
+    check("and the shot is refused", G.attackUnit(gun.id, open.id) === false);
+    check("the merchant is unhurt", trader.lives === UNITS.merchant.lives);
+    G.game.units.delete(gun.id);
+  }
+
+  /* infantry has to close, and then it can */
+  const near = b.tiles.find(t => settleable(t) && !G.unitAt(t.id) && hexDist(t, open) === 1);
+  check("adjacent ground exists", !!near);
+  if (near) {
+    const rider = place(me, "horse", near);
+    check("a horseman strikes at one tile", G.reachesFar(rider) === false);
+    check("and a civilian IS a target for it", G.targetsOf(rider).includes(trader) === true);
+    check("the blow lands", G.attackUnit(rider.id, open.id) === true);
+  }
+}
+
+/* ---------- largest cavalry and largest fleet ---------- */
+section("standing bonuses");
+{
+  const b = fresh(3);
+  const me = G.game.current;
+  const others = [0, 1, 2].filter(p => p !== me);
+  const [foe, third] = others;
+  const spots = b.tiles.filter(t => settleable(t) && !G.unitAt(t.id) && !G.game.towns.has(t.id));
+  let next = 0;
+  const horse = owner => place(owner, "horse", spots[next++]);
+
+  const base = G.scoreOf(me);
+  check("no horsemen, no bonus", G.cavalryLead(me) === 0);
+  const mine = [horse(me), horse(me)];
+  check(`${SCORE.cavalryMin - 1} horsemen is not enough`, G.cavalryLead(me) === 0);
+  mine.push(horse(me));
+  check(`${SCORE.cavalryMin} horsemen takes the bonus`, G.cavalryLead(me) === SCORE.cavalry);
+  check("and it shows in the score", G.scoreOf(me) === base + SCORE.cavalry);
+
+  /* a rival who matches the count takes it off them: the point is for being ahead */
+  const theirs = [horse(foe), horse(foe), horse(foe)];
+  check("a tie awards nobody", G.cavalryLead(me) === 0 && G.cavalryLead(foe) === 0);
+  theirs.push(horse(foe));
+  check("and the rival ahead on count takes it", G.cavalryLead(foe) === SCORE.cavalry);
+  check("while the player behind gets nothing", G.cavalryLead(me) === 0);
+
+  /* losing horsemen loses the point again — it is a standing bonus, not a banked one */
+  G.game.units.delete(theirs.pop().id);
+  G.game.units.delete(theirs.pop().id);
+  check("down to two, the rival loses it", G.cavalryLead(foe) === 0);
+  check("and it swings back", G.cavalryLead(me) === SCORE.cavalry);
+  check("the third player never had it", G.cavalryLead(third) === 0);
+  for (const u of [...mine, ...theirs]) G.game.units.delete(u.id);
+
+  /* the fleet bonus works the same way, on boats */
+  const water = b.tiles.filter(t => isWater(t) && !G.unitAt(t.id));
+  let wn = 0;
+  const boat = owner => place(owner, "boat", water[wn++]);
+  check("no boats, no bonus", G.fleetLead(me) === 0);
+  const fleet = [];
+  for (let i = 0; i < SCORE.fleetMin; i++) fleet.push(boat(me));
+  check(`${SCORE.fleetMin} boats takes the fleet bonus`, G.fleetLead(me) === SCORE.fleet);
+  check("cavalry and fleet are separate points",
+    G.standingScore(me) === G.townsOf(me).length * SCORE.town + SCORE.fleet);
+  G.game.units.delete(fleet.pop().id);
+  check("sink one and it is gone", G.fleetLead(me) === 0);
+}
+
+/* ---------- a garrison shoots out but cannot be shot ---------- */
+section("garrison under siege");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me;
+  rich(me); rich(foe);
+  const town = G.townsOf(foe)[0];
+  const spot = G.around(town).find(t => settleable(t) && !G.unitAt(t.id) && !G.game.towns.has(t.id));
+  check("a besieging position exists", !!spot);
+  if (spot) {
+    const guard = place(foe, "foot", town);
+    const raider = place(me, "horse", spot);
+
+    check("the garrison cannot be struck", G.targetsOf(raider).includes(guard) === false);
+    check("but it can strike out", G.targetsOf(guard).includes(raider) === true);
+    check("the town is what the besieger may hit",
+      G.townTargetsOf(raider).includes(town.id) === true);
+
+    /* the besieger batters the town; the garrison answers by shooting the besieger */
+    const life = G.townLife(town);
+    check("the raider's blow lands on the town", G.attackUnit(raider.id, town.id) === true);
+    check("the town takes it", G.townLife(town) === life - 1);
+    check("the garrison is untouched", guard.lives === UNITS.foot.lives);
+
+    G.endTurn(); G.rollDice(DOUBLES);
+    check("it is the defender's turn", G.game.current === foe);
+    check("a garrison that has not moved may attack", G.canAttack(guard) === true);
+    check("and it shoots the besieger", G.attackUnit(guard.id, spot.id) === true);
+    check("the raider is wounded", raider.lives === UNITS.horse.lives - 1);
+
+    /* a lone raider loses this exchange: it has fewer lives than the town has life */
+    check("the raider dies before the town falls",
+      UNITS.horse.lives < G.townLife(town) + 1);
+  }
+}
+
+/* ---------- the mason and the garrison are the same pair of hands ---------- */
+section("repair or fight, not both");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me;
+  rich(me); rich(foe);
+  const town = G.townsOf(me)[0];
+  const spot = G.around(town).find(t => settleable(t) && !G.unitAt(t.id) && !G.game.towns.has(t.id));
+  check("a besieging position exists", !!spot);
+  if (spot) {
+    const guard = place(me, "foot", town);
+    const raider = place(foe, "horse", spot);
+    G.game.townHurt.set(town.id, 1);           // the town has taken a knock
+
+    /* fighting first spends the hands, so the masonry has to wait */
+    check("the garrison may repair before it fights", G.canRepairTown(me, town) === true);
+    check("and it may fight", G.canAttack(guard) === true);
+    check("it shoots the besieger", G.attackUnit(guard.id, spot.id) === true);
+    check("now the town cannot be rebuilt", G.canRepairTown(me, town) === false);
+    check("and it says why",
+      G.whyNoTownRepair(me, town) === "That soldier has already fought this turn");
+    check("the repair is refused", G.repairTown(town) === false);
+
+    /* next turn, the other order: mend first and there is no shot left */
+    G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
+    check("back to the defender", G.game.current === me);
+    check("the soldier is fresh again", G.canAttack(guard) === true);
+    check("and repair is available again", G.canRepairTown(me, town) === true);
+    check("this time he mends the town", G.repairTown(town) === true);
+    check("so he cannot also shoot", G.canAttack(guard) === false);
+    check("the shot is refused", G.attackUnit(guard.id, spot.id) === false);
+    check("the besieger is untouched", raider.lives === UNITS.horse.lives - 1);
+
+    /* the same single action covers the wall */
+    G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
+    G.buildWall(town);
+    const w = G.wallAt(town.id);
+    w.lives = 1;
+    check("a wall can be mended by a fresh soldier", G.canRepairWall(me, town) === true);
+    check("but not by one that has fought", (() => {
+      guard.acted = true;
+      const no = G.canRepairWall(me, town) === false
+        && G.whyNoWallRepair(me, town) === "That soldier has already fought this turn";
+      guard.acted = false;
+      return no;
+    })());
+  }
 }
 
 console.log(failures

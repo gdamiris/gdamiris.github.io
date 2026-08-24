@@ -127,11 +127,16 @@ export function linkedTowns(pi, t) {
   return townsOf(pi).filter(o => o.id !== t.id && corners[o.id].some(c => seen.has(c))).length;
 }
 
-/* A town's own life: its base, plus what its roads are worth, capped. */
+/* What an attacker has to chew through: the town's own life, what its roads are worth,
+   and whatever is standing on the walls. The wall itself is the outer skin and is
+   counted separately (see townDefence) because it takes its blows first and can be
+   knocked down on its own. A lone town with no roads, garrison or wall has ONE life. */
 export const townMaxLife = t => {
   const pi = game.towns.get(t.id);
   if (pi === undefined) return 0;
-  return RULES.TOWN_LIFE + Math.min(linkedTowns(pi, t), RULES.TOWN_LINK_CAP);
+  const g = garrisonOf(t);
+  return RULES.TOWN_LIFE + Math.min(linkedTowns(pi, t), RULES.TOWN_LINK_CAP)
+    + (g ? g.lives : 0);
 };
 const hurtOf = tid => game.townHurt.get(tid) || 0;
 export const townLife = t => Math.max(0, townMaxLife(t) - hurtOf(t.id));
@@ -144,21 +149,34 @@ export const workCrew = (pi, t) => {
   const u = unitAt(t.id);
   return u && u.owner === pi && !!unitSpec(u).mends ? u : null;
 };
+
+/* The mason and the garrison are the same soldier, and he has one pair of hands. A turn
+   spent on the walls is a turn not spent shooting at whoever is battering them, and a
+   turn spent shooting is a turn the damage stands. Repairing spends his action exactly
+   as attacking does, so the defender under siege has to choose every single turn:
+   hold the stonework together, or make the siege cost something. */
+export const crewFree = (pi, t) => { const u = workCrew(pi, t); return !!u && !u.acted; };
 /* A town does one job a turn: it either repairs or it musters, never both. */
 export const townBusy = t => game.busy.has(t.id);
 export const mendedThisTurn = townBusy;
 
 /* Anything standing in the town that will actually fight adds its remaining lives to
-   what an attacker has to chew through. Civilians man no walls and add nothing. */
+   what an attacker has to chew through. Civilians man no walls and add nothing.
+   The garrison is not a separate target: while the town stands it cannot be struck at
+   all, so its lives are spent defending the place rather than itself. */
 export const garrisonOf = t => {
   const u = unitAt(t.id);
   return u && game.towns.get(t.id) === u.owner && !!unitSpec(u).range ? u : null;
 };
-export const townDefence = t => townLife(t) + (garrisonOf(t) ? garrisonOf(t).lives : 0);
+/* Everything between an attacker and the town falling: the wall, then the rest. */
+export const townDefence = t => {
+  const w = game.walls.get(t.id);
+  return townLife(t) + (w && w.lives > 0 ? w.lives : 0);
+};
 
 export function canRepairTown(pi, t) {
   if (!t || game.towns.get(t.id) !== pi) return false;
-  if (!hurtOf(t.id) || mendedThisTurn(t) || !workCrew(pi, t)) return false;
+  if (!hurtOf(t.id) || mendedThisTurn(t) || !crewFree(pi, t)) return false;
   return canAfford(pi, COSTS.townRepair);
 }
 
@@ -168,6 +186,7 @@ export function whyNoTownRepair(pi, t) {
   if (!hurtOf(t.id)) return "That town is unharmed";
   if (mendedThisTurn(t)) return "Something there has already been repaired this turn";
   if (!workCrew(pi, t)) return "Needs a foot soldier or horseman in the town";
+  if (!crewFree(pi, t)) return "That soldier has already fought this turn";
   return `Needs ${costLabel(COSTS.townRepair)}`;
 }
 
@@ -178,6 +197,7 @@ export function repairTown(t) {
   pay(pi, COSTS.townRepair);
   game.townHurt.set(t.id, hurtOf(t.id) - 1);
   game.busy.add(t.id);
+  workCrew(pi, t).acted = true;      // masonry today means no sword today
   game.notice = "";
   emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> rebuilds a town (${townLife(t)}/${townMaxLife(t)})`);
   return true;
@@ -253,8 +273,28 @@ export function trade(give, get) {
 /* Two kinds of point. STANDING points are counted off the board every time: hold the
    town or the port, hold the point. EARNED points were banked when they were won and
    are never taken back — a town retaken later does not refund what its capture paid. */
+/* A bonus that goes to whoever fields the most of something, provided they field at
+   least `min` of it. A tie awards nobody: the point is for being clearly ahead, and it
+   moves the moment somebody sinks a boat or rides one horseman more onto the board.
+   Ports score nothing on their own — a harbour is a shipyard and a trade post, and it
+   was outbuilding towns two to one while it was worth a point. */
+const troopLead = (pi, kind, min, pts) => {
+  const fielded = p => [...game.units.values()]
+    .filter(u => u.owner === p && u.kind === kind).length;
+  const mine = fielded(pi);
+  if (mine < min) return 0;
+  for (let p = 0; p < game.playerCount; p++)
+    if (p !== pi && fielded(p) >= mine) return 0;
+  return pts;
+};
+
+export const cavalryLead = pi => troopLead(pi, "horse", SCORE.cavalryMin, SCORE.cavalry);
+export const fleetLead   = pi => troopLead(pi, "boat",  SCORE.fleetMin,  SCORE.fleet);
+
 export const standingScore = pi =>
-  townsOf(pi).length * SCORE.town + portsOf(pi).length * SCORE.port;
+  townsOf(pi).length * SCORE.town
+  + wallsOf(pi).length * SCORE.wall
+  + cavalryLead(pi) + fleetLead(pi);
 
 export const scoreOf = pi => standingScore(pi) + game.earned[pi];
 
@@ -562,7 +602,7 @@ export function buildWall(t) {
 export function canRepairWall(pi, t) {
   const w = t && game.walls.get(t.id);
   if (!w || w.owner !== pi || w.lives >= WALL.lives) return false;
-  if (mendedThisTurn(t) || !workCrew(pi, t)) return false;
+  if (mendedThisTurn(t) || !crewFree(pi, t)) return false;
   return canAfford(pi, WALL.repair);
 }
 
@@ -573,6 +613,7 @@ export function whyNoWallRepair(pi, t) {
   if (w.lives >= WALL.lives) return "That wall is intact";
   if (mendedThisTurn(t)) return "Something there has already been repaired this turn";
   if (!workCrew(pi, t)) return "Needs a foot soldier or horseman in the town";
+  if (!crewFree(pi, t)) return "That soldier has already fought this turn";
   return `Needs ${costLabel(WALL.repair)}`;
 }
 
@@ -583,6 +624,7 @@ export function repairWall(t) {
   const w = game.walls.get(t.id);
   pay(pi, WALL.repair);
   w.lives++; game.busy.add(t.id);              // the town has spent its turn
+  workCrew(pi, t).acted = true;                // and so has the soldier who did the work
   game.notice = "";
   emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> repairs a wall (${w.lives}/${WALL.lives})`);
   return true;
@@ -825,11 +867,27 @@ export const inRange = (u, t) => {
   return d >= r[0] && d <= r[1];
 };
 
+/* Artillery shells a position; it does not pick out the unarmed. Anything that strikes
+   from further than an adjacent tile — a cannon, a boat — cannot hit a merchant or a
+   spy at all. Running a civilian down is infantry work, and someone has to close. */
+export const reachesFar = u => { const r = unitSpec(u).range; return !!r && r[1] > 1; };
+const civilian = e => !unitSpec(e).range;
+
 /* Enemy units this unit could strike. A boat's [2, 2] means adjacent enemies are safe
    from it — and free to hit back, which is the counter to outranging everything.
-   Anything behind a standing wall is off the table entirely. */
+   Anything behind a standing wall is off the table entirely, and so is a garrison in a
+   town that has not yet fallen: to get at the defender you must first take the town. */
 export const targetsOf = u => [...game.units.values()]
-  .filter(e => e.owner !== u.owner && !sheltered(e.tile) && inRange(u, tileById(e.tile)));
+  .filter(e => e.owner !== u.owner && !sheltered(e.tile)
+    && !(reachesFar(u) && civilian(e))
+    && !garrisoning(e)
+    && inRange(u, tileById(e.tile)));
+
+/* True while a unit is defending a town of its own that is still standing. */
+export const garrisoning = e => {
+  const t = tileById(e.tile);
+  return game.towns.get(e.tile) === e.owner && !!unitSpec(e).range && !townFallen(t);
+};
 
 /* Enemy walls this unit could batter. Siege weapons only. */
 export const wallTargetsOf = u => !isSiege(u) ? []
@@ -837,11 +895,11 @@ export const wallTargetsOf = u => !isSiege(u) ? []
       w.owner !== u.owner && w.lives > 0 && inRange(u, tileById(tid))).map(([tid]) => tid);
 
 /* Enemy towns this unit could storm: in range, not sheltered behind a standing wall,
-   and with no fighting garrison in the way. */
+   and not already fallen. A garrison no longer stands in the way of the town — it is
+   counted into the town's life instead, so blows land on the place, not the defender. */
 export const townTargetsOf = u => [...game.towns]
   .filter(([tid, owner]) => owner !== u.owner && !sheltered(tid)
-    && !garrisonOf(tileById(tid)) && !townFallen(tileById(tid))
-    && inRange(u, tileById(tid)))
+    && !townFallen(tileById(tid)) && inRange(u, tileById(tid)))
   .map(([tid]) => tid);
 
 const mine = id => {
@@ -890,12 +948,12 @@ export function attackUnit(id, tid) {
 
   const target = unitAt(tid);
   const townOwner = game.towns.get(tid);
-  const holds = target && target.owner !== u.owner && !!unitSpec(target).range;
 
-  /* An enemy town with no fighting garrison takes the blow itself. A garrison absorbs
-     first — which is exactly what "a defender adds its lives to the town" amounts to,
-     and it means wounding the garrison weakens the place. Civilians defend nothing. */
-  if (townOwner !== undefined && townOwner !== u.owner && !holds) {
+  /* A standing enemy town takes every blow aimed at its tile, defended or not. The
+     garrison's lives are already counted into the town's life, so battering the place
+     wears the defender down without ever putting a scratch on them — and only once the
+     town has fallen does the unit standing in it become a target of its own. */
+  if (townOwner !== undefined && townOwner !== u.owner && !townFallen(tileById(tid))) {
     const t = tileById(tid);
     game.townHurt.set(tid, hurtOf(tid) + 1);
     u.acted = true; game.notice = "";
@@ -910,6 +968,12 @@ export function attackUnit(id, tid) {
   }
 
   if (!target || target.owner === u.owner) { game.notice = "Nothing to attack there"; return false; }
+
+  /* Artillery cannot pick the unarmed out of the open. Someone has to ride them down. */
+  if (reachesFar(u) && !unitSpec(target).range) {
+    game.notice = `A ${unitSpec(u).label.toLowerCase()} cannot fire on ${unitSpec(target).label.toLowerCase()}s`;
+    return false;
+  }
 
   /* SEAM FOR MULTIPLAYER: evading is the defender's decision, so once each player has a
      screen this should pause and ask them. Hot-seat cannot hand control over mid-turn,

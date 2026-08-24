@@ -67,7 +67,7 @@ export const COSTS = {
    reach what shelters behind them — only siege weapons can, and they must batter the
    wall down first. Masonry is rebuilt a course at a time: one life per turn, no more. */
 export const WALL = {
-  lives: 4,
+  lives: 2,
   repair: { ore: 1 },               // 1 ore buys back 1 life, once per wall per turn
   breachedBy: ["cannon", "boat"],
 };
@@ -144,7 +144,7 @@ export const UNITS = {
 export const RULES = {
   TOWNS_AT_START: 2,  // towns each player founds before play, one per round, snaking back
   FAMINE_PER:     5,  // on a double wild, one card is lost for every this many held
-  TOWN_LIFE:      2,  // a town's own life, before garrison and roads
+  TOWN_LIFE:      1,  // a town's own life, before garrison, roads and walls
   TOWN_LINK_CAP:  2,  // most life a road network can add, however many towns it joins
   TRADE_BASE:     6,  // give this many of one resource to get 1 of another
   TRADE_FLOOR:    2,  // however many towns you hold, trade never gets cheaper than this
@@ -163,7 +163,11 @@ export const RULES = {
 export const SCORE = {
   target:     10,   // first to this wins
   town:        1,   // standing: every town you own, conquered or not
-  port:        1,   // standing: every port you own
+  wall:        1,   // standing: every wall still standing — knock it down, they lose it
+  cavalry:     1,   // standing: to whoever fields the MOST horsemen, at least cavalryMin
+  cavalryMin:  3,
+  fleet:       1,   // standing: to whoever floats the MOST boats, at least fleetMin
+  fleetMin:    3,
   conquest:    1,   // earned: the blow that takes a town to nothing
   occupy:      1,   // earned: per HOLD_TURNS holding a conquered enemy town
   blockade:    1,   // earned: per HOLD_TURNS sitting in an enemy port

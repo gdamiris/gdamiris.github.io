@@ -8,7 +8,7 @@ import { game, canBuild, canAfford, canAffordUnit, canMove, canAttack, canRevive
          canRepairWall, wallsOf, sheltered, withinCap, countOf, capOf,
          townsOf, merchantsOf, owesKing, isSpy, spyTargets, kingOf, stealable,
          canRepairTown, townLife, townMaxLife, tradeRatio, canTrade,
-         scoreOf, standingScore } from "../game.js";
+         scoreOf, cavalryLead, fleetLead } from "../game.js";
 import { glyph } from "./icons.js";
 import { ui } from "./state.js";
 
@@ -31,6 +31,19 @@ function activePlayer() {
 }
 
 function renderChips() {
+  /* The standing score now comes from four places, so spell it out on hover rather than
+     leaving a bare number nobody can account for. */
+  const breakdown = i => {
+    const parts = [];
+    const n = townsOf(i).length, w = wallsOf(i).length;
+    if (n) parts.push(`${n} town${n > 1 ? "s" : ""}`);
+    if (w) parts.push(`${w} wall${w > 1 ? "s" : ""}`);
+    if (cavalryLead(i)) parts.push("largest cavalry");
+    if (fleetLead(i)) parts.push("largest fleet");
+    if (game.earned[i]) parts.push(`${game.earned[i]} earned`);
+    return parts.length ? parts.join(" + ") : "no points yet";
+  };
+
   $("chips").innerHTML = PLAYERS.slice(0, game.playerCount).map((p, i) => {
     const active = (game.phase === "placing" && game.turn === i) || (game.phase === "play" && game.current === i);
     const hand = game.hands[i];
@@ -48,7 +61,7 @@ function renderChips() {
         <span class="dot" style="background:${p.color}"></span>${p.name}
         <span class="done">${label}</span>
         <span class="pts ${pts === lead && pts > 0 ? "lead" : ""}"
-              title="${standingScore(i)} standing + ${game.earned[i]} earned">${pts}</span>
+              title="${breakdown(i)}">${pts}</span>
       </div>
       ${game.phase === "play" ? `<div class="hand">${RESOURCES.map(f =>
         `<span class="${hand[f] ? "" : "zero"}">${glyph(f, TERRAIN[f].color)}${hand[f]}</span>`).join("")}</div>` : ""}`;

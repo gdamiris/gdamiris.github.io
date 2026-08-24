@@ -68,7 +68,14 @@ lose it and lose the point.
 | | |
 |---|---|
 | every town you own | **1** — conquered or not, it is still yours |
-| every port you own | **1** |
+| every wall still standing | **1** — breach it and the point goes with it |
+| largest cavalry | **1** — most horsemen alive, minimum 3 |
+| largest fleet | **1** — most boats afloat, minimum 3 |
+
+Ports score nothing. A harbour is a shipyard and a trade post, and that is payment enough.
+
+The two "largest" bonuses go to whoever is clearly ahead: a tie awards them to nobody, and
+they move the moment somebody sinks a boat or rides one horseman more onto the board.
 
 **Earned** points are banked the moment they are won and are never taken back. A town
 retaken later does not refund what its capture paid.
@@ -84,14 +91,19 @@ retaken later does not refund what its capture paid.
 The drips pay for *endurance*, not arrival: a hold must survive three of your own turns
 before it pays anything, and letting go forgets the progress entirely.
 
-Ports score because building was otherwise the worst strategy in the game — measured, a
-pure builder reached 10 points around round 28 while every aggressive route arrived by
-17-21. Scoring ports brings peaceful development level with raiding. They need no
-placement rule of their own: a port already requires your road network to reach it, and
-measurement showed every legal harbour site was already beside one of the player's own
-towns.
+Three of the four standing points can be taken away from you, and that is deliberate. An
+earlier draft scored ports instead of walls, and it broke the game: ports carry no spacing
+rule, so they outbuilt towns two to one, and eight measured games finished in 22 rounds
+without a single unit ever being recruited. Building simply paid better per *turn* than
+war did, and turns were what the game was short of.
 
-Expect a game of roughly **17-22 rounds**, which is 50-65 turns at three players.
+Scoring the wall instead fixes both ends of that. A wall is a point that only exists while
+somebody defends it, so knocking one down is worth doing for its own sake — a besieger
+gains nothing on their own sheet but takes a point off yours. In the same eight boards, a
+raider who spends everything on horsemen now wins **four games in eight** against two
+builders, where before it won none.
+
+Expect a game of roughly **30-40 rounds**, which is 90-120 turns at three players.
 
 ## Rules as they stand
 
@@ -233,16 +245,24 @@ damaged boats cannot get home. The blockader gets no benefit from the harbour ei
 can only repair in a port of its own. Breaking a siege means killing the boat, which takes
 two hits from something that can reach it.
 
-**A wall rings a town you already hold**, costs 2 ore + 2 wood, and has **4 lives** of its
+**A wall rings a town you already hold**, costs 2 ore + 2 wood, and has **2 lives** of its
 own. While it stands, whatever shelters on that tile **cannot be attacked at all** — but it
 can still shoot out, at whatever its own range reaches. Only **cannons and boats** can
 touch a wall; every blow aimed at a walled tile lands on the masonry instead, and a foot
-soldier or horseman simply cannot attack it. Four siege hits breach it, at which point the
-wall is gone and the garrison is exposed.
+soldier or horseman simply cannot attack it. Two siege hits breach it, and the wall is
+gone — along with the **point** it was worth to its owner. The town behind it still stands.
+
+That last part is what makes a wall worth besieging. It is the only point on the board you
+can take off somebody without having to hold anything afterwards.
 
 Walls mend at 1 ore for 1 life, and **only one life per wall per turn** — so a besieger
 firing every turn will always out-pace the masons, but slowly enough that relief has time
 to arrive.
+
+**Artillery cannot fire on civilians.** Anything that strikes from further than an adjacent
+tile — a cannon, a boat — may not target a merchant or a spy at all. Running down the
+unarmed is infantry work: somebody has to close to one tile to do it, which is the one job
+foot and horse have that nothing else covers.
 
 **The merchant is a civilian, and fragile on purpose.** It has **one life**, so a single hit
 kills it and the income dies with it; it cannot attack anything; and you may hold only
@@ -250,23 +270,60 @@ kills it and the income dies with it; it cannot attack anything; and you may hol
 traders stand on. A merchant on barren ground earns nothing — and since fish is a water
 tile, working a fish bed means bridging out to it first.
 
-**Towns can be stormed and razed.** A town's life is `RULES.TOWN_LIFE` (2), plus one for
+**Towns can be stormed and razed.** A town's life is `RULES.TOWN_LIFE` (**1**), plus one for
 each of its owner's other towns joined to it by their own roads — capped at
 `TOWN_LINK_CAP` (2), so a large empire's capital does not become unkillable. Measured on a
 real board, towns end up linked to 0–4 others with a median of 2, and about a fifth are
 joined to nothing at all.
 
-**A garrison adds its own remaining lives.** Defenders absorb blows first, so the town only
-starts taking damage once they are dead — which is the same arithmetic, and means wounding
-the garrison weakens the place. Civilians man no walls: a merchant or spy in a town adds
-nothing and does not shield it.
+A base of 1 means **an isolated, undefended town falls to a single blow**. Planting a town
+out past your roads with nobody in it is not expansion, it is a gift — and that is the
+pressure that makes cavalry worth fielding.
+
+**A garrison's lives are counted into the town's own.** The defender is not a separate
+target: while the town stands it **cannot be struck at all**, so blows land on the place
+rather than the man, and the garrison walks away from a lost siege unhurt. Only once the
+town has fallen does whatever is standing in it become a target. Civilians man no walls: a
+merchant or spy in a town adds nothing and does not shield it.
+
+**And a garrison can still shoot out — but not in the same turn it repairs.** A foot
+soldier that has not moved may strike an adjacent enemy every turn, so a besieger takes
+fire it cannot return. The catch is that the mason and the garrison are the same man with
+one pair of hands: **rebuilding the town or mending its wall spends his action exactly as
+attacking does**, so every turn under siege is a choice between holding the stonework
+together and making the siege cost something. This is the single
+most important thing to know about attacking a defended town: a lone horseman batters a
+garrisoned town for 1 a turn while taking 1 a turn itself, and with 2 lives against a town
+life of 3 it **always dies first**. Sieges need numbers. Two horsemen take that same town
+in two turns; a walled one cannot be touched by cavalry at all and wants a cannon.
+
+Measured over 240 games per case, a raider that spends everything on horsemen wins:
+
+| the builders' defence | raider wins |
+|---|---|
+| no garrison at all | 42% ±6 |
+| a garrison that never fires | 49% ±6 |
+| a garrison that fights back | **23% ±5** |
+
+An even split is 33%. A garrison you forget to fire is worse than no garrison at all —
+you paid for the soldier and got nothing but its hit points. One that shoots is the
+strongest defence in the game, and it roughly halves how often you lose a town (1.47 → 0.79
+per game).
+
+The repair-or-fight choice turns out to cost the defender very little in practice, because
+the two needs rarely land on the same turn: while a besieger stands adjacent, shooting it
+always beats patching walls it is about to knock down again, and the masonry can wait until
+it is dead or gone. Measured, defenders take about 8 shots per game against 2.6 repairs.
+Where the choice really bites is against **artillery** — a cannon strikes from 2-3 tiles and
+a foot soldier reaches only 1, so against guns the garrison cannot shoot back at all and
+its hands go on the wall by default.
 
 | a town | life |
 |---|---|
-| isolated, empty — a frontier outpost | 2 |
-| median town, two roads to neighbours | 4 |
-| the same, with a healthy foot soldier | 6 |
-| …behind a wall | + 4 more, and only siege can breach it |
+| isolated, empty — a frontier outpost | **1** |
+| median town, two roads to neighbours | 3 |
+| the same, with a healthy foot soldier | 5 |
+| …behind a wall | + 2 more, and only siege can breach it |
 
 Rebuilding costs **1 wood for 1 life, once per town per turn** — the same shape as mending
 a wall, so a defender with timber can out-repair a single attacker but not two.
@@ -441,8 +498,12 @@ there, and lifting the siege restores both. For the cannon it walks the whole ra
 adjacent refused, 2 and 3 allowed, 4 refused — confirms a land gun can shell a boat at
 sea, and checks that a wounded cannon can retreat but never repairs. Walls are covered
 from both sides of a siege: infantry can neither breach the wall nor reach the garrison,
-the garrison can still shoot out from behind it, four cannon hits breach it and expose
-what was sheltering, and masonry goes up exactly one course per turn.
+the garrison can still shoot out from behind it, two cannon hits breach it and expose the
+*town* rather than the defender, and masonry goes up exactly one course per turn. Two more
+sections cover the newer rules — that artillery is refused a shot at a merchant while a
+horseman that closes to one tile is not, and that the cavalry and fleet bonuses land at
+three units, vanish on a tie, swing to whoever pulls ahead, and are lost again the moment
+the count drops.
 
 Covers hex geometry against true distances, generation invariants across seeds and
 sizes (equal resource counts, island count, determinism), the de-clumping pass
