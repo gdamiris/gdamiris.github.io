@@ -56,6 +56,43 @@ Things this project does deliberately so Pages works:
       build.js              roads, bridges, town construction
       units.js              recruiting, movement, combat, revival
 
+## Winning
+
+First to **`SCORE.target`** points, checked once as a turn closes — never mid-action, so a
+game can never stop with the board half-resolved. Points come in two kinds, and the
+difference is the whole design:
+
+**Standing** points are read off the board every time. Hold the thing, hold the point;
+lose it and lose the point.
+
+| | |
+|---|---|
+| every town you own | **1** — conquered or not, it is still yours |
+| every port you own | **1** |
+
+**Earned** points are banked the moment they are won and are never taken back. A town
+retaken later does not refund what its capture paid.
+
+| | |
+|---|---|
+| the blow that conquers a town | **1** |
+| holding a conquered enemy town | **1** per 3 turns |
+| sitting in an enemy port | **1** per 3 turns |
+| raiding with a spy | **2** per 3 successful raids |
+| assassinating a king | **2**, every time |
+
+The drips pay for *endurance*, not arrival: a hold must survive three of your own turns
+before it pays anything, and letting go forgets the progress entirely.
+
+Ports score because building was otherwise the worst strategy in the game — measured, a
+pure builder reached 10 points around round 28 while every aggressive route arrived by
+17-21. Scoring ports brings peaceful development level with raiding. They need no
+placement rule of their own: a port already requires your road network to reach it, and
+measurement showed every legal harbour site was already beside one of the player's own
+towns.
+
+Expect a game of roughly **17-22 rounds**, which is 50-65 turns at three players.
+
 ## Rules as they stand
 
 **Setup is a snake draft.** Each player founds **two** towns before play, one per round,

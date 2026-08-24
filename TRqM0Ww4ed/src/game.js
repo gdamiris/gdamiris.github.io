@@ -2,7 +2,7 @@
    whole rule set be driven headlessly from tests (and later from netcode). */
 
 import { PLAYERS, DIE_FACES, RESOURCES, WILD, RULES, COSTS, UNITS, WALL,
-         TERRAIN_MOVE, STEP } from "./config.js";
+         TERRAIN_MOVE, STEP, SCORE } from "./config.js";
 import { TERRAIN, faceSpec, settleable, isWater, isBlocked } from "./terrain.js";
 import { hexDist, neighbours } from "./hex.js";
 
@@ -37,6 +37,10 @@ export const game = {
   busy: new Set(),          // towns that have spent their turn — repairing OR mustering
   kings: new Map(),         // player index -> tile id of the town they sit in
   crown: null,              // { player, from } — a king owed, after an assassination
+  earned: PLAYERS.map(() => 0),   // points banked and never taken back
+  steals: PLAYERS.map(() => 0),   // successful raids, counted toward the next payout
+  holds: new Map(),         // "pi:tileId" -> turns held, for occupations and blockades
+  winner: null,             // set once somebody reaches SCORE.target
   notice: "",               // transient feedback for the status line
   varietyReq: RULES.MIN_VARIETY,
   events: [],               // newest-first log, rendered by the panel
@@ -241,6 +245,75 @@ export function trade(give, get) {
   emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b>` +
        ` trades ${rate} ${TERRAIN[give].label} for 1 ${TERRAIN[get].label}`);
   return true;
+}
+
+
+/* ---------- score ---------- */
+
+/* Two kinds of point. STANDING points are counted off the board every time: hold the
+   town or the port, hold the point. EARNED points were banked when they were won and
+   are never taken back — a town retaken later does not refund what its capture paid. */
+export const standingScore = pi =>
+  townsOf(pi).length * SCORE.town + portsOf(pi).length * SCORE.port;
+
+export const scoreOf = pi => standingScore(pi) + game.earned[pi];
+
+export const scores = () => PLAYERS.slice(0, game.playerCount).map((_, i) => scoreOf(i));
+
+const award = (pi, n, why) => {
+  if (!n) return;
+  game.earned[pi] += n;
+  emit(`<b style="color:${PLAYERS[pi].color}">${PLAYERS[pi].name}</b> +${n} point${n > 1 ? "s" : ""} — ${why}`);
+};
+
+/* A raid pays in batches: every SCORE.stealRuns successful thefts turn into points, so
+   a single spy cannot out-earn a whole game of building one steal at a time. */
+function creditSteal(pi) {
+  game.steals[pi]++;
+  if (game.steals[pi] % SCORE.stealRuns === 0)
+    award(pi, SCORE.steal, `${SCORE.stealRuns} raids`);
+}
+
+/* Occupations and blockades pay for endurance rather than arrival: a hold has to survive
+   SCORE.holdTurns of the holder's own turns before it pays, and pays again every time it
+   survives that long. Counted at the end of a turn, so nothing pays the turn it starts. */
+function tickHolds(pi) {
+  const live = new Set();
+  for (const [tid, owner] of game.towns) {
+    const t = tileById(tid), u = unitAt(tid);
+    if (!townFallen(t) || !u || u.owner !== pi || owner === pi) continue;
+    live.add(`${pi}:${tid}`);
+  }
+  for (const [tid, owner] of game.ports) {
+    const u = unitAt(tid);
+    if (!u || u.owner !== pi || owner === pi) continue;
+    live.add(`${pi}:p${tid}`);
+  }
+  /* anything no longer held forgets its progress; a new hold starts from nothing */
+  for (const key of [...game.holds.keys()])
+    if (key.startsWith(`${pi}:`) && !live.has(key)) game.holds.delete(key);
+
+  for (const key of live) {
+    const n = (game.holds.get(key) || 0) + 1;
+    game.holds.set(key, n);
+    if (n % SCORE.holdTurns === 0)
+      award(pi, key.includes(":p") ? SCORE.blockade : SCORE.occupy,
+        key.includes(":p") ? `${SCORE.holdTurns} turns blockading` : `${SCORE.holdTurns} turns holding a town`);
+  }
+}
+
+/* Checked once, at the end of a turn, so a game never stops with the board half-resolved. */
+function checkWinner() {
+  if (game.winner !== null) return;
+  let best = -1, who = null;
+  for (let i = 0; i < game.playerCount; i++) {
+    const s = scoreOf(i);
+    if (s >= SCORE.target && s > best) { best = s; who = i; }
+  }
+  if (who === null) return;
+  game.winner = who;
+  game.phase = "over";
+  emit(`<b style="color:${PLAYERS[who].color}">${PLAYERS[who].name}</b> wins with ${best} points`);
 }
 
 /* ---------- kings ---------- */
@@ -828,8 +901,10 @@ export function attackUnit(id, tid) {
     u.acted = true; game.notice = "";
     const who = `<b style="color:${PLAYERS[u.owner].color}">${PLAYERS[u.owner].name}</b>`;
     const whose = `<b style="color:${PLAYERS[townOwner].color}">${PLAYERS[townOwner].name}</b>`;
-    if (townLife(t) <= 0)
+    if (townLife(t) <= 0) {
       emit(`${who} conquers ${whose}'s town at ${t.col},${t.row} — it musters nobody now`);
+      award(u.owner, SCORE.conquest, "conquering a town");
+    }
     else emit(`${who} storms ${whose}'s town (${townLife(t)}/${townMaxLife(t)})`);
     return true;
   }
@@ -863,6 +938,13 @@ const spyAct = (id, tid, cost, what) => {
   if (!u) return null;
   if (!isSpy(u)) { game.notice = `Only a spy can ${what}`; return null; }
   if (u.acted) { game.notice = "That spy has already acted"; return null; }
+  /* A spy obeys the same allowance as everyone else: it may come one tile and still do
+     its work, but a unit that has run its full three tiles has spent its turn. Without
+     this it could sprint out of reach, kill, and be gone in a single turn. */
+  if (u.moved > strikeAllowance(u.kind)) {
+    game.notice = "That spy has marched too far to work this turn";
+    return null;
+  }
   const t = tileById(tid);
   if (!spyTargets(u).some(x => x.id === tid)) {
     game.notice = "Stand next to the town first"; return null;
@@ -919,6 +1001,7 @@ export function stealFrom(id, tid) {
   game.hands[act.owner][res] -= 1;
   game.hands[act.u.owner][res] += 1;
   emit(`${who} steals ${TERRAIN[res].label} from ${from}`);
+  creditSteal(act.u.owner);
   return true;
 }
 
@@ -935,6 +1018,7 @@ export function assassinate(id, tid) {
   game.notice = "";
   emit(`<b style="color:${PLAYERS[act.u.owner].color}">${PLAYERS[act.u.owner].name}</b>` +
        ` assassinates <b style="color:${PLAYERS[act.owner].color}">${PLAYERS[act.owner].name}</b>'s king`);
+  award(act.u.owner, SCORE.assassinate, "assassinating a king");
   return true;
 }
 
@@ -978,6 +1062,8 @@ function clearRound() {
   game.ports = new Map(); game.walls = new Map();
   game.kings = new Map(); game.crown = null;
   game.townHurt = new Map(); game.busy = new Set();
+  game.earned = PLAYERS.map(() => 0); game.steals = PLAYERS.map(() => 0);
+  game.holds = new Map(); game.winner = null;
   game.notice = ""; game.varietyReq = RULES.MIN_VARIETY;
   game.hands = PLAYERS.map(blankHand);
 }
@@ -1122,6 +1208,11 @@ function payOut() {
 
 export function endTurn() {
   if (game.phase !== "play" || game.awaiting || game.needWild || !game.rolled) return false;
+  /* the closing player is paid for whatever they have held on to, then the board is
+     read for a winner — never mid-action, so a game cannot stop half-resolved */
+  tickHolds(game.current);
+  checkWinner();
+  if (game.winner !== null) return true;
   game.rolled = false;
   game.turnNo++;
   game.current = (game.current + 1) % game.playerCount;

@@ -1,13 +1,14 @@
 /* Draws the side panel: turn colour, player chips and hands, dice, legend, stats, log. */
 
-import { PLAYERS, RESOURCES, COSTS, UNITS, WALL, RULES } from "../config.js";
+import { PLAYERS, RESOURCES, COSTS, UNITS, WALL, RULES, SCORE } from "../config.js";
 import { TERRAIN, faceSpec } from "../terrain.js";
 import { tileCounts, deadFaces } from "../generate.js";
 import { game, canBuild, canAfford, canAffordUnit, canMove, canAttack, canRevive,
          injured, unitsOf, portsOf, atPort, hasBerth, blockaders, rangeLabel,
          canRepairWall, wallsOf, sheltered, withinCap, countOf, capOf,
          townsOf, merchantsOf, owesKing, isSpy, spyTargets, kingOf, stealable,
-         canRepairTown, townLife, townMaxLife, tradeRatio, canTrade } from "../game.js";
+         canRepairTown, townLife, townMaxLife, tradeRatio, canTrade,
+         scoreOf, standingScore } from "../game.js";
 import { glyph } from "./icons.js";
 import { ui } from "./state.js";
 
@@ -36,14 +37,18 @@ function renderChips() {
     /* towns and merchants are what a player's position amounts to: muster points, and
        the income standing on the ground */
     const towns = townsOf(i).length, traders = merchantsOf(i).length;
+    const pts = scoreOf(i);
+    const lead = Math.max(...PLAYERS.slice(0, game.playerCount).map((_, k) => scoreOf(k)));
     const crowned = kingOf(i) ? " ♚" : "";
     const label = game.phase === "placing" && game.turn === i ? "placing…"
                 : towns ? `${towns} town${towns > 1 ? "s" : ""}` +
                           (traders ? ` · ${traders}M` : "") + crowned
                 : "—";
-    return `<div class="chip ${active ? "active" : ""}">
+    return `<div class="chip ${active ? "active" : ""} ${game.winner === i ? "won" : ""}">
         <span class="dot" style="background:${p.color}"></span>${p.name}
         <span class="done">${label}</span>
+        <span class="pts ${pts === lead && pts > 0 ? "lead" : ""}"
+              title="${standingScore(i)} standing + ${game.earned[i]} earned">${pts}</span>
       </div>
       ${game.phase === "play" ? `<div class="hand">${RESOURCES.map(f =>
         `<span class="${hand[f] ? "" : "zero"}">${glyph(f, TERRAIN[f].color)}${hand[f]}</span>`).join("")}</div>` : ""}`;
@@ -60,7 +65,9 @@ function renderStatus() {
 
   const st = $("status");
   st.classList.toggle("bad", !!game.notice);
-  st.textContent = game.notice ? game.notice
+  st.textContent = game.winner !== null
+    ? `${PLAYERS[game.winner].name} wins with ${scoreOf(game.winner)} of ${SCORE.target} points`
+    : game.notice ? game.notice
     : game.phase === "placing"
       ? `${PLAYERS[game.turn].name}: found town ${Math.floor(game.placed / game.playerCount) + 1}`
         + ` of ${RULES.TOWNS_AT_START} — click a tile`

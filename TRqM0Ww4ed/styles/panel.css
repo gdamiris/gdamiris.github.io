@@ -32,6 +32,12 @@ aside svg { width: 13px; height: 13px; display: block; }
 .chip.active { color: var(--chalk); }
 .chip.active .dot { box-shadow: 0 0 0 2px var(--void), 0 0 0 4px var(--turn, var(--brass)); }
 .chip .done { margin-left: auto; font-size: 11px; color: var(--mute); }
+/* score: standing points plus whatever has been banked */
+.chip .pts { min-width: 20px; text-align: right; font-variant-numeric: tabular-nums;
+  color: var(--chalk); font-size: 12px; }
+.chip .pts.lead { color: var(--brass); }
+.chip.won { color: var(--brass); }
+.chip.won .pts { color: var(--brass); font-weight: 600; }
 
 .hand { display: flex; flex-wrap: wrap; gap: 4px 7px; margin: 1px 0 7px 19px; }
 .hand span { display: inline-flex; align-items: center; gap: 3px; font-size: 11px;

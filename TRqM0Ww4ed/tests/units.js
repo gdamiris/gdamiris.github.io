@@ -5,7 +5,7 @@
    spend one of its two steps and still attack, and a unit recruited this turn may march
    but not strike. Anything that can move at all can always move, wounded or fresh. */
 
-import { RESOURCES, UNITS, COSTS, WALL, STEP, RULES } from "../src/config.js";
+import { RESOURCES, UNITS, COSTS, WALL, STEP, RULES, SCORE } from "../src/config.js";
 import { settleable, isWater } from "../src/terrain.js";
 import { hexDist } from "../src/hex.js";
 import { generateBoard } from "../src/generate.js";
@@ -733,6 +733,124 @@ section("one job a turn");
     && G.legalRecruit(me, "foot", spare) === true);
 }
 
+
+/* ---------- scoring ---------- */
+section("scoring");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me;
+  rich(me);
+
+  check("everyone starts on their towns", G.scoreOf(me) === RULES.TOWNS_AT_START * SCORE.town);
+  check("standing points are read off the board",
+    G.standingScore(me) === G.townsOf(me).length * SCORE.town);
+  check("nothing is banked yet", G.game.earned[me] === 0);
+  check("scores lists every player", G.scores().length === 2);
+  check("nobody has won", G.game.winner === null && G.game.phase === "play");
+
+  /* a conquered town still scores for its owner — it stays theirs */
+  const mine0 = G.townsOf(me)[0];
+  const before = G.scoreOf(me);
+  G.game.townHurt.set(mine0.id, G.townMaxLife(mine0));
+  check("a fallen town still scores for its owner", G.scoreOf(me) === before);
+  G.game.townHurt.delete(mine0.id);
+
+  /* ports are standing points too */
+  const port = b.tiles.find(t => G.isHarbour(t) && !G.game.ports.has(t.id));
+  if (port) {
+    const was = G.scoreOf(me);
+    G.game.ports.set(port.id, me);
+    check("a port is worth a point", G.scoreOf(me) === was + SCORE.port);
+    G.game.ports.delete(port.id);
+  }
+
+  /* raids pay in batches, not one at a time */
+  const runs = SCORE.stealRuns;
+  for (let i = 1; i < runs; i++) {
+    G.game.steals[me] = i;
+    check(`raid ${i} of ${runs} pays nothing yet`, G.game.earned[me] === 0);
+  }
+  G.game.steals[me] = runs - 1;
+  G.game.earned[me] = 0;
+}
+
+/* ---------- points that are banked stay banked ---------- */
+section("banked points");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me;
+  rich(me);
+
+  const target = G.townsOf(foe)[0];
+  const post = G.around(target).find(t => settleable(t) && !G.unitAt(t.id) && !G.game.towns.has(t.id));
+  if (post) {
+    const ram = place(me, "foot", post);
+    const max = G.townMaxLife(target), was = G.scoreOf(me);
+    for (let hit = 1; hit <= max; hit++) { ram.moved = 0; ram.acted = false; G.attackUnit(ram.id, target.id); }
+    check("conquering a town pays", G.scoreOf(me) === was + SCORE.conquest);
+    check("and it is banked, not standing", G.game.earned[me] === SCORE.conquest);
+
+    /* the owner rebuilds it; the attacker keeps the point */
+    G.game.townHurt.delete(target.id);
+    check("the town stands again", G.townFallen(target) === false);
+    check("the attacker keeps the point", G.game.earned[me] === SCORE.conquest);
+    check("and the owner never lost theirs",
+      G.scoreOf(foe) === G.townsOf(foe).length * SCORE.town);
+    G.game.units.delete(ram.id);
+  }
+}
+
+/* ---------- holding pays for endurance ---------- */
+section("holding");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me;
+  rich(me);
+
+  const target = G.townsOf(foe)[0];
+  G.game.townHurt.set(target.id, G.townMaxLife(target));
+  const holder = place(me, "foot", target);          // walked into the conquered town
+  check("the town has fallen", G.townFallen(target) === true);
+  check("and an enemy stands in it", G.unitAt(target.id) === holder);
+
+  const start = G.game.earned[me];
+  for (let n = 1; n < SCORE.holdTurns; n++) {
+    G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
+    check(`turn ${n} of ${SCORE.holdTurns} pays nothing yet`, G.game.earned[me] === start);
+  }
+  G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
+  check(`holding ${SCORE.holdTurns} turns pays`, G.game.earned[me] === start + SCORE.occupy);
+
+  /* letting go forgets the progress */
+  G.game.units.delete(holder.id);
+  G.endTurn(); G.rollDice(DOUBLES); G.endTurn(); G.rollDice(DOUBLES);
+  check("an abandoned hold stops paying", G.game.earned[me] === start + SCORE.occupy);
+  check("and its progress is forgotten",
+    [...G.game.holds.keys()].every(k => !k.startsWith(`${me}:${target.id}`)));
+}
+
+/* ---------- winning ---------- */
+section("winning");
+{
+  const b = fresh(2);
+  const me = G.game.current;
+  rich(me);
+
+  check("no winner while nobody is close", G.game.winner === null);
+  game_earned_to_target(me);
+  function game_earned_to_target(pi) { G.game.earned[pi] = SCORE.target - G.standingScore(pi); }
+  check("the score has reached the target", G.scoreOf(me) === SCORE.target);
+  check("but nothing is decided mid-turn", G.game.winner === null && G.game.phase === "play");
+
+  G.endTurn();
+  check("the winner is declared as the turn closes", G.game.winner === me);
+  check("and the game is over", G.game.phase === "over");
+  check("the turn did not pass", G.game.current === me);
+  check("no more rolling", G.rollDice(DOUBLES) === false);
+  check("no more building", G.canBuild() === false);
+  check("a second endTurn changes nothing", G.endTurn() === false && G.game.winner === me);
+}
+
 /* ---------- kings ---------- */
 section("kings");
 {
@@ -817,6 +935,27 @@ section("assassination");
   check("a vantage point beside the royal town exists", !!post);
   if (!post) throw new Error("no vantage point");
   const spy = place(me, "spy", post);
+
+  /* a spy obeys the same allowance as everyone else: one tile, then work */
+  check("a spy that marched one tile may still work", (() => {
+    spy.moved = G.strikeAllowance("spy");
+    const ok = G.peekTown(spy.id, seat.id) !== null;
+    spy.moved = 0; spy.acted = false;
+    return ok;
+  })());
+  check("a spy that ran further has spent its turn", (() => {
+    spy.moved = G.strikeAllowance("spy") + 1;
+    const refused = G.assassinate(spy.id, seat.id) === false
+      && G.game.notice === "That spy has marched too far to work this turn";
+    spy.moved = 0; spy.acted = false;
+    return refused;
+  })());
+  check("nor can it steal after a long march", (() => {
+    spy.moved = UNITS.spy.move;
+    const refused = G.stealFrom(spy.id, seat.id) === false;
+    spy.moved = 0; spy.acted = false;
+    return refused;
+  })());
 
   check("the spy sees the town as a target",
     G.spyTargets(spy).some(t => t.id === seat.id));

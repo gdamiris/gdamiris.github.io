@@ -152,3 +152,23 @@ export const RULES = {
   MIN_FOOTPRINT: 1,   // own tile + ring must be at least this many tiles
   MIN_VARIETY:   1,   // ...covering at least this many distinct resources
 };
+
+/* What a game is won with. Points fall into two kinds, and the difference matters:
+   STANDING points are read off the board every time — hold the thing, hold the point,
+   lose the thing and lose it. EARNED points are banked the moment they are won and are
+   never taken back, however the board turns afterwards.
+
+   The drips (occupying, blockading) tick once every HOLD_TURNS turns a thing is held,
+   and what they pay is earned, so a town retaken later does not claw anything back. */
+export const SCORE = {
+  target:     10,   // first to this wins
+  town:        1,   // standing: every town you own, conquered or not
+  port:        1,   // standing: every port you own
+  conquest:    1,   // earned: the blow that takes a town to nothing
+  occupy:      1,   // earned: per HOLD_TURNS holding a conquered enemy town
+  blockade:    1,   // earned: per HOLD_TURNS sitting in an enemy port
+  holdTurns:   3,   // how long a hold must last to pay
+  steal:       2,   // earned: per stealTurns successful raids
+  stealRuns:   3,
+  assassinate: 2,   // earned: every king killed, repeatable
+};
