@@ -4,7 +4,7 @@
 import { PLAYERS, DIE_FACES, RESOURCES, WILD, RULES, COSTS, UNITS, WALL,
          TERRAIN_MOVE, STEP, SCORE } from "./config.js";
 import { TERRAIN, faceSpec, settleable, isWater, isBlocked } from "./terrain.js";
-import { hexDist, neighbours } from "./hex.js";
+import { hexDist, neighbours, hexLine } from "./hex.js";
 
 /* Hands hold real resources only — a wild is chosen, never stored. */
 export const blankHand = () => Object.fromEntries(RESOURCES.map(f => [f, 0]));
@@ -871,6 +871,26 @@ export const inRange = (u, t) => {
    from further than an adjacent tile — a cannon, a boat — cannot hit a merchant or a
    spy at all. Running a civilian down is infantry work, and someone has to close. */
 export const reachesFar = u => { const r = unitSpec(u).range; return !!r && r[1] > 1; };
+
+/* Mountains block artillery. A cannon or a boat needs a clear lane to what it is shooting
+   at: if the ground rises between them, the shot is refused. Both ends are exempt — you
+   may fire FROM high ground, and at something standing on it — so only what the shot
+   passes over counts.
+
+   Where the line runs exactly along the seam between two tiles there is no single honest
+   answer for which one it crosses, so both leanings are tried and the shot goes through if
+   EITHER lane is clear. Blocking is the harsher ruling; it should need to be unambiguous. */
+export function sightBlocked(from, to) {
+  if (!game.board || hexDist(from, to) < 2) return false;
+  for (const lean of [1e-6, -1e-6])
+    if (!hexLine(game.board, from, to, lean).some(t => t.terrain === "mountain")) return false;
+  return true;
+}
+
+/* Whether this unit may shoot at that tile at all: in range, and with a clear lane if it
+   is the kind of unit that mountains can stop. */
+export const hasShot = (u, t) =>
+  inRange(u, t) && !(reachesFar(u) && sightBlocked(tileById(u.tile), t));
 const civilian = e => !unitSpec(e).range;
 
 /* Enemy units this unit could strike. A boat's [2, 2] means adjacent enemies are safe
@@ -881,7 +901,7 @@ export const targetsOf = u => [...game.units.values()]
   .filter(e => e.owner !== u.owner && !sheltered(e.tile)
     && !(reachesFar(u) && civilian(e))
     && !garrisoning(e)
-    && inRange(u, tileById(e.tile)));
+    && hasShot(u, tileById(e.tile)));
 
 /* True while a unit is defending a town of its own that is still standing. */
 export const garrisoning = e => {
@@ -892,14 +912,14 @@ export const garrisoning = e => {
 /* Enemy walls this unit could batter. Siege weapons only. */
 export const wallTargetsOf = u => !isSiege(u) ? []
   : [...game.walls].filter(([tid, w]) =>
-      w.owner !== u.owner && w.lives > 0 && inRange(u, tileById(tid))).map(([tid]) => tid);
+      w.owner !== u.owner && w.lives > 0 && hasShot(u, tileById(tid))).map(([tid]) => tid);
 
 /* Enemy towns this unit could storm: in range, not sheltered behind a standing wall,
    and not already fallen. A garrison no longer stands in the way of the town — it is
    counted into the town's life instead, so blows land on the place, not the defender. */
 export const townTargetsOf = u => [...game.towns]
   .filter(([tid, owner]) => owner !== u.owner && !sheltered(tid)
-    && !townFallen(tileById(tid)) && inRange(u, tileById(tid)))
+    && !townFallen(tileById(tid)) && hasShot(u, tileById(tid)))
   .map(([tid]) => tid);
 
 const mine = id => {
@@ -928,6 +948,10 @@ export function attackUnit(id, tid) {
   if (!u || !canAttack(u)) return false;
   if (!inRange(u, tileById(tid))) {
     game.notice = `That unit strikes at ${rangeLabel(u.kind)} tiles`;
+    return false;
+  }
+  if (reachesFar(u) && sightBlocked(tileById(u.tile), tileById(tid))) {
+    game.notice = "A mountain blocks the shot";
     return false;
   }
   const who = `<b style="color:${PLAYERS[u.owner].color}">${PLAYERS[u.owner].name}</b>`;

@@ -103,7 +103,15 @@ gains nothing on their own sheet but takes a point off yours. In the same eight 
 raider who spends everything on horsemen now wins **four games in eight** against two
 builders, where before it won none.
 
-Expect a game of roughly **30-40 rounds**, which is 90-120 turns at three players.
+Expect a game of roughly **24 rounds**, which is 70-75 turns at three players.
+
+The target is 8 rather than 10 for a measured reason. At 10 a game ran 107 turns and the
+eventual winner was already ahead and never overtaken from **68% of the way in** — roughly
+34 turns spent playing out a settled result. Dropping to 8 cuts the game by a third and the
+settled tail from 34 turns to 21, at the cost of some drama: lead changes fall from 8 to 5
+per game. Cheaper trading was tried first and did nothing at all — the ratio swept from 6:1
+to 3:1 changed neither the length nor the 39% of turns spent holding plenty of resources in
+the wrong mix.
 
 ## Rules as they stand
 
@@ -258,6 +266,22 @@ can take off somebody without having to hold anything afterwards.
 Walls mend at 1 ore for 1 life, and **only one life per wall per turn** — so a besieger
 firing every turn will always out-pace the masons, but slowly enough that relief has time
 to arrive.
+
+**Mountains block artillery.** A cannon or a boat needs a clear lane to whatever it is
+shooting at: if the ground rises anywhere between them, the shot is refused. Both ends are
+exempt — you may fire *from* high ground, and *at* something standing on it — so only the
+tiles a shell passes over count. Infantry is unaffected: at one tile there is nothing in
+between to block.
+
+This makes terrain matter where it never did before. Mountains are 15% of the board, and a
+ridge blocks **9%** of lanes at range 2 and **23%** at range 3, so siting a town behind one
+is real protection and a gun crew has to care where it stands. It is also the only thing
+that reins in the navy: a boat firing inland is blocked 17% of the time, and measured over
+144 games it took a naval strategy from winning 71% to 40%.
+
+Where a line runs exactly along the seam between two tiles there is no honest answer for
+which one it crosses, so both leanings are tried and the shot goes through if **either**
+lane is clear — blocking is the harsher ruling and should need to be unambiguous.
 
 **Artillery cannot fire on civilians.** Anything that strikes from further than an adjacent
 tile — a cannon, a boat — may not target a merchant or a spy at all. Running down the

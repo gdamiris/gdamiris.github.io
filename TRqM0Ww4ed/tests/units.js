@@ -1773,12 +1773,13 @@ section("cannon versus boat");
   const me = G.game.current, foe = 1 - me;
   rich(me);
 
-  /* find a land tile with water 2 or 3 tiles away, and put a gun on it */
+  /* find a land tile with water 2 or 3 tiles away and a CLEAR LANE to it — mountains
+     block artillery now, so a firing position needs line of sight as well as range */
   let gunTile = null, seaTile = null;
   for (const t of b.tiles) {
     if (!settleable(t) || G.game.towns.has(t.id) || G.unitAt(t.id)) continue;
     const target = b.tiles.find(w => isWater(w) && !G.unitAt(w.id)
-      && [2, 3].includes(hexDist(w, t)));
+      && [2, 3].includes(hexDist(w, t)) && !G.sightBlocked(t, w));
     if (target) { gunTile = t; seaTile = target; break; }
   }
   check("a coastal firing position exists", !!gunTile && !!seaTile);
@@ -2117,6 +2118,78 @@ section("repair or fight, not both");
       return no;
     })());
   }
+}
+
+/* ---------- mountains block artillery ---------- */
+section("line of sight");
+{
+  const b = fresh(2);
+  const me = G.game.current, foe = 1 - me;
+  rich(me); rich(foe);
+
+  check("a shot at an adjacent tile is never blocked", (() => {
+    const a = b.tiles.find(t => settleable(t));
+    const n = G.around(a)[0];
+    return G.sightBlocked(a, n) === false;
+  })());
+
+  check("firing FROM a mountain is allowed", (() => {
+    for (const m of b.tiles) {
+      if (m.terrain !== "mountain") continue;
+      const far = b.tiles.find(t => hexDist(m, t) === 2 && !G.sightBlocked(m, t));
+      if (far) return true;
+    }
+    return false;
+  })());
+
+  check("firing AT a mountain is allowed", (() => {
+    for (const m of b.tiles) {
+      if (m.terrain !== "mountain") continue;
+      const far = b.tiles.find(t => hexDist(t, m) === 2 && !G.sightBlocked(t, m));
+      if (far) return true;
+    }
+    return false;
+  })());
+
+  /* a gun with a ridge in the way cannot shoot past it */
+  let blocked = null;
+  for (const gunTile of b.tiles) {
+    if (!settleable(gunTile) || G.game.towns.has(gunTile.id) || G.unitAt(gunTile.id)) continue;
+    const mark = b.tiles.find(t => hexDist(gunTile, t) === 2 && settleable(t)
+      && !G.game.towns.has(t.id) && !G.unitAt(t.id) && G.sightBlocked(gunTile, t));
+    if (mark) { blocked = [gunTile, mark]; break; }
+  }
+  check("a blocked lane exists on an ordinary board", !!blocked);
+  if (blocked) {
+    const [gunTile, markTile] = blocked;
+    const gun = place(me, "cannon", gunTile);
+    const prey = place(foe, "foot", markTile);
+    check("the target is inside the gun's range", G.inRange(gun, markTile) === true);
+    check("but the ridge takes it off the target list",
+      G.targetsOf(gun).includes(prey) === false);
+    check("and the shot is refused", G.attackUnit(gun.id, markTile.id) === false);
+    check("with a reason the player can read", G.game.notice === "A mountain blocks the shot");
+    check("the target is unhurt", prey.lives === UNITS.foot.lives);
+
+    /* infantry is unaffected: at one tile there is nothing in between to block */
+    const near = G.around(markTile).find(t => settleable(t) && !G.unitAt(t.id)
+      && !G.game.towns.has(t.id));
+    if (near) {
+      const rider = place(me, "horse", near);
+      check("a horseman is not stopped by terrain it stands beside",
+        G.targetsOf(rider).includes(prey) === true);
+      check("and its blow lands", G.attackUnit(rider.id, markTile.id) === true);
+    }
+  }
+
+  /* the rule is symmetric — sight is not one-way */
+  check("line of sight reads the same in both directions", (() => {
+    for (const a of b.tiles.slice(0, 120))
+      for (const z of b.tiles.slice(0, 120))
+        if (hexDist(a, z) >= 2 && hexDist(a, z) <= 3
+          && G.sightBlocked(a, z) !== G.sightBlocked(z, a)) return false;
+    return true;
+  })());
 }
 
 console.log(failures

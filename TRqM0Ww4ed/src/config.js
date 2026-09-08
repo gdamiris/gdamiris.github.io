@@ -161,7 +161,7 @@ export const RULES = {
    The drips (occupying, blockading) tick once every HOLD_TURNS turns a thing is held,
    and what they pay is earned, so a town retaken later does not claw anything back. */
 export const SCORE = {
-  target:     10,   // first to this wins
+  target:      8,   // first to this wins
   town:        1,   // standing: every town you own, conquered or not
   wall:        1,   // standing: every wall still standing — knock it down, they lose it
   cavalry:     1,   // standing: to whoever fields the MOST horsemen, at least cavalryMin

@@ -30,3 +30,43 @@ export const tileAt = (board, c, r) =>
 
 export const neighbours = (board, t) =>
   NB[t.row & 1].map(([dc, dr]) => tileAt(board, t.col + dc, t.row + dr)).filter(Boolean);
+
+/* ---------- line of sight ---------- */
+
+/* Cube coordinates, which are what you need to walk a straight line between two hexes. */
+const cube = t => { const [q, r] = axial(t); return [q, -q - r, r]; };
+
+const cubeRound = (x, y, z) => {
+  let rx = Math.round(x), ry = Math.round(y), rz = Math.round(z);
+  const dx = Math.abs(rx - x), dy = Math.abs(ry - y), dz = Math.abs(rz - z);
+  if (dx > dy && dx > dz) rx = -ry - rz;
+  else if (dy > dz) ry = -rx - rz;
+  else rz = -rx - ry;
+  return [rx, ry, rz];
+};
+
+const fromCube = (board, [q, , r]) => tileAt(board, q + ((r - (r & 1)) / 2), r);
+
+/* The tiles a shot passes THROUGH on its way from a to b — both ends excluded, since
+   you may fire from a mountain and at something standing on one.
+
+   A line between two hex centres can run exactly along the seam between two tiles, and
+   then there is no single honest answer for which one it crosses. `nudge` leans the line
+   a hair to one side so the rounding is decided rather than arbitrary; callers check both
+   leanings and take the clear one, so a shot is only blocked when EVERY way of drawing
+   the line runs into the obstacle. */
+export function hexLine(board, a, b, nudge = 1e-6) {
+  const n = hexDist(a, b);
+  if (n < 2) return [];
+  const [ax, ay, az] = cube(a), [bx, by, bz] = cube(b);
+  const out = [];
+  for (let i = 1; i < n; i++) {
+    const t = i / n;
+    const tile = fromCube(board, cubeRound(
+      ax + (bx - ax + nudge) * t,
+      ay + (by - ay - nudge * 2) * t,
+      az + (bz - az + nudge) * t));
+    if (tile && tile !== a && tile !== b) out.push(tile);
+  }
+  return out;
+}
