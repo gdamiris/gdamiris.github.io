@@ -1,0 +1,12 @@
+player_id,name,position,team_abbr,price,court_position,is_captain,is_injured,active
+3843,Moses Wright,Center,MIL,14.0,1,False,False,True
+3934,Isaac Bonga,Forward,PAO,11.5,2,False,False,True
+3887,Sylvain Francisco,Guard,PAO,14.8,3,True,False,True
+3808,Codi Miller-Mcintyre,Guard,OLY,11.0,4,False,False,True
+3850,Theo Maledon,Guard,RMB,9.8,5,False,False,True
+4252,Jean Montero,Guard,OLY,12.8,6,False,False,True
+4016,Nicola Akele,Forward,MIL,4.0,7,False,False,True
+7223,Clement Frisch,Forward,KBA,5.1,8,False,False,True
+4012,Giampaolo Ricci,Forward,MIL,4.5,9,False,False,True
+4003,Enzo Shahrvin,Center,PBB,4.0,10,False,False,True
+4172,Dimitris Itoudis,Head Coach,HTA,8.5,11,False,False,True

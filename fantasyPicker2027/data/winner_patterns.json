@@ -1,0 +1,117 @@
+{
+ "n_lineups": 23,
+ "round_win_score": {
+  "mean": 244.2,
+  "min": 228.4,
+  "max": 265.8
+ },
+ "full_slots_pir": 13.4,
+ "bench_slots_pir": 5.7,
+ "bench_ratio": 0.42,
+ "bench_under_5": 0.51,
+ "captain_pir": 14.9,
+ "captain_positions": {
+  "Guard": 12,
+  "Center": 7,
+  "Forward": 3
+ },
+ "clubs_per_squad": 8.1,
+ "max_from_one_club": 3,
+ "mean_max_from_one_club": 2.0,
+ "top_players": [
+  {
+   "player": "VEZENKOV, SASHA",
+   "n": 7,
+   "pir": 20.1
+  },
+  {
+   "player": "OTURU, DAN",
+   "n": 6,
+   "pir": 16.8
+  },
+  {
+   "player": "MILUTINOV, NIKOLA",
+   "n": 6,
+   "pir": 18.1
+  },
+  {
+   "player": "BALDWIN IV, WADE",
+   "n": 5,
+   "pir": 16.0
+  },
+  {
+   "player": "LUWAWU-CABARROT, TIMOTHE",
+   "n": 5,
+   "pir": 15.5
+  },
+  {
+   "player": "FRANCISCO, SYLVAIN",
+   "n": 5,
+   "pir": 19.2
+  },
+  {
+   "player": "PETRUSEV, FILIP",
+   "n": 4,
+   "pir": 15.4
+  },
+  {
+   "player": "HIFI, NADIR",
+   "n": 4,
+   "pir": 17.1
+  }
+ ],
+ "top_bench": [
+  {
+   "player": "JACKSON, EDWIN",
+   "n": 5,
+   "pir": 2.4
+  },
+  {
+   "player": "SAMODUROV, ALEXANDROS",
+   "n": 4,
+   "pir": 0.8
+  },
+  {
+   "player": "DA SILVA, OSCAR",
+   "n": 4,
+   "pir": 7.1
+  },
+  {
+   "player": "HERRERA, SEBASTIAN",
+   "n": 4,
+   "pir": 4.7
+  },
+  {
+   "player": "ABALDE, ALBERTO",
+   "n": 3,
+   "pir": 3.6
+  },
+  {
+   "player": "DOBRIC, OGNJEN",
+   "n": 3,
+   "pir": 2.9
+  }
+ ],
+ "top_coaches": [
+  {
+   "coach": "JASIKEVICIUS, SARAS",
+   "n": 4
+  },
+  {
+   "coach": "SPANOULIS, VASSILIS",
+   "n": 3
+  },
+  {
+   "coach": "OBRADOVIC, SASA",
+   "n": 3
+  },
+  {
+   "coach": "BARTZOKAS, GEORGIOS",
+   "n": 3
+  },
+  {
+   "coach": "TABELLINI, FRANCESCO",
+   "n": 1
+  }
+ ]
+}

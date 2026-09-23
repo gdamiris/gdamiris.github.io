@@ -1,0 +1,347 @@
+player_id,first_name,last_name,position,price,team,team_abbr,team_id,home_away,opponent,opponent_abbr,avg_pts,popularity,is_injured,prob_playing,round
+3766,Sasha,Vezenkov,Forward,17.0,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.4,False,1,1
+3765,Mike,James,Guard,16.0,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.019,False,1,1
+3770,Chima,Moneke,Forward,15.5,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.035,False,1,1
+3903,Elijah,Bryant,Guard,15.5,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.057,False,1,1
+11549,Jonas,Valanciunas,Center,15.5,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.27,False,1,1
+3782,Nikola,Milutinov,Center,15.3,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.078,False,1,1
+3795,TJ,Shorts,Guard,14.9,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.065,False,1,2
+3812,Jaylen,Hoard,Forward,14.8,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.02,False,1,1
+3834,Nadir,Hifi,Guard,14.8,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.021,False,1,1
+3887,Sylvain,Francisco,Guard,14.8,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.145,False,1,1
+3769,Walter,Tavares,Center,14.7,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.013,False,1,1
+3805,Kendrick,Nunn,Guard,14.6,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.006,True,0,1
+4233,Mfiondu,Kabengele,Center,14.6,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.036,False,1,1
+11487,Dario,Saric,Forward,14.5,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.027,False,1,1
+3768,Mathias,Lessort,Center,14.4,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.058,False,1,1
+3771,Wade,Baldwin,Guard,14.3,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.026,False,1,2
+11526,Guerschon,Yabusele,Forward,14.3,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.107,False,1,1
+3857,Dan,Oturu,Center,14.2,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.083,False,1,1
+3843,Moses,Wright,Center,14.0,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.083,False,1,2
+3774,Tornike,Shengelia,Forward,13.8,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.022,False,1,1
+3772,Facundo,Campazzo,Guard,13.7,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.017,False,1,1
+3791,Carlik,Jones,Guard,13.6,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.271,False,1,2
+3794,Kevin,Punter,Guard,13.6,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.026,False,1,1
+3767,Shane,Larkin,Guard,13.5,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.018,False,1,2
+4096,Mckinley,Wright,Guard,13.5,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.024,False,1,1
+3787,Nigel,Hayes-davis,Forward,13.4,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.005,True,0,1
+3910,Roman,Sorkin,Center,13.4,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.018,False,1,1
+3790,Dzanan,Musa,Guard,13.3,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.014,False,1,1
+3799,Zach,Leday,Forward,13.3,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.049,False,1,1
+3793,Jordan,Nwora,Forward,13.0,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.139,False,1,1
+3864,Timothé,Luwawu-Cabarrot,Forward,12.8,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.06,False,1,1
+4252,Jean,Montero,Guard,12.8,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.179,False,1,1
+3926,Filip,Petrusev,Forward,12.7,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.029,False,1,1
+7201,Dwayne,Bacon,Forward,12.7,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.014,False,1,1
+8567,Talen,Horton-Tucker,Guard,12.7,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.09,False,1,2
+3874,Tyler,Dorsey,Guard,12.6,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.042,False,1,1
+3785,Josh,Nebo,Center,12.5,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.039,False,1,1
+11507,Amir,Coffey,Forward,12.5,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.007,False,1,1
+3775,Shavon,Shields,Forward,12.4,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.015,False,1,2
+3777,Will,Clyburn,Forward,12.4,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.038,False,1,2
+7218,Kameron,Taylor,Forward,12.4,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.049,False,1,2
+11514,Patty,Mills,Guard,12.3,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.043,False,1,1
+3807,Elie,Okobo,Guard,12.2,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.012,False,1,1
+4882,Daniel,Theis,Center,12.2,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.033,False,1,1
+7202,Justin,Robinson,Guard,12.2,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.032,False,1,1
+4247,Chris,Jones,Guard,12.1,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.041,False,1,1
+3870,Tyrique,Jones,Center,12.0,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.018,False,1,1
+3898,Ante,Zizic,Center,12.0,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.022,False,1,2
+7193,Vasilije,Micic,Guard,12.0,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.018,False,1,1
+3820,Alec,Peters,Forward,11.7,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.207,False,1,2
+3934,Isaac,Bonga,Forward,11.5,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.119,False,1,1
+11527,Tj,Warren,Forward,11.5,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.029,False,1,1
+3825,Juancho,Hernangomez,Forward,11.4,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.025,False,1,1
+3899,Carsen,Edwards,Guard,11.4,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.066,False,1,1
+3810,Bonzie,Colson,Forward,11.3,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.018,False,1,1
+4712,Marcus,Bingham,Center,11.3,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.013,False,1,2
+11503,Marjon,Beauchamp,Forward,11.3,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.014,False,1,1
+7221,Azuolas,Tubelis,Forward,11.1,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.085,False,1,1
+11528,Tyson,Etienne,Guard,11.1,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.004,False,1,1
+3808,Codi,Miller-Mcintyre,Guard,11.0,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.099,False,1,1
+4164,Johnathan,Motley,Center,11.0,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.042,False,1,1
+7269,Austin,Wiley,Center,11.0,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.006,False,1,1
+11543,Rasheed,Bello,Guard,11.0,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.003,False,1,2
+3821,Donta,Hall,Center,10.9,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.013,False,1,1
+11522,Keaton,Wallace,Guard,10.8,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.031,False,1,1
+3779,Kostas,Sloukas,Guard,10.7,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.011,False,1,1
+7258,Daron,Russell,Guard,10.7,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.005,False,1,1
+3815,Trent,Forrest,Guard,10.6,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.023,False,1,2
+3888,Sterling,Brown,Guard,10.6,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.037,False,1,1
+11494,Patrick,Baldwin Jr,Center,10.6,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.044,False,1,1
+11504,Johannes,Thiemann,Center,10.6,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.025,False,1,1
+7204,TJ,Leaf,Forward,10.5,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.002,True,0,1
+8808,Eugene,Omoruyi,Forward,10.5,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.033,False,1,2
+11544,Trent,Frazier,Guard,10.5,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.006,False,1,2
+3804,Tadas,Sedekerskis,Forward,10.4,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.009,False,1,1
+3822,Joel,Bolomboy,Center,10.4,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.09,False,1,1
+3833,Armoni,Brooks,Guard,10.3,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.069,False,1,2
+3993,Matthew,Strazel,Guard,10.3,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.028,False,1,1
+4808,Bruno,Fernando,Center,10.3,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.032,False,1,1
+7237,Nathan,Reuvers,Forward,10.3,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.023,False,1,2
+3792,Jordan,Loyd,Guard,10.2,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.009,False,1,1
+3946,Andreas,Obst,Guard,10.2,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.036,False,1,1
+7197,Oshae,Brissett,Forward,10.2,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.014,False,1,1
+7362,Umoja,Gibson,Guard,10.2,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.003,False,1,1
+3806,Duane,Washington,Guard,10.1,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.037,False,1,1
+4340,Kyle,Allman,Guard,10.1,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.01,False,1,2
+8368,Mamadi,Diakite,Center,10.1,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.006,False,1,1
+8721,Jared,Butler,Guard,10.1,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.172,False,1,1
+11532,Ethan,Thompson,Guard,10.1,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.031,False,1,2
+3868,Zeljko,Obradovic,Head Coach,10.0,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.131,False,1,1
+3885,Georgios,Bartzokas,Head Coach,10.0,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.054,False,1,1
+3940,Nick,Weiler-Babb,Guard,10.0,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.052,False,1,1
+9064,Kessler,Edwards,Forward,10.0,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.011,False,1,2
+11505,Johnny,Juzang,Forward,10.0,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.01,False,1,2
+11511,Chris,Duarte,Guard,10.0,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.006,False,1,1
+4180,Devon,Dotson,Guard,9.9,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.006,False,1,2
+11491,David,Dejulius,Guard,9.9,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.022,False,1,2
+11515,Tremont,Waters,Guard,9.9,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.003,False,1,1
+11545,Marcus,Carr,Guard,9.9,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.003,False,1,2
+11546,Bobi,Klintman,Center,9.9,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.003,False,1,2
+3850,Theo,Maledon,Guard,9.8,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.077,False,1,1
+11508,Jacob,Toppin,Forward,9.8,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.003,False,1,1
+11529,Alize,Johnson,Forward,9.8,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.002,False,1,1
+3860,Devin,Booker,Center,9.7,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.016,False,1,2
+3914,Nigel,Williams-Goss,Guard,9.7,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.036,False,1,1
+4210,Anthony,Brown,Forward,9.7,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.008,False,1,2
+11492,Jaylen,Nowell,Guard,9.7,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.014,False,1,2
+3841,Tomas,Satoransky,Guard,9.6,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.004,False,1,1
+3875,Marko,Guduric,Guard,9.6,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.039,False,1,2
+4675,Antonio,Blakeney,Guard,9.6,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.011,False,1,1
+7422,Ercan,Osmani,Forward,9.6,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.027,False,1,1
+8714,Kobi,Simmons,Guard,9.6,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.006,False,1,1
+4280,Marek,Blazevic,Center,9.5,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.002,False,1,1
+4884,Jimmy,Clark III,Guard,9.5,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.024,False,1,1
+8730,Kenneth,Faried,Center,9.5,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.019,False,1,1
+11516,Jae,Crowder,Forward,9.5,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.023,False,1,1
+3907,Jaron,Blossomgame,Forward,9.4,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.034,False,1,1
+4360,Evan,Fournier,Guard,9.4,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.057,False,1,1
+7220,Ebuka,Izundu,Center,9.4,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.023,False,1,1
+11499,Tosan,Evbuomwan,Forward,9.4,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.006,False,1,1
+11518,Mathis,Dossou-yovo,Forward,9.4,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.002,False,1,1
+3981,Mouhamet,Diouf,Center,9.3,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.006,False,1,2
+11517,Tyty,Washington,Guard,9.3,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.008,False,1,1
+11530,Maozinha,Pereira,Forward,9.3,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.002,False,1,1
+11489,Jason,Burnell,Forward,9.2,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.003,False,1,2
+3845,Joffrey,Lauvergne,Center,9.1,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.012,False,1,2
+3856,Isaia,Cordinier,Guard,9.1,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.008,False,1,1
+11500,Stanley,Umude,Guard,9.1,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.002,False,1,1
+11534,Olivier,Sarr,Center,9.1,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.003,False,1,1
+11536,Damian,Jones,Center,9.1,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.002,False,1,1
+3803,Gabriel,Deck,Forward,9.0,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.008,False,1,1
+3859,Vladimir,Lucic,Forward,9.0,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.012,False,1,1
+3872,Pedro,Martinez,Head Coach,9.0,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.008,False,1,1
+3897,Saras,Jasikevicius,Head Coach,9.0,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.123,False,1,2
+7194,Chuma,Okeke,Forward,9.0,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.016,False,1,1
+8762,Jared,Rhoden,Guard,9.0,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.008,False,1,1
+11490,Garrison,Mathews,Guard,9.0,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.006,False,1,2
+11537,Gonzalo,Corbalan,Guard,9.0,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.002,False,1,2
+4124,Kevin,Kokila,Center,8.9,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.002,False,1,2
+7203,Miles,Norris,Forward,8.9,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.003,False,1,1
+3853,Jerian,Grant,Guard,8.8,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.015,False,1,1
+3884,Neal,Sako,Center,8.8,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.012,False,1,2
+3930,Yam,Madar,Guard,8.8,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.045,False,1,1
+4108,Dj,Stewart,Guard,8.8,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.004,False,1,1
+8463,Kai,Jones,Center,8.8,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.024,False,1,1
+11501,Tyrese,Martin,Forward,8.8,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.012,False,1,1
+11512,Aj,Lawson,Guard,8.8,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.005,False,1,1
+11519,Hugo,Besson,Guard,8.8,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.002,False,1,1
+3831,Darius,Thompson,Guard,8.7,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.016,False,1,2
+3881,Leandro,Bolmaro,Guard,8.7,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.007,False,1,2
+4257,Jaime,Pradilla,Forward,8.7,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.014,False,1,1
+7338,Both,Gach,Forward,8.7,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.019,False,1,1
+11488,Santi,Yusta,Forward,8.7,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.006,False,1,1
+11538,Mo,Gueye,Forward,8.7,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.003,False,1,2
+11547,Wendell,Moore Jr,Guard,8.7,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.006,False,1,2
+3892,Rokas,Jokubaitis,Guard,8.6,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.049,False,1,1
+4670,Saben,Lee,Guard,8.6,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.024,False,1,1
+11493,Mady,Sissoko,Center,8.6,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.004,False,1,2
+4081,Conor,Morgan,Forward,8.5,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.004,False,1,2
+4172,Dimitris,Itoudis,Head Coach,8.5,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.075,False,1,1
+7210,Omari,Moore,Guard,8.5,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.018,False,1,2
+7268,Rj,Cole,Guard,8.5,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.003,False,1,2
+3776,Wenyen,Gabriel,Center,8.4,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.009,False,1,2
+7212,Derrick,Alston Jr.,Forward,8.4,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.016,False,1,2
+11513,Damion,Baugh,Guard,8.4,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.002,False,1,1
+3780,Furkan,Korkmaz,Forward,8.3,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.01,False,1,2
+3816,Markus,Howard,Guard,8.3,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.012,False,1,1
+3905,Iffe,Lundberg,Guard,8.3,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.068,False,1,1
+4251,Brancou,Badio,Guard,8.3,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.126,False,1,1
+8846,Tonye,Jekiri,Center,8.3,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.017,False,1,2
+3797,Moustapha,Fall,Center,8.2,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.018,False,1,1
+3801,Nicolo,Melli,Forward,8.2,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.037,False,1,2
+3861,Thomas,Walkup,Guard,8.2,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.007,False,1,1
+3925,Devon,Hall,Guard,8.2,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.022,False,1,2
+3838,Collin,Malcolm,Forward,8.1,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.008,False,1,1
+3880,Derek ,Willis,Forward,8.1,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.011,False,1,2
+3909,Aleksander,Sekulic,Head Coach,8.0,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.007,False,1,1
+3980,Aleksander,Balcerowski,Center,8.0,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.007,False,1,1
+7209,Lamar,Stevens,Forward,8.0,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.095,False,1,2
+7215,Dylan,Osetkowski,Forward,8.0,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.013,False,1,2
+7226,Allan,Dokossi,Center,8.0,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.003,False,1,1
+7235,Xavi,Pascual,Head Coach,8.0,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.014,False,1,1
+8727,Braxton,Key,Forward,8.0,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.03,False,1,2
+11509,Eugene,German,Guard,8.0,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.002,False,1,1
+11535,Max,Shulga,Guard,8.0,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.003,False,1,1
+7243,Nathan,Sestina,Forward,7.9,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.003,False,1,1
+8834,Chris,Silva,Center,7.9,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.014,False,1,2
+3826,Frank,Ntilikina,Guard,7.8,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.008,False,1,1
+4097,Nikola,Tanaskovic,Center,7.8,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.03,False,1,2
+11502,Olivier,Nkamboua,Forward,7.8,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.011,False,1,1
+3824,Luca,Vildoza,Guard,7.7,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.05,False,1,2
+3960,Tamir,Blatt,Guard,7.7,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.01,False,1,1
+4195,Justinian,Jessup,Guard,7.7,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.008,False,1,1
+4758,Perry,Dozier,Guard,7.7,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.01,False,1,1
+3828,Georgios,Papagiannis,Center,7.5,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.002,True,0,1
+3842,Scottie,Wilbekin,Guard,7.5,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.04,False,1,2
+3846,Tyson,Ward,Forward,7.5,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.044,False,1,1
+3883,Johannes,Voigtmann,Center,7.5,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.008,False,1,1
+3921,Pablo,Laso,Head Coach,7.5,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.017,False,1,1
+3948,Mbaye,Ndiaye,Forward,7.5,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.008,False,1,1
+4006,Tomas,Masiulis,Head Coach,7.5,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.035,False,1,1
+4159,Khadeen,Carrington,Guard,7.5,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.002,False,1,1
+4246,Semi,Ojeleye,Forward,7.5,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.037,False,1,1
+11520,Yves,Pons,Forward,7.5,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.002,False,1,1
+11558,Justin,Minaya,Forward,7.5,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.001,False,1,1
+3911,Kevarrius,Hayes,Center,7.3,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.077,False,1,2
+3957,Oscar,Da Silva,Forward,7.3,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.01,False,1,1
+3963,Alessandro,Pajola,Guard,7.3,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.013,False,1,2
+3942,Maodo,Lo,Guard,7.2,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.021,False,1,1
+7867,Armando,Bacot,Center,7.2,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.004,False,1,1
+11539,Elias,Valtonen,Forward,7.2,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.005,False,1,2
+3917,Kamar,Baldwin,Guard,7.1,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.007,False,1,1
+4129,Myles,Cale,Guard,7.1,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.003,False,1,1
+3891,Vitto,Brown,Forward,7.0,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.006,False,1,2
+3924,Giuseppe,Poeta,Head Coach,7.0,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.022,False,1,2
+3938,Ibon,Navarro,Head Coach,7.0,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.097,False,1,1
+3973,Joel,Parra,Forward,7.0,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.035,False,1,1
+3992,Terry,Tarpey,Guard,7.0,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.003,False,1,1
+4212,Yoan,Makoundou,Center,7.0,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.006,False,1,1
+4255,Xavier,Albert,Head Coach,7.0,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.033,False,1,2
+4375,Arnas,Butkevicius,Forward,7.0,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.011,False,1,1
+7229,Mouhamed,Faye,Center,7.0,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.006,False,1,1
+8993,Cory,Joseph,Guard,7.0,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.019,False,1,1
+3952,Mam,Jaiteh,Center,6.8,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.009,False,1,1
+7217,Tyson,Carter,Guard,6.8,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.035,False,1,1
+7390,Tobias,Jensen,Guard,6.8,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.003,False,1,1
+7328,Kaodirichi,Akobundu-Ehiogu,Center,6.7,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.017,False,1,1
+11498,Davion,Mintz,Guard,6.6,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.003,False,1,1
+3904,Justin,Anderson,Forward,6.5,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.02,False,1,1
+3943,Joan,Penarroya,Head Coach,6.5,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.074,False,1,2
+3961,Oded,Kattash,Head Coach,6.5,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.188,False,1,1
+4167,Ish,Wainright,Forward,6.5,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.009,False,1,1
+7225,David,Kramer,Guard,6.5,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.022,False,1,1
+7234,Yankuba,Sima,Center,6.5,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.007,False,1,2
+7238,Rodions,Kurucs,Forward,6.5,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.008,False,1,1
+7424,Aliou,Diarra,Center,6.5,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.006,False,1,2
+11525,Antonis,Karagiannidis,Center,6.5,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.002,False,1,1
+3852,Edgaras,Ulanovas,Forward,6.4,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.011,False,1,1
+3915,Matteo,Spagnolo,Guard,6.4,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.015,False,1,1
+3967,Dario,Brizuela,Guard,6.4,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.061,False,1,1
+7219,Amath,M'baye,Forward,6.4,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.004,False,1,1
+3918,Marius,Grigonis,Forward,6.3,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.033,False,1,1
+4073,Tai,Odiase,Center,6.3,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.041,False,1,1
+4084,Dustin,Sleva,Forward,6.3,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.013,False,1,1
+4156,Jeremy,Morgan,Forward,6.3,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.004,False,1,1
+7232,Bodian,Massa,Forward,6.3,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.003,False,1,1
+11506,Ignas,Sargiunas,Guard,6.3,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.008,False,1,2
+3851,Andres,Feliz,Guard,6.2,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.086,False,1,1
+3927,Daulton,Hommes,Forward,6.2,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.004,False,1,1
+3835,Usman,Garuba,Center,6.1,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.053,False,1,1
+7378,Agustin,Ubal,Guard,6.1,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.003,False,1,1
+3869,Mikael,Jantunen,Forward,6.0,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.043,False,1,1
+4014,Tony,Parker,Head Coach,6.0,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.026,False,1,1
+4086,Dusan,Alimpijevic,Head Coach,6.0,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.069,False,1,2
+4094,Kenan,Kamenjas,Center,5.9,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.023,False,1,1
+11523,Shane,Hunter,Center,5.9,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.005,False,1,1
+3954,Khalifa,Diop,Center,5.8,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.025,False,1,1
+4234,Tyler,Ennis,Guard,5.7,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.003,True,0,1
+11531,Nobel,Boungou-colo,Forward,5.7,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.005,False,1,1
+3836,Konstantinos,Mitoglou,Forward,5.5,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.084,False,1,1
+3962,Mario,Nakic,Forward,5.5,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.011,False,1,2
+4008,Metecan,Birsen,Forward,5.5,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.012,False,1,2
+4242,Davide,Casarin,Guard,5.5,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.005,False,1,2
+4258,Josep,Puerto,Guard,5.5,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.016,False,1,2
+7216,Davis,Bertans,Forward,5.5,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.033,False,1,1
+7231,Brice,Dessert,Center,5.5,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.017,False,1,1
+8830,Francesco,Ferrari,Forward,5.2,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.015,False,1,2
+3972,Justus,Hollatz,Guard,5.1,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.014,False,1,1
+7223,Clement,Frisch,Forward,5.1,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.011,False,1,1
+3830,Deividas,Sirvydis,Guard,5.0,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.02,False,1,1
+3950,Ognjen,Dobric,Forward,5.0,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.089,False,1,1
+3955,Paolo,Galbiati,Head Coach,5.0,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.006,False,1,1
+3964,Alex,Mumbru,Head Coach,5.0,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.006,False,1,2
+3971,Vanja,Marinkovic,Guard,5.0,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.031,False,1,2
+3974,Anton,Gavel,Head Coach,5.0,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.01,False,1,1
+3975,Sebastian,Herrera,Guard,5.0,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.037,False,1,1
+3978,Eli,Ndiaye,Forward,5.0,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.02,False,1,1
+3995,Maxime,Lefevre,Head Coach,5.0,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.006,False,1,1
+4546,Joel,Ayayi,Guard,5.0,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.003,False,1,1
+4698,Onuralp,Bitim,Forward,5.0,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.008,False,1,2
+11510,Frederic,Bourdillon,Guard,5.0,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.002,False,1,1
+3886,Daniel,Hackett,Guard,4.8,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.02,False,1,2
+3933,Leopold,Cavaliere,Forward,4.8,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.012,False,1,1
+3985,David,Lighty,Forward,4.8,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.018,False,1,1
+3994,Yakuba,Ouattara,Guard,4.8,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.014,False,1,1
+11495,Nikola,Djurisic,Guard,4.8,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.046,False,1,1
+11521,Marc-owen,Fodzo Dada,Guard,4.8,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.002,False,1,1
+11540,Mario,Saint-supery,Guard,4.7,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.106,False,1,2
+3896,Juan,Nunez,Guard,4.6,FC Barcelona,BAR,140,home,Anadolu Efes Istanbul,EFS,0,0.017,False,1,1
+3979,Giannoulis,Larentzakis,Guard,4.6,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.005,False,1,1
+4005,Edwin,Jackson,Forward,4.6,LDLC ASVEL Villeurbanne,ASV,139,home,Maccabi Rapyd Tel Aviv,MTA,0,0.027,False,1,1
+3936,Nikos,Rogkavopoulos,Forward,4.5,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.207,False,1,1
+3977,Sergio,Llull,Guard,4.5,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.029,False,1,1
+3984,Sertac,Sanli,Center,4.5,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.109,False,1,2
+3988,John,Dibartolomeo,Guard,4.5,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.026,False,1,1
+3991,Alberto,Abalde,Forward,4.5,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.06,False,1,1
+3998,Dovydas,Giedraitis,Guard,4.5,Zalgiris Kaunas,ZAL,155,away,Crvena Zvezda Meridianbet Belgrade,CZV,0,0.013,False,1,1
+4012,Giampaolo,Ricci,Forward,4.5,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.035,False,1,2
+4061,Eleftherios,Mantzoukas,Forward,4.5,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.003,False,1,1
+4165,Tomer,Ginat,Forward,4.5,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.003,False,1,1
+7228,Klemen,Prepelic,Guard,4.5,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.015,False,1,1
+7239,Izan,Almansa,Forward,4.5,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.002,False,1,1
+7241,Gur,Lavy,Forward,4.5,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.001,True,0,1
+9063,Amit,Ebo,Guard,4.5,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.002,False,1,1
+11541,Alvaro,Cardenas,Guard,4.5,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.027,False,1,2
+3983,Dejan,Davidovac,Forward,4.4,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.022,False,1,1
+3986,Niels,Giffey,Forward,4.4,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.029,False,1,1
+4007,Erkan,Yilmaz,Forward,4.4,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.007,False,1,1
+4088,Berk,Ugurlu,Guard,4.4,Besiktas Istanbul,BJK,158,home,Valencia Basket,VBC,0,0.011,False,1,2
+11524,Nikolaos,Plotas,Guard,4.4,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.003,False,1,1
+11548,Tommaso,Baldasso,Guard,4.4,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.004,False,1,2
+3867,Kostas,Papanikolaou,Forward,4.3,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.091,False,1,1
+4378,William,Rayman,Forward,4.3,Maccabi Rapyd Tel Aviv,MTA,148,away,LDLC ASVEL Villeurbanne,ASV,0,0.027,False,1,1
+3997,Stefano,Tonut,Guard,4.2,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.02,False,1,2
+4038,Dimitris,Moraitis,Guard,4.2,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.006,False,1,1
+7230,Awudu,Abass,Forward,4.2,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.026,False,1,1
+8623,Kosta,Kondic,Guard,4.2,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.016,False,1,1
+11542,Lucas,Mari,Guard,4.2,Valencia Basket,VBC,174,away,Besiktas Istanbul,BJK,0,0.008,False,1,2
+3916,Gabriele,Procida,Forward,4.1,Real Madrid,RMB,153,away,Dubai Basketball,DUB,0,0.08,False,1,1
+3976,Arijan,Lakic,Forward,4.0,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.256,False,1,2
+4000,Melih,Mahmutoglu,Guard,4.0,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.051,False,1,2
+4003,Enzo,Shahrvin,Center,4.0,Paris Basketball,PBB,150,away,Panathinaikos AKTOR Athens,PAO,0,0.085,False,1,1
+4009,Ousmane,Diop,Center,4.0,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.163,False,1,2
+4013,Diego,Flaccadori,Guard,4.0,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.036,False,1,2
+4016,Nicola,Akele,Forward,4.0,Armani Olimpia Milan,MIL,145,away,Partizan Mozzart Bet Belgrade,PAR,0,0.086,False,1,2
+4019,Panagiotis,Kalaitzakis,Guard,4.0,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.008,False,1,1
+4023,Mitar,Bosnjakovic,Guard,4.0,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.02,False,1,2
+4026,Burakcan,Yildizli,Forward,4.0,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.02,False,1,1
+4036,Mert,Eksioglu,Guard,4.0,Fenerbahce Tarfin Istanbul,FBT,147,home,Virtus Bologna,VIR,0,0.004,False,1,2
+4174,Guy,Palatin,Guard,4.0,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.006,False,1,1
+4175,Oz,Blayzer,Forward,4.0,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.01,False,1,1
+4551,Bar,Timor,Guard,4.0,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.011,False,1,1
+7245,David,Mutaf,Guard,4.0,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.009,False,1,1
+7246,Stefan,Miljenovic,Guard,4.0,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.079,False,1,1
+7248,Nemanja,Dangubic,Forward,4.0,Dubai Basketball,DUB,311,home,Real Madrid,RMB,0,0.078,False,1,1
+7250,Ioannis,Kouzeloglou,Forward,4.0,Panathinaikos AKTOR Athens,PAO,151,home,Paris Basketball,PBB,0,0.023,False,1,1
+7254,Itay,Segev,Center,4.0,Hapoel IBI Tel Aviv,HTA,165,home,FC Bayern Munich,BAY,0,0.027,False,1,1
+7255,Omiros,Netzipoglou,Guard,4.0,Olympiacos Piraeus,OLY,149,away,Kosner Baskonia Vitoria-Gasteiz,KBA,0,0.015,False,1,1
+8644,Stefan,Joksimovic,Forward,4.0,Kosner Baskonia Vitoria-Gasteiz,KBA,143,home,Olympiacos Piraeus,OLY,0,0.072,False,1,1
+8681,Aleksej,Nedeljkovic,Forward,4.0,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.034,False,1,1
+8770,Ruzgar,Fenemen,Guard,4.0,Anadolu Efes Istanbul,EFS,146,away,FC Barcelona,BAR,0,0.009,False,1,1
+9061,Matteo,Baiocchi,Guard,4.0,Virtus Bologna,VIR,154,away,Fenerbahce Tarfin Istanbul,FBT,0,0.02,False,1,2
+9062,Kilian,Fischer,Forward,4.0,FC Bayern Munich,BAY,141,away,Hapoel IBI Tel Aviv,HTA,0,0.052,False,1,1
+11496,Andrej,Bjelic,Guard,4.0,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.039,False,1,1
+11497,Vojin,Medarevic,Center,4.0,Crvena Zvezda Meridianbet Belgrade,CZV,144,home,Zalgiris Kaunas,ZAL,0,0.061,False,1,1
+11533,Uros,Mijailovic,Forward,4.0,Partizan Mozzart Bet Belgrade,PAR,152,home,Armani Olimpia Milan,MIL,0,0.063,False,1,2

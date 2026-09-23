@@ -1,0 +1,7592 @@
+{
+ "round": 1,
+ "tipoff": "2026-09-24",
+ "cost": 100.0,
+ "expected": 124.5,
+ "formation": "3-1-1",
+ "starters": [
+  {
+   "id": 3887,
+   "name": "Sylvain Francisco",
+   "position": "Guard",
+   "team": "PAO",
+   "team_full": "Panathinaikos AKTOR Athens",
+   "opponent": "Paris Basketball",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.145,
+   "price": 14.8,
+   "proj": 20.0,
+   "value": 1.35,
+   "minutes": 24.9,
+   "pir_per_min": 0.61,
+   "confidence": 0.83,
+   "last_pir": 19.2,
+   "last_games": 42,
+   "appearances": 109,
+   "p_win": 0.61,
+   "crowding": 1.59,
+   "horizon": 19.4,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PBB",
+     "home": true,
+     "proj": 20.0
+    },
+    {
+     "round": 2,
+     "opp": "ASV",
+     "home": true,
+     "proj": 19.4
+    },
+    {
+     "round": 3,
+     "opp": "MTA",
+     "home": true,
+     "proj": 19.5
+    },
+    {
+     "round": 4,
+     "opp": "FBT",
+     "home": true,
+     "proj": 18.2
+    },
+    {
+     "round": 5,
+     "opp": "PAR",
+     "home": false,
+     "proj": 17.2
+    },
+    {
+     "round": 6,
+     "opp": "HTA",
+     "home": true,
+     "proj": 19.3
+    }
+   ],
+   "role": "captain",
+   "reasons": [
+    "Captain: highest projection in the squad, and the captain scores double",
+    "Elite value at 1.35 pts/credit (league median 0.63)",
+    "Last season he banked 19.2 fantasy points per round across 42 games \u2014 that record carries 60% of this projection",
+    "Projected 25 min/game at 0.61 PIR per minute",
+    "Strong record: 109 EuroLeague games, 83% confidence",
+    "Warning: PAO is a crowded roster (1.59x the available minutes)",
+    "61% win probability vs Paris Basketball (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true
+  },
+  {
+   "id": 3843,
+   "name": "Moses Wright",
+   "position": "Center",
+   "team": "MIL",
+   "team_full": "Armani Olimpia Milan",
+   "opponent": "Partizan Mozzart Bet Belgrade",
+   "home": false,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.083,
+   "price": 14.0,
+   "proj": 16.0,
+   "value": 1.14,
+   "minutes": 23.6,
+   "pir_per_min": 0.64,
+   "confidence": 0.74,
+   "last_pir": 17.1,
+   "last_games": 42,
+   "appearances": 77,
+   "p_win": 0.43,
+   "crowding": 1.28,
+   "horizon": 16.7,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PAR",
+     "home": false,
+     "proj": 16.0
+    },
+    {
+     "round": 2,
+     "opp": "VIR",
+     "home": true,
+     "proj": 18.0
+    },
+    {
+     "round": 3,
+     "opp": "KBA",
+     "home": false,
+     "proj": 16.2
+    },
+    {
+     "round": 4,
+     "opp": "MTA",
+     "home": false,
+     "proj": 16.2
+    },
+    {
+     "round": 5,
+     "opp": "RMB",
+     "home": true,
+     "proj": 16.9
+    },
+    {
+     "round": 6,
+     "opp": "DUB",
+     "home": true,
+     "proj": 18.4
+    }
+   ],
+   "role": "starter",
+   "reasons": [
+    "Good value at 1.14 pts/credit vs 0.63 median",
+    "Last season he banked 17.1 fantasy points per round across 42 games \u2014 that record carries 60% of this projection",
+    "Projected 24 min/game at 0.64 PIR per minute",
+    "Moderate sample: 77 games, 74% confidence",
+    "43% win probability vs Partizan Mozzart Bet Belgrade (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true
+  },
+  {
+   "id": 4252,
+   "name": "Jean Montero",
+   "position": "Guard",
+   "team": "OLY",
+   "team_full": "Olympiacos Piraeus",
+   "opponent": "Kosner Baskonia Vitoria-Gasteiz",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.179,
+   "price": 12.8,
+   "proj": 14.5,
+   "value": 1.14,
+   "minutes": 18.8,
+   "pir_per_min": 0.63,
+   "confidence": 0.7,
+   "last_pir": 15.4,
+   "last_games": 38,
+   "appearances": 59,
+   "p_win": 0.64,
+   "crowding": 1.55,
+   "horizon": 14.4,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "KBA",
+     "home": false,
+     "proj": 14.5
+    },
+    {
+     "round": 2,
+     "opp": "ZAL",
+     "home": false,
+     "proj": 13.7
+    },
+    {
+     "round": 3,
+     "opp": "VIR",
+     "home": false,
+     "proj": 14.5
+    },
+    {
+     "round": 4,
+     "opp": "EFS",
+     "home": true,
+     "proj": 15.5
+    },
+    {
+     "round": 5,
+     "opp": "VBC",
+     "home": false,
+     "proj": 14.2
+    },
+    {
+     "round": 6,
+     "opp": "BAR",
+     "home": false,
+     "proj": 13.6
+    }
+   ],
+   "role": "starter",
+   "reasons": [
+    "Good value at 1.14 pts/credit vs 0.63 median",
+    "Last season he banked 15.4 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+    "Projected 19 min/game at 0.63 PIR per minute",
+    "Moderate sample: 59 games, 70% confidence",
+    "Heavily owned (18% of squads) \u2014 he wins you little ground on the field",
+    "Warning: OLY is a crowded roster (1.55x the available minutes)",
+    "64% win probability vs Kosner Baskonia Vitoria-Gasteiz (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true
+  },
+  {
+   "id": 3934,
+   "name": "Isaac Bonga",
+   "position": "Forward",
+   "team": "PAO",
+   "team_full": "Panathinaikos AKTOR Athens",
+   "opponent": "Paris Basketball",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.119,
+   "price": 11.5,
+   "proj": 14.2,
+   "value": 1.24,
+   "minutes": 21.1,
+   "pir_per_min": 0.43,
+   "confidence": 0.84,
+   "last_pir": 14.3,
+   "last_games": 38,
+   "appearances": 129,
+   "p_win": 0.61,
+   "crowding": 1.59,
+   "horizon": 13.8,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PBB",
+     "home": true,
+     "proj": 14.2
+    },
+    {
+     "round": 2,
+     "opp": "ASV",
+     "home": true,
+     "proj": 13.8
+    },
+    {
+     "round": 3,
+     "opp": "MTA",
+     "home": true,
+     "proj": 13.8
+    },
+    {
+     "round": 4,
+     "opp": "FBT",
+     "home": true,
+     "proj": 13.0
+    },
+    {
+     "round": 5,
+     "opp": "PAR",
+     "home": false,
+     "proj": 12.2
+    },
+    {
+     "round": 6,
+     "opp": "HTA",
+     "home": true,
+     "proj": 13.7
+    }
+   ],
+   "role": "starter",
+   "reasons": [
+    "Good value at 1.24 pts/credit vs 0.63 median",
+    "Last season he banked 14.3 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+    "Projected 21 min/game at 0.43 PIR per minute",
+    "Strong record: 129 EuroLeague games, 84% confidence",
+    "Warning: PAO is a crowded roster (1.59x the available minutes)",
+    "61% win probability vs Paris Basketball (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true
+  },
+  {
+   "id": 3808,
+   "name": "Codi Miller-Mcintyre",
+   "position": "Guard",
+   "team": "OLY",
+   "team_full": "Olympiacos Piraeus",
+   "opponent": "Kosner Baskonia Vitoria-Gasteiz",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.099,
+   "price": 11.0,
+   "proj": 12.8,
+   "value": 1.16,
+   "minutes": 22.9,
+   "pir_per_min": 0.46,
+   "confidence": 0.87,
+   "last_pir": 15.0,
+   "last_games": 39,
+   "appearances": 164,
+   "p_win": 0.64,
+   "crowding": 1.55,
+   "horizon": 12.6,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "KBA",
+     "home": false,
+     "proj": 12.8
+    },
+    {
+     "round": 2,
+     "opp": "ZAL",
+     "home": false,
+     "proj": 12.1
+    },
+    {
+     "round": 3,
+     "opp": "VIR",
+     "home": false,
+     "proj": 12.7
+    },
+    {
+     "round": 4,
+     "opp": "EFS",
+     "home": true,
+     "proj": 13.6
+    },
+    {
+     "round": 5,
+     "opp": "VBC",
+     "home": false,
+     "proj": 12.5
+    },
+    {
+     "round": 6,
+     "opp": "BAR",
+     "home": false,
+     "proj": 12.0
+    }
+   ],
+   "role": "starter",
+   "reasons": [
+    "Good value at 1.16 pts/credit vs 0.63 median",
+    "Last season he banked 15.0 fantasy points per round across 39 games \u2014 that record carries 60% of this projection",
+    "Projected 23 min/game at 0.46 PIR per minute",
+    "Strong record: 164 EuroLeague games, 87% confidence",
+    "Warning: OLY is a crowded roster (1.55x the available minutes)",
+    "64% win probability vs Kosner Baskonia Vitoria-Gasteiz (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true
+  }
+ ],
+ "sixth": [
+  {
+   "id": 3850,
+   "name": "Theo Maledon",
+   "position": "Guard",
+   "team": "RMB",
+   "team_full": "Real Madrid",
+   "opponent": "Dubai Basketball",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.077,
+   "price": 9.8,
+   "proj": 10.9,
+   "value": 1.11,
+   "minutes": 18.8,
+   "pir_per_min": 0.6,
+   "confidence": 0.78,
+   "last_pir": 9.7,
+   "last_games": 38,
+   "appearances": 111,
+   "p_win": 0.42,
+   "crowding": 1.57,
+   "horizon": 10.7,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "DUB",
+     "home": false,
+     "proj": 10.9
+    },
+    {
+     "round": 2,
+     "opp": "EFS",
+     "home": false,
+     "proj": 10.2
+    },
+    {
+     "round": 3,
+     "opp": "HTA",
+     "home": false,
+     "proj": 10.6
+    },
+    {
+     "round": 4,
+     "opp": "PAR",
+     "home": true,
+     "proj": 11.8
+    },
+    {
+     "round": 5,
+     "opp": "MIL",
+     "home": false,
+     "proj": 10.3
+    },
+    {
+     "round": 6,
+     "opp": "ASV",
+     "home": true,
+     "proj": 11.8
+    }
+   ],
+   "role": "sixth",
+   "reasons": [
+    "Sixth man: scores the full 100%, same as a starter, but cannot be captained",
+    "Good value at 1.11 pts/credit vs 0.63 median",
+    "Last season he banked 9.7 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+    "Projected 19 min/game at 0.60 PIR per minute",
+    "Moderate sample: 111 games, 78% confidence",
+    "Warning: RMB is a crowded roster (1.57x the available minutes)",
+    "42% win probability vs Dubai Basketball (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true
+  }
+ ],
+ "bench": [
+  {
+   "id": 7223,
+   "name": "Clement Frisch",
+   "position": "Forward",
+   "team": "KBA",
+   "team_full": "Kosner Baskonia Vitoria-Gasteiz",
+   "opponent": "Olympiacos Piraeus",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.011,
+   "price": 5.1,
+   "proj": 3.9,
+   "value": 0.76,
+   "minutes": 6.6,
+   "pir_per_min": 0.33,
+   "confidence": 0.49,
+   "last_pir": 4.7,
+   "last_games": 38,
+   "appearances": 37,
+   "p_win": 0.36,
+   "crowding": 1.1,
+   "horizon": 3.9,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "OLY",
+     "home": true,
+     "proj": 3.9
+    },
+    {
+     "round": 2,
+     "opp": "VBC",
+     "home": false,
+     "proj": 3.7
+    },
+    {
+     "round": 3,
+     "opp": "MIL",
+     "home": true,
+     "proj": 4.1
+    },
+    {
+     "round": 4,
+     "opp": "BJK",
+     "home": true,
+     "proj": 4.1
+    },
+    {
+     "round": 5,
+     "opp": "DUB",
+     "home": true,
+     "proj": 4.3
+    },
+    {
+     "round": 6,
+     "opp": "VIR",
+     "home": false,
+     "proj": 3.7
+    }
+   ],
+   "role": "bench",
+   "reasons": [
+    "Cheap by design \u2014 these four score 50%, so the slot buys credits for the six who score in full",
+    "Last season he banked 4.7 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+    "Projected 7 min/game at 0.33 PIR per minute",
+    "Moderate sample: 37 games, 49% confidence",
+    "KBA is a thin roster (1.10x) \u2014 minutes are easier to come by",
+    "36% win probability vs Olympiacos Piraeus (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true
+  },
+  {
+   "id": 4012,
+   "name": "Giampaolo Ricci",
+   "position": "Forward",
+   "team": "MIL",
+   "team_full": "Armani Olimpia Milan",
+   "opponent": "Partizan Mozzart Bet Belgrade",
+   "home": false,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.035,
+   "price": 4.5,
+   "proj": 3.1,
+   "value": 0.68,
+   "minutes": 7.6,
+   "pir_per_min": 0.24,
+   "confidence": 0.79,
+   "last_pir": 4.4,
+   "last_games": 38,
+   "appearances": 194,
+   "p_win": 0.43,
+   "crowding": 1.28,
+   "horizon": 3.2,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PAR",
+     "home": false,
+     "proj": 3.1
+    },
+    {
+     "round": 2,
+     "opp": "VIR",
+     "home": true,
+     "proj": 3.4
+    },
+    {
+     "round": 3,
+     "opp": "KBA",
+     "home": false,
+     "proj": 3.1
+    },
+    {
+     "round": 4,
+     "opp": "MTA",
+     "home": false,
+     "proj": 3.1
+    },
+    {
+     "round": 5,
+     "opp": "RMB",
+     "home": true,
+     "proj": 3.2
+    },
+    {
+     "round": 6,
+     "opp": "DUB",
+     "home": true,
+     "proj": 3.5
+    }
+   ],
+   "role": "bench",
+   "reasons": [
+    "Cheap by design \u2014 these four score 50%, so the slot buys credits for the six who score in full",
+    "Last season he banked 4.4 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+    "Projected 8 min/game at 0.24 PIR per minute",
+    "Moderate sample: 194 games, 79% confidence",
+    "43% win probability vs Partizan Mozzart Bet Belgrade (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true
+  },
+  {
+   "id": 4016,
+   "name": "Nicola Akele",
+   "position": "Forward",
+   "team": "MIL",
+   "team_full": "Armani Olimpia Milan",
+   "opponent": "Partizan Mozzart Bet Belgrade",
+   "home": false,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.086,
+   "price": 4.0,
+   "proj": 1.7,
+   "value": 0.43,
+   "minutes": 4.4,
+   "pir_per_min": 0.26,
+   "confidence": 0.54,
+   "last_pir": 2.3,
+   "last_games": 29,
+   "appearances": 63,
+   "p_win": 0.43,
+   "crowding": 1.28,
+   "horizon": 1.8,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PAR",
+     "home": false,
+     "proj": 1.7
+    },
+    {
+     "round": 2,
+     "opp": "VIR",
+     "home": true,
+     "proj": 1.9
+    },
+    {
+     "round": 3,
+     "opp": "KBA",
+     "home": false,
+     "proj": 1.7
+    },
+    {
+     "round": 4,
+     "opp": "MTA",
+     "home": false,
+     "proj": 1.7
+    },
+    {
+     "round": 5,
+     "opp": "RMB",
+     "home": true,
+     "proj": 1.8
+    },
+    {
+     "round": 6,
+     "opp": "DUB",
+     "home": true,
+     "proj": 2.0
+    }
+   ],
+   "role": "bench",
+   "reasons": [
+    "Cheap by design \u2014 these four score 50%, so the slot buys credits for the six who score in full",
+    "Last season he banked 2.3 fantasy points per round across 29 games \u2014 that record carries 60% of this projection",
+    "Projected 4 min/game at 0.26 PIR per minute",
+    "Moderate sample: 63 games, 54% confidence",
+    "43% win probability vs Partizan Mozzart Bet Belgrade (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true
+  },
+  {
+   "id": 4003,
+   "name": "Enzo Shahrvin",
+   "position": "Center",
+   "team": "PBB",
+   "team_full": "Paris Basketball",
+   "opponent": "Panathinaikos AKTOR Athens",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.085,
+   "price": 4.0,
+   "proj": 0.7,
+   "value": 0.17,
+   "minutes": 2.7,
+   "pir_per_min": 0.26,
+   "confidence": 0.28,
+   "last_pir": 0.6,
+   "last_games": 13,
+   "appearances": 26,
+   "p_win": 0.39,
+   "crowding": 1.51,
+   "horizon": 0.7,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PAO",
+     "home": false,
+     "proj": 0.7
+    },
+    {
+     "round": 2,
+     "opp": "PAR",
+     "home": true,
+     "proj": 0.8
+    },
+    {
+     "round": 3,
+     "opp": "ZAL",
+     "home": true,
+     "proj": 0.7
+    },
+    {
+     "round": 4,
+     "opp": "ASV",
+     "home": true,
+     "proj": 0.8
+    },
+    {
+     "round": 5,
+     "opp": "VIR",
+     "home": true,
+     "proj": 0.8
+    },
+    {
+     "round": 6,
+     "opp": "CZV",
+     "home": false,
+     "proj": 0.7
+    }
+   ],
+   "role": "bench",
+   "reasons": [
+    "Cheap by design \u2014 these four score 50%, so the slot buys credits for the six who score in full",
+    "Last season he banked 0.6 fantasy points per round across 13 games \u2014 that record carries 60% of this projection",
+    "Projected 3 min/game at 0.26 PIR per minute",
+    "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+    "39% win probability vs Panathinaikos AKTOR Athens (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true
+  }
+ ],
+ "coach": {
+  "id": 4172,
+  "name": "Dimitris Itoudis",
+  "position": "Head Coach",
+  "team": "HTA",
+  "team_full": "Hapoel IBI Tel Aviv",
+  "opponent": "FC Bayern Munich",
+  "home": true,
+  "turn": 1,
+  "date": "2026-09-24",
+  "own": 0.075,
+  "price": 8.5,
+  "proj": 11.7,
+  "value": 1.37,
+  "minutes": 0.0,
+  "pir_per_min": 0.0,
+  "confidence": 0.0,
+  "last_pir": null,
+  "last_games": null,
+  "appearances": 0,
+  "p_win": 0.0,
+  "crowding": 1.7,
+  "horizon": 7.3,
+  "fixtures": [
+   {
+    "round": 1,
+    "opp": "BAY",
+    "home": true,
+    "proj": 11.7
+   },
+   {
+    "round": 2,
+    "opp": "CZV",
+    "home": false,
+    "proj": 3.0
+   },
+   {
+    "round": 3,
+    "opp": "RMB",
+    "home": true,
+    "proj": 6.4
+   },
+   {
+    "round": 4,
+    "opp": "VBC",
+    "home": false,
+    "proj": 2.4
+   },
+   {
+    "round": 5,
+    "opp": "BJK",
+    "home": true,
+    "proj": 10.7
+   },
+   {
+    "round": 6,
+    "opp": "PAO",
+    "home": false,
+    "proj": 1.8
+   }
+  ],
+  "role": "coach",
+  "reasons": [
+   "Coach scoring is a step function, never a sliding scale: a 2-point win and a 10-point win both pay exactly +10",
+   "46% chance of a 20-point outcome (+25 or +20) \u2014 that is where a coach's value actually sits, not in winning as such",
+   "A narrow win pays +10 but a narrow loss only -5, which is why the slot is structurally positive",
+   "Expected margin +8.8 vs FC Bayern Munich gives an expected 11.7 pts",
+   "At 8cr that is 1.37 pts/credit \u2014 the bands are asymmetric, so this slot is structurally positive"
+  ],
+  "in_squad": true,
+  "bands": {
+   "win 21+": 0.17255,
+   "win 11-20": 0.28791666666666665,
+   "win 1-10": 0.30943333333333334,
+   "loss 1-10": 0.17346666666666666,
+   "loss 11-20": 0.048216666666666665,
+   "loss 21+": 0.008416666666666666
+  }
+ },
+ "alternatives": {
+  "Guard": [
+   {
+    "id": 3903,
+    "name": "Elijah Bryant",
+    "position": "Guard",
+    "team": "HTA",
+    "team_full": "Hapoel IBI Tel Aviv",
+    "opponent": "FC Bayern Munich",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.057,
+    "price": 15.5,
+    "proj": 16.0,
+    "value": 1.03,
+    "minutes": 22.1,
+    "pir_per_min": 0.51,
+    "confidence": 0.89,
+    "last_pir": 17.7,
+    "last_games": 38,
+    "appearances": 231,
+    "p_win": 0.77,
+    "crowding": 1.7,
+    "horizon": 15.2,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "BAY",
+      "home": true,
+      "proj": 16.0
+     },
+     {
+      "round": 2,
+      "opp": "CZV",
+      "home": false,
+      "proj": 14.1
+     },
+     {
+      "round": 3,
+      "opp": "RMB",
+      "home": true,
+      "proj": 15.4
+     },
+     {
+      "round": 4,
+      "opp": "VBC",
+      "home": false,
+      "proj": 14.4
+     },
+     {
+      "round": 5,
+      "opp": "BJK",
+      "home": true,
+      "proj": 16.0
+     },
+     {
+      "round": 6,
+      "opp": "PAO",
+      "home": false,
+      "proj": 14.2
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 17.7 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+     "Projected 22 min/game at 0.51 PIR per minute",
+     "Strong record: 231 EuroLeague games, 89% confidence",
+     "Warning: HTA is a crowded roster (1.70x the available minutes)",
+     "77% win probability vs FC Bayern Munich (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3834,
+    "name": "Nadir Hifi",
+    "position": "Guard",
+    "team": "PBB",
+    "team_full": "Paris Basketball",
+    "opponent": "Panathinaikos AKTOR Athens",
+    "home": false,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.021,
+    "price": 14.8,
+    "proj": 15.6,
+    "value": 1.06,
+    "minutes": 22.8,
+    "pir_per_min": 0.6,
+    "confidence": 0.79,
+    "last_pir": 17.1,
+    "last_games": 37,
+    "appearances": 98,
+    "p_win": 0.39,
+    "crowding": 1.51,
+    "horizon": 16.8,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "PAO",
+      "home": false,
+      "proj": 15.6
+     },
+     {
+      "round": 2,
+      "opp": "PAR",
+      "home": true,
+      "proj": 17.9
+     },
+     {
+      "round": 3,
+      "opp": "ZAL",
+      "home": true,
+      "proj": 17.1
+     },
+     {
+      "round": 4,
+      "opp": "ASV",
+      "home": true,
+      "proj": 18.0
+     },
+     {
+      "round": 5,
+      "opp": "VIR",
+      "home": true,
+      "proj": 18.0
+     },
+     {
+      "round": 6,
+      "opp": "CZV",
+      "home": false,
+      "proj": 15.5
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 17.1 fantasy points per round across 37 games \u2014 that record carries 60% of this projection",
+     "Projected 23 min/game at 0.60 PIR per minute",
+     "Moderate sample: 98 games, 79% confidence",
+     "A differential: only 2.1% of squads hold him at this projection",
+     "39% win probability vs Panathinaikos AKTOR Athens (away), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3771,
+    "name": "Wade Baldwin",
+    "position": "Guard",
+    "team": "FBT",
+    "team_full": "Fenerbahce Tarfin Istanbul",
+    "opponent": "Virtus Bologna",
+    "home": true,
+    "turn": 2,
+    "date": "2026-09-25",
+    "own": 0.026,
+    "price": 14.3,
+    "proj": 15.6,
+    "value": 1.09,
+    "minutes": 21.6,
+    "pir_per_min": 0.56,
+    "confidence": 0.89,
+    "last_pir": 16.0,
+    "last_games": 42,
+    "appearances": 226,
+    "p_win": 0.71,
+    "crowding": 1.49,
+    "horizon": 15.3,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "VIR",
+      "home": true,
+      "proj": 15.6
+     },
+     {
+      "round": 2,
+      "opp": "BAY",
+      "home": true,
+      "proj": 15.2
+     },
+     {
+      "round": 3,
+      "opp": "DUB",
+      "home": true,
+      "proj": 16.0
+     },
+     {
+      "round": 4,
+      "opp": "PAO",
+      "home": false,
+      "proj": 13.6
+     },
+     {
+      "round": 5,
+      "opp": "ZAL",
+      "home": true,
+      "proj": 14.8
+     },
+     {
+      "round": 6,
+      "opp": "PAR",
+      "home": true,
+      "proj": 15.5
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 16.0 fantasy points per round across 42 games \u2014 that record carries 60% of this projection",
+     "Projected 22 min/game at 0.56 PIR per minute",
+     "Strong record: 226 EuroLeague games, 89% confidence",
+     "A differential: only 2.6% of squads hold him at this projection",
+     "71% win probability vs Virtus Bologna (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 7202,
+    "name": "Justin Robinson",
+    "position": "Guard",
+    "team": "BAR",
+    "team_full": "FC Barcelona",
+    "opponent": "Anadolu Efes Istanbul",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.032,
+    "price": 12.2,
+    "proj": 14.1,
+    "value": 1.16,
+    "minutes": 21.2,
+    "pir_per_min": 0.63,
+    "confidence": 0.59,
+    "last_pir": 13.6,
+    "last_games": 36,
+    "appearances": 36,
+    "p_win": 0.61,
+    "crowding": 1.28,
+    "horizon": 13.8,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "EFS",
+      "home": true,
+      "proj": 14.1
+     },
+     {
+      "round": 2,
+      "opp": "DUB",
+      "home": false,
+      "proj": 13.5
+     },
+     {
+      "round": 3,
+      "opp": "BJK",
+      "home": false,
+      "proj": 12.8
+     },
+     {
+      "round": 4,
+      "opp": "ZAL",
+      "home": true,
+      "proj": 14.0
+     },
+     {
+      "round": 5,
+      "opp": "MTA",
+      "home": true,
+      "proj": 14.8
+     },
+     {
+      "round": 6,
+      "opp": "OLY",
+      "home": true,
+      "proj": 13.6
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Good value at 1.16 pts/credit vs 0.63 median",
+     "Last season he banked 13.6 fantasy points per round across 36 games \u2014 that record carries 60% of this projection",
+     "Projected 21 min/game at 0.63 PIR per minute",
+     "Moderate sample: 36 games, 59% confidence",
+     "A differential: only 3.2% of squads hold him at this projection",
+     "61% win probability vs Anadolu Efes Istanbul (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 8567,
+    "name": "Talen Horton-Tucker",
+    "position": "Guard",
+    "team": "FBT",
+    "team_full": "Fenerbahce Tarfin Istanbul",
+    "opponent": "Virtus Bologna",
+    "home": true,
+    "turn": 2,
+    "date": "2026-09-25",
+    "own": 0.09,
+    "price": 12.7,
+    "proj": 14.1,
+    "value": 1.11,
+    "minutes": 18.9,
+    "pir_per_min": 0.55,
+    "confidence": 0.67,
+    "last_pir": 13.9,
+    "last_games": 41,
+    "appearances": 41,
+    "p_win": 0.71,
+    "crowding": 1.49,
+    "horizon": 13.8,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "VIR",
+      "home": true,
+      "proj": 14.1
+     },
+     {
+      "round": 2,
+      "opp": "BAY",
+      "home": true,
+      "proj": 13.8
+     },
+     {
+      "round": 3,
+      "opp": "DUB",
+      "home": true,
+      "proj": 14.5
+     },
+     {
+      "round": 4,
+      "opp": "PAO",
+      "home": false,
+      "proj": 12.3
+     },
+     {
+      "round": 5,
+      "opp": "ZAL",
+      "home": true,
+      "proj": 13.4
+     },
+     {
+      "round": 6,
+      "opp": "PAR",
+      "home": true,
+      "proj": 14.0
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Good value at 1.11 pts/credit vs 0.63 median",
+     "Last season he banked 13.9 fantasy points per round across 41 games \u2014 that record carries 60% of this projection",
+     "Projected 19 min/game at 0.55 PIR per minute",
+     "Moderate sample: 41 games, 67% confidence",
+     "71% win probability vs Virtus Bologna (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3765,
+    "name": "Mike James",
+    "position": "Guard",
+    "team": "EFS",
+    "team_full": "Anadolu Efes Istanbul",
+    "opponent": "FC Barcelona",
+    "home": false,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.019,
+    "price": 16.0,
+    "proj": 13.9,
+    "value": 0.87,
+    "minutes": 25.4,
+    "pir_per_min": 0.6,
+    "confidence": 0.92,
+    "last_pir": 17.3,
+    "last_games": 39,
+    "appearances": 280,
+    "p_win": 0.39,
+    "crowding": 1.53,
+    "horizon": 14.5,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "BAR",
+      "home": false,
+      "proj": 13.9
+     },
+     {
+      "round": 2,
+      "opp": "RMB",
+      "home": true,
+      "proj": 15.5
+     },
+     {
+      "round": 3,
+      "opp": "CZV",
+      "home": false,
+      "proj": 14.2
+     },
+     {
+      "round": 4,
+      "opp": "OLY",
+      "home": false,
+      "proj": 13.6
+     },
+     {
+      "round": 5,
+      "opp": "BAY",
+      "home": true,
+      "proj": 16.1
+     },
+     {
+      "round": 6,
+      "opp": "ZAL",
+      "home": false,
+      "proj": 14.0
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 17.3 fantasy points per round across 39 games \u2014 that record carries 60% of this projection",
+     "Projected 25 min/game at 0.60 PIR per minute",
+     "Strong record: 280 EuroLeague games, 92% confidence",
+     "A differential: only 1.9% of squads hold him at this projection",
+     "39% win probability vs FC Barcelona (away), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 11514,
+    "name": "Patty Mills",
+    "position": "Guard",
+    "team": "ASV",
+    "team_full": "LDLC ASVEL Villeurbanne",
+    "opponent": "Maccabi Rapyd Tel Aviv",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.043,
+    "price": 12.3,
+    "proj": 13.2,
+    "value": 1.08,
+    "minutes": 25.4,
+    "pir_per_min": 0.49,
+    "confidence": 0.0,
+    "last_pir": null,
+    "last_games": null,
+    "appearances": 0,
+    "p_win": 0.47,
+    "crowding": 1.27,
+    "horizon": 12.5,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "MTA",
+      "home": true,
+      "proj": 13.2
+     },
+     {
+      "round": 2,
+      "opp": "PAO",
+      "home": false,
+      "proj": 11.4
+     },
+     {
+      "round": 3,
+      "opp": "VBC",
+      "home": true,
+      "proj": 13.0
+     },
+     {
+      "round": 4,
+      "opp": "PBB",
+      "home": false,
+      "proj": 12.2
+     },
+     {
+      "round": 5,
+      "opp": "CZV",
+      "home": true,
+      "proj": 12.7
+     },
+     {
+      "round": 6,
+      "opp": "RMB",
+      "home": false,
+      "proj": 11.1
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Projected 25 min/game at 0.49 PIR per minute",
+     "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+     "A differential: only 4.3% of squads hold him at this projection",
+     "47% win probability vs Maccabi Rapyd Tel Aviv (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3779,
+    "name": "Kostas Sloukas",
+    "position": "Guard",
+    "team": "PAO",
+    "team_full": "Panathinaikos AKTOR Athens",
+    "opponent": "Paris Basketball",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.011,
+    "price": 10.7,
+    "proj": 11.6,
+    "value": 1.08,
+    "minutes": 22.3,
+    "pir_per_min": 0.57,
+    "confidence": 0.9,
+    "last_pir": 10.8,
+    "last_games": 38,
+    "appearances": 276,
+    "p_win": 0.61,
+    "crowding": 1.59,
+    "horizon": 11.2,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "PBB",
+      "home": true,
+      "proj": 11.6
+     },
+     {
+      "round": 2,
+      "opp": "ASV",
+      "home": true,
+      "proj": 11.2
+     },
+     {
+      "round": 3,
+      "opp": "MTA",
+      "home": true,
+      "proj": 11.3
+     },
+     {
+      "round": 4,
+      "opp": "FBT",
+      "home": true,
+      "proj": 10.6
+     },
+     {
+      "round": 5,
+      "opp": "PAR",
+      "home": false,
+      "proj": 10.0
+     },
+     {
+      "round": 6,
+      "opp": "HTA",
+      "home": true,
+      "proj": 11.2
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 10.8 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+     "Projected 22 min/game at 0.57 PIR per minute",
+     "Strong record: 276 EuroLeague games, 90% confidence",
+     "A differential: only 1.1% of squads hold him at this projection",
+     "Warning: PAO is a crowded roster (1.59x the available minutes)",
+     "61% win probability vs Paris Basketball (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 11515,
+    "name": "Tremont Waters",
+    "position": "Guard",
+    "team": "ASV",
+    "team_full": "LDLC ASVEL Villeurbanne",
+    "opponent": "Maccabi Rapyd Tel Aviv",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.003,
+    "price": 9.9,
+    "proj": 10.8,
+    "value": 1.09,
+    "minutes": 23.0,
+    "pir_per_min": 0.46,
+    "confidence": 0.0,
+    "last_pir": null,
+    "last_games": null,
+    "appearances": 0,
+    "p_win": 0.47,
+    "crowding": 1.27,
+    "horizon": 10.2,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "MTA",
+      "home": true,
+      "proj": 10.8
+     },
+     {
+      "round": 2,
+      "opp": "PAO",
+      "home": false,
+      "proj": 9.3
+     },
+     {
+      "round": 3,
+      "opp": "VBC",
+      "home": true,
+      "proj": 10.5
+     },
+     {
+      "round": 4,
+      "opp": "PBB",
+      "home": false,
+      "proj": 9.9
+     },
+     {
+      "round": 5,
+      "opp": "CZV",
+      "home": true,
+      "proj": 10.3
+     },
+     {
+      "round": 6,
+      "opp": "RMB",
+      "home": false,
+      "proj": 9.0
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Projected 23 min/game at 0.46 PIR per minute",
+     "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+     "A differential: only 0.3% of squads hold him at this projection",
+     "47% win probability vs Maccabi Rapyd Tel Aviv (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   }
+  ],
+  "Forward": [
+   {
+    "id": 3766,
+    "name": "Sasha Vezenkov",
+    "position": "Forward",
+    "team": "OLY",
+    "team_full": "Olympiacos Piraeus",
+    "opponent": "Kosner Baskonia Vitoria-Gasteiz",
+    "home": false,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.4,
+    "price": 17.0,
+    "proj": 18.2,
+    "value": 1.07,
+    "minutes": 24.0,
+    "pir_per_min": 0.69,
+    "confidence": 0.89,
+    "last_pir": 20.1,
+    "last_games": 39,
+    "appearances": 240,
+    "p_win": 0.64,
+    "crowding": 1.55,
+    "horizon": 18.0,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "KBA",
+      "home": false,
+      "proj": 18.2
+     },
+     {
+      "round": 2,
+      "opp": "ZAL",
+      "home": false,
+      "proj": 17.2
+     },
+     {
+      "round": 3,
+      "opp": "VIR",
+      "home": false,
+      "proj": 18.1
+     },
+     {
+      "round": 4,
+      "opp": "EFS",
+      "home": true,
+      "proj": 19.4
+     },
+     {
+      "round": 5,
+      "opp": "VBC",
+      "home": false,
+      "proj": 17.8
+     },
+     {
+      "round": 6,
+      "opp": "BAR",
+      "home": false,
+      "proj": 17.0
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 20.1 fantasy points per round across 39 games \u2014 that record carries 60% of this projection",
+     "Projected 24 min/game at 0.69 PIR per minute",
+     "Strong record: 240 EuroLeague games, 89% confidence",
+     "Heavily owned (40% of squads) \u2014 he wins you little ground on the field",
+     "Warning: OLY is a crowded roster (1.55x the available minutes)",
+     "64% win probability vs Kosner Baskonia Vitoria-Gasteiz (away), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3770,
+    "name": "Chima Moneke",
+    "position": "Forward",
+    "team": "CZV",
+    "team_full": "Crvena Zvezda Meridianbet Belgrade",
+    "opponent": "Zalgiris Kaunas",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.035,
+    "price": 15.5,
+    "proj": 16.4,
+    "value": 1.05,
+    "minutes": 24.1,
+    "pir_per_min": 0.64,
+    "confidence": 0.84,
+    "last_pir": 16.6,
+    "last_games": 36,
+    "appearances": 118,
+    "p_win": 0.64,
+    "crowding": 1.45,
+    "horizon": 16.5,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "ZAL",
+      "home": true,
+      "proj": 16.4
+     },
+     {
+      "round": 2,
+      "opp": "HTA",
+      "home": true,
+      "proj": 17.1
+     },
+     {
+      "round": 3,
+      "opp": "EFS",
+      "home": true,
+      "proj": 16.5
+     },
+     {
+      "round": 4,
+      "opp": "DUB",
+      "home": false,
+      "proj": 15.8
+     },
+     {
+      "round": 5,
+      "opp": "ASV",
+      "home": false,
+      "proj": 15.4
+     },
+     {
+      "round": 6,
+      "opp": "PBB",
+      "home": true,
+      "proj": 17.8
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 16.6 fantasy points per round across 36 games \u2014 that record carries 60% of this projection",
+     "Projected 24 min/game at 0.64 PIR per minute",
+     "Strong record: 118 EuroLeague games, 84% confidence",
+     "A differential: only 3.5% of squads hold him at this projection",
+     "64% win probability vs Zalgiris Kaunas (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3812,
+    "name": "Jaylen Hoard",
+    "position": "Forward",
+    "team": "MTA",
+    "team_full": "Maccabi Rapyd Tel Aviv",
+    "opponent": "LDLC ASVEL Villeurbanne",
+    "home": false,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.02,
+    "price": 14.8,
+    "proj": 15.0,
+    "value": 1.01,
+    "minutes": 28.0,
+    "pir_per_min": 0.55,
+    "confidence": 0.81,
+    "last_pir": 14.9,
+    "last_games": 36,
+    "appearances": 90,
+    "p_win": 0.53,
+    "crowding": 1.36,
+    "horizon": 15.3,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "ASV",
+      "home": false,
+      "proj": 15.0
+     },
+     {
+      "round": 2,
+      "opp": "BJK",
+      "home": true,
+      "proj": 16.3
+     },
+     {
+      "round": 3,
+      "opp": "PAO",
+      "home": false,
+      "proj": 14.5
+     },
+     {
+      "round": 4,
+      "opp": "MIL",
+      "home": true,
+      "proj": 16.2
+     },
+     {
+      "round": 5,
+      "opp": "BAR",
+      "home": false,
+      "proj": 14.1
+     },
+     {
+      "round": 6,
+      "opp": "VBC",
+      "home": false,
+      "proj": 14.7
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 14.9 fantasy points per round across 36 games \u2014 that record carries 60% of this projection",
+     "Projected 28 min/game at 0.55 PIR per minute",
+     "Strong record: 90 EuroLeague games, 81% confidence",
+     "A differential: only 2.0% of squads hold him at this projection",
+     "53% win probability vs LDLC ASVEL Villeurbanne (away), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3926,
+    "name": "Filip Petrusev",
+    "position": "Forward",
+    "team": "DUB",
+    "team_full": "Dubai Basketball",
+    "opponent": "Real Madrid",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.029,
+    "price": 12.7,
+    "proj": 13.4,
+    "value": 1.06,
+    "minutes": 14.6,
+    "pir_per_min": 0.58,
+    "confidence": 0.83,
+    "last_pir": 15.4,
+    "last_games": 38,
+    "appearances": 148,
+    "p_win": 0.58,
+    "crowding": 1.64,
+    "horizon": 13.1,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "RMB",
+      "home": true,
+      "proj": 13.4
+     },
+     {
+      "round": 2,
+      "opp": "BAR",
+      "home": true,
+      "proj": 13.4
+     },
+     {
+      "round": 3,
+      "opp": "FBT",
+      "home": false,
+      "proj": 12.0
+     },
+     {
+      "round": 4,
+      "opp": "CZV",
+      "home": true,
+      "proj": 13.7
+     },
+     {
+      "round": 5,
+      "opp": "KBA",
+      "home": false,
+      "proj": 12.8
+     },
+     {
+      "round": 6,
+      "opp": "MIL",
+      "home": false,
+      "proj": 12.3
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 15.4 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+     "Projected 15 min/game at 0.58 PIR per minute",
+     "Strong record: 148 EuroLeague games, 83% confidence",
+     "A differential: only 2.9% of squads hold him at this projection",
+     "Warning: DUB is a crowded roster (1.64x the available minutes)",
+     "58% win probability vs Real Madrid (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3793,
+    "name": "Jordan Nwora",
+    "position": "Forward",
+    "team": "CZV",
+    "team_full": "Crvena Zvezda Meridianbet Belgrade",
+    "opponent": "Zalgiris Kaunas",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.139,
+    "price": 13.0,
+    "proj": 13.3,
+    "value": 1.03,
+    "minutes": 21.8,
+    "pir_per_min": 0.5,
+    "confidence": 0.76,
+    "last_pir": 13.9,
+    "last_games": 34,
+    "appearances": 71,
+    "p_win": 0.64,
+    "crowding": 1.45,
+    "horizon": 13.5,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "ZAL",
+      "home": true,
+      "proj": 13.3
+     },
+     {
+      "round": 2,
+      "opp": "HTA",
+      "home": true,
+      "proj": 14.0
+     },
+     {
+      "round": 3,
+      "opp": "EFS",
+      "home": true,
+      "proj": 13.5
+     },
+     {
+      "round": 4,
+      "opp": "DUB",
+      "home": false,
+      "proj": 12.9
+     },
+     {
+      "round": 5,
+      "opp": "ASV",
+      "home": false,
+      "proj": 12.6
+     },
+     {
+      "round": 6,
+      "opp": "PBB",
+      "home": true,
+      "proj": 14.5
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 13.9 fantasy points per round across 34 games \u2014 that record carries 60% of this projection",
+     "Projected 22 min/game at 0.50 PIR per minute",
+     "Moderate sample: 71 games, 76% confidence",
+     "64% win probability vs Zalgiris Kaunas (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3864,
+    "name": "Timoth\u00e9 Luwawu-Cabarrot",
+    "position": "Forward",
+    "team": "RMB",
+    "team_full": "Real Madrid",
+    "opponent": "Dubai Basketball",
+    "home": false,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.06,
+    "price": 12.8,
+    "proj": 13.3,
+    "value": 1.04,
+    "minutes": 22.5,
+    "pir_per_min": 0.45,
+    "confidence": 0.83,
+    "last_pir": 15.5,
+    "last_games": 36,
+    "appearances": 114,
+    "p_win": 0.42,
+    "crowding": 1.57,
+    "horizon": 13.2,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "DUB",
+      "home": false,
+      "proj": 13.3
+     },
+     {
+      "round": 2,
+      "opp": "EFS",
+      "home": false,
+      "proj": 12.5
+     },
+     {
+      "round": 3,
+      "opp": "HTA",
+      "home": false,
+      "proj": 12.9
+     },
+     {
+      "round": 4,
+      "opp": "PAR",
+      "home": true,
+      "proj": 14.4
+     },
+     {
+      "round": 5,
+      "opp": "MIL",
+      "home": false,
+      "proj": 12.6
+     },
+     {
+      "round": 6,
+      "opp": "ASV",
+      "home": true,
+      "proj": 14.5
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 15.5 fantasy points per round across 36 games \u2014 that record carries 60% of this projection",
+     "Projected 23 min/game at 0.45 PIR per minute",
+     "Strong record: 114 EuroLeague games, 83% confidence",
+     "Warning: RMB is a crowded roster (1.57x the available minutes)",
+     "42% win probability vs Dubai Basketball (away), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3825,
+    "name": "Juancho Hernangomez",
+    "position": "Forward",
+    "team": "PAO",
+    "team_full": "Panathinaikos AKTOR Athens",
+    "opponent": "Paris Basketball",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.025,
+    "price": 11.4,
+    "proj": 12.6,
+    "value": 1.1,
+    "minutes": 20.1,
+    "pir_per_min": 0.49,
+    "confidence": 0.83,
+    "last_pir": 12.3,
+    "last_games": 44,
+    "appearances": 115,
+    "p_win": 0.61,
+    "crowding": 1.59,
+    "horizon": 12.2,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "PBB",
+      "home": true,
+      "proj": 12.6
+     },
+     {
+      "round": 2,
+      "opp": "ASV",
+      "home": true,
+      "proj": 12.2
+     },
+     {
+      "round": 3,
+      "opp": "MTA",
+      "home": true,
+      "proj": 12.2
+     },
+     {
+      "round": 4,
+      "opp": "FBT",
+      "home": true,
+      "proj": 11.5
+     },
+     {
+      "round": 5,
+      "opp": "PAR",
+      "home": false,
+      "proj": 10.8
+     },
+     {
+      "round": 6,
+      "opp": "HTA",
+      "home": true,
+      "proj": 12.1
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Good value at 1.10 pts/credit vs 0.63 median",
+     "Last season he banked 12.3 fantasy points per round across 44 games \u2014 that record carries 60% of this projection",
+     "Projected 20 min/game at 0.49 PIR per minute",
+     "Strong record: 115 EuroLeague games, 83% confidence",
+     "A differential: only 2.5% of squads hold him at this projection",
+     "Warning: PAO is a crowded roster (1.59x the available minutes)",
+     "61% win probability vs Paris Basketball (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 7221,
+    "name": "Azuolas Tubelis",
+    "position": "Forward",
+    "team": "ZAL",
+    "team_full": "Zalgiris Kaunas",
+    "opponent": "Crvena Zvezda Meridianbet Belgrade",
+    "home": false,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.085,
+    "price": 11.1,
+    "proj": 11.5,
+    "value": 1.04,
+    "minutes": 20.1,
+    "pir_per_min": 0.52,
+    "confidence": 0.67,
+    "last_pir": 12.7,
+    "last_games": 42,
+    "appearances": 43,
+    "p_win": 0.36,
+    "crowding": 1.4,
+    "horizon": 11.9,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "CZV",
+      "home": false,
+      "proj": 11.5
+     },
+     {
+      "round": 2,
+      "opp": "OLY",
+      "home": true,
+      "proj": 12.4
+     },
+     {
+      "round": 3,
+      "opp": "PBB",
+      "home": false,
+      "proj": 12.4
+     },
+     {
+      "round": 4,
+      "opp": "BAR",
+      "home": false,
+      "proj": 11.3
+     },
+     {
+      "round": 5,
+      "opp": "FBT",
+      "home": false,
+      "proj": 11.3
+     },
+     {
+      "round": 6,
+      "opp": "EFS",
+      "home": true,
+      "proj": 12.9
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 12.7 fantasy points per round across 42 games \u2014 that record carries 60% of this projection",
+     "Projected 20 min/game at 0.52 PIR per minute",
+     "Moderate sample: 43 games, 67% confidence",
+     "36% win probability vs Crvena Zvezda Meridianbet Belgrade (away), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   }
+  ],
+  "Center": [
+   {
+    "id": 3782,
+    "name": "Nikola Milutinov",
+    "position": "Center",
+    "team": "OLY",
+    "team_full": "Olympiacos Piraeus",
+    "opponent": "Kosner Baskonia Vitoria-Gasteiz",
+    "home": false,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.078,
+    "price": 15.3,
+    "proj": 16.3,
+    "value": 1.06,
+    "minutes": 20.0,
+    "pir_per_min": 0.75,
+    "confidence": 0.84,
+    "last_pir": 18.1,
+    "last_games": 40,
+    "appearances": 184,
+    "p_win": 0.64,
+    "crowding": 1.55,
+    "horizon": 16.1,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "KBA",
+      "home": false,
+      "proj": 16.3
+     },
+     {
+      "round": 2,
+      "opp": "ZAL",
+      "home": false,
+      "proj": 15.4
+     },
+     {
+      "round": 3,
+      "opp": "VIR",
+      "home": false,
+      "proj": 16.2
+     },
+     {
+      "round": 4,
+      "opp": "EFS",
+      "home": true,
+      "proj": 17.4
+     },
+     {
+      "round": 5,
+      "opp": "VBC",
+      "home": false,
+      "proj": 15.9
+     },
+     {
+      "round": 6,
+      "opp": "BAR",
+      "home": false,
+      "proj": 15.2
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 18.1 fantasy points per round across 40 games \u2014 that record carries 60% of this projection",
+     "Projected 20 min/game at 0.75 PIR per minute",
+     "Strong record: 184 EuroLeague games, 84% confidence",
+     "Warning: OLY is a crowded roster (1.55x the available minutes)",
+     "64% win probability vs Kosner Baskonia Vitoria-Gasteiz (away), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3857,
+    "name": "Dan Oturu",
+    "position": "Center",
+    "team": "HTA",
+    "team_full": "Hapoel IBI Tel Aviv",
+    "opponent": "FC Bayern Munich",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.083,
+    "price": 14.2,
+    "proj": 15.5,
+    "value": 1.09,
+    "minutes": 16.3,
+    "pir_per_min": 0.61,
+    "confidence": 0.79,
+    "last_pir": 16.8,
+    "last_games": 42,
+    "appearances": 102,
+    "p_win": 0.77,
+    "crowding": 1.7,
+    "horizon": 14.7,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "BAY",
+      "home": true,
+      "proj": 15.5
+     },
+     {
+      "round": 2,
+      "opp": "CZV",
+      "home": false,
+      "proj": 13.7
+     },
+     {
+      "round": 3,
+      "opp": "RMB",
+      "home": true,
+      "proj": 15.0
+     },
+     {
+      "round": 4,
+      "opp": "VBC",
+      "home": false,
+      "proj": 14.0
+     },
+     {
+      "round": 5,
+      "opp": "BJK",
+      "home": true,
+      "proj": 15.5
+     },
+     {
+      "round": 6,
+      "opp": "PAO",
+      "home": false,
+      "proj": 13.8
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 16.8 fantasy points per round across 42 games \u2014 that record carries 60% of this projection",
+     "Projected 16 min/game at 0.61 PIR per minute",
+     "Moderate sample: 102 games, 79% confidence",
+     "Warning: HTA is a crowded roster (1.70x the available minutes)",
+     "77% win probability vs FC Bayern Munich (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 4233,
+    "name": "Mfiondu Kabengele",
+    "position": "Center",
+    "team": "DUB",
+    "team_full": "Dubai Basketball",
+    "opponent": "Real Madrid",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.036,
+    "price": 14.6,
+    "proj": 15.0,
+    "value": 1.03,
+    "minutes": 17.8,
+    "pir_per_min": 0.64,
+    "confidence": 0.7,
+    "last_pir": 16.4,
+    "last_games": 36,
+    "appearances": 56,
+    "p_win": 0.58,
+    "crowding": 1.64,
+    "horizon": 14.7,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "RMB",
+      "home": true,
+      "proj": 15.0
+     },
+     {
+      "round": 2,
+      "opp": "BAR",
+      "home": true,
+      "proj": 15.0
+     },
+     {
+      "round": 3,
+      "opp": "FBT",
+      "home": false,
+      "proj": 13.4
+     },
+     {
+      "round": 4,
+      "opp": "CZV",
+      "home": true,
+      "proj": 15.3
+     },
+     {
+      "round": 5,
+      "opp": "KBA",
+      "home": false,
+      "proj": 14.3
+     },
+     {
+      "round": 6,
+      "opp": "MIL",
+      "home": false,
+      "proj": 13.8
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 16.4 fantasy points per round across 36 games \u2014 that record carries 60% of this projection",
+     "Projected 18 min/game at 0.64 PIR per minute",
+     "Moderate sample: 56 games, 70% confidence",
+     "A differential: only 3.6% of squads hold him at this projection",
+     "Warning: DUB is a crowded roster (1.64x the available minutes)",
+     "58% win probability vs Real Madrid (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3769,
+    "name": "Walter Tavares",
+    "position": "Center",
+    "team": "RMB",
+    "team_full": "Real Madrid",
+    "opponent": "Dubai Basketball",
+    "home": false,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.013,
+    "price": 14.7,
+    "proj": 12.9,
+    "value": 0.88,
+    "minutes": 21.0,
+    "pir_per_min": 0.66,
+    "confidence": 0.9,
+    "last_pir": 13.7,
+    "last_games": 39,
+    "appearances": 286,
+    "p_win": 0.42,
+    "crowding": 1.57,
+    "horizon": 12.7,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "DUB",
+      "home": false,
+      "proj": 12.9
+     },
+     {
+      "round": 2,
+      "opp": "EFS",
+      "home": false,
+      "proj": 12.1
+     },
+     {
+      "round": 3,
+      "opp": "HTA",
+      "home": false,
+      "proj": 12.5
+     },
+     {
+      "round": 4,
+      "opp": "PAR",
+      "home": true,
+      "proj": 13.9
+     },
+     {
+      "round": 5,
+      "opp": "MIL",
+      "home": false,
+      "proj": 12.2
+     },
+     {
+      "round": 6,
+      "opp": "ASV",
+      "home": true,
+      "proj": 14.0
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 13.7 fantasy points per round across 39 games \u2014 that record carries 60% of this projection",
+     "Projected 21 min/game at 0.66 PIR per minute",
+     "Strong record: 286 EuroLeague games, 90% confidence",
+     "A differential: only 1.3% of squads hold him at this projection",
+     "Warning: RMB is a crowded roster (1.57x the available minutes)",
+     "42% win probability vs Dubai Basketball (away), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3785,
+    "name": "Josh Nebo",
+    "position": "Center",
+    "team": "BAR",
+    "team_full": "FC Barcelona",
+    "opponent": "Anadolu Efes Istanbul",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.039,
+    "price": 12.5,
+    "proj": 11.5,
+    "value": 0.92,
+    "minutes": 23.2,
+    "pir_per_min": 0.59,
+    "confidence": 0.82,
+    "last_pir": 9.4,
+    "last_games": 26,
+    "appearances": 136,
+    "p_win": 0.61,
+    "crowding": 1.28,
+    "horizon": 11.2,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "EFS",
+      "home": true,
+      "proj": 11.5
+     },
+     {
+      "round": 2,
+      "opp": "DUB",
+      "home": false,
+      "proj": 10.9
+     },
+     {
+      "round": 3,
+      "opp": "BJK",
+      "home": false,
+      "proj": 10.4
+     },
+     {
+      "round": 4,
+      "opp": "ZAL",
+      "home": true,
+      "proj": 11.3
+     },
+     {
+      "round": 5,
+      "opp": "MTA",
+      "home": true,
+      "proj": 12.0
+     },
+     {
+      "round": 6,
+      "opp": "OLY",
+      "home": true,
+      "proj": 11.0
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 9.4 fantasy points per round across 26 games \u2014 that record carries 60% of this projection",
+     "Projected 23 min/game at 0.59 PIR per minute",
+     "Strong record: 136 EuroLeague games, 82% confidence",
+     "A differential: only 3.9% of squads hold him at this projection",
+     "61% win probability vs Anadolu Efes Istanbul (home), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3910,
+    "name": "Roman Sorkin",
+    "position": "Center",
+    "team": "MTA",
+    "team_full": "Maccabi Rapyd Tel Aviv",
+    "opponent": "LDLC ASVEL Villeurbanne",
+    "home": false,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.018,
+    "price": 13.4,
+    "proj": 11.4,
+    "value": 0.85,
+    "minutes": 17.5,
+    "pir_per_min": 0.51,
+    "confidence": 0.83,
+    "last_pir": 14.1,
+    "last_games": 38,
+    "appearances": 161,
+    "p_win": 0.53,
+    "crowding": 1.36,
+    "horizon": 11.6,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "ASV",
+      "home": false,
+      "proj": 11.4
+     },
+     {
+      "round": 2,
+      "opp": "BJK",
+      "home": true,
+      "proj": 12.4
+     },
+     {
+      "round": 3,
+      "opp": "PAO",
+      "home": false,
+      "proj": 11.0
+     },
+     {
+      "round": 4,
+      "opp": "MIL",
+      "home": true,
+      "proj": 12.3
+     },
+     {
+      "round": 5,
+      "opp": "BAR",
+      "home": false,
+      "proj": 10.7
+     },
+     {
+      "round": 6,
+      "opp": "VBC",
+      "home": false,
+      "proj": 11.2
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 14.1 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+     "Projected 18 min/game at 0.51 PIR per minute",
+     "Strong record: 161 EuroLeague games, 83% confidence",
+     "A differential: only 1.8% of squads hold him at this projection",
+     "53% win probability vs LDLC ASVEL Villeurbanne (away), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3860,
+    "name": "Devin Booker",
+    "position": "Center",
+    "team": "MIL",
+    "team_full": "Armani Olimpia Milan",
+    "opponent": "Partizan Mozzart Bet Belgrade",
+    "home": false,
+    "turn": 2,
+    "date": "2026-09-25",
+    "own": 0.016,
+    "price": 9.7,
+    "proj": 8.6,
+    "value": 0.89,
+    "minutes": 23.6,
+    "pir_per_min": 0.48,
+    "confidence": 0.87,
+    "last_pir": 9.1,
+    "last_games": 36,
+    "appearances": 211,
+    "p_win": 0.43,
+    "crowding": 1.28,
+    "horizon": 9.0,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "PAR",
+      "home": false,
+      "proj": 8.6
+     },
+     {
+      "round": 2,
+      "opp": "VIR",
+      "home": true,
+      "proj": 9.7
+     },
+     {
+      "round": 3,
+      "opp": "KBA",
+      "home": false,
+      "proj": 8.7
+     },
+     {
+      "round": 4,
+      "opp": "MTA",
+      "home": false,
+      "proj": 8.7
+     },
+     {
+      "round": 5,
+      "opp": "RMB",
+      "home": true,
+      "proj": 9.2
+     },
+     {
+      "round": 6,
+      "opp": "DUB",
+      "home": true,
+      "proj": 10.0
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 9.1 fantasy points per round across 36 games \u2014 that record carries 60% of this projection",
+     "Projected 24 min/game at 0.48 PIR per minute",
+     "Strong record: 211 EuroLeague games, 87% confidence",
+     "43% win probability vs Partizan Mozzart Bet Belgrade (away), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3981,
+    "name": "Mouhamet Diouf",
+    "position": "Center",
+    "team": "VIR",
+    "team_full": "Virtus Bologna",
+    "opponent": "Fenerbahce Tarfin Istanbul",
+    "home": false,
+    "turn": 2,
+    "date": "2026-09-25",
+    "own": 0.006,
+    "price": 9.3,
+    "proj": 8.3,
+    "value": 0.9,
+    "minutes": 16.8,
+    "pir_per_min": 0.49,
+    "confidence": 0.69,
+    "last_pir": 9.1,
+    "last_games": 33,
+    "appearances": 64,
+    "p_win": 0.29,
+    "crowding": 1.2,
+    "horizon": 8.7,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "FBT",
+      "home": false,
+      "proj": 8.3
+     },
+     {
+      "round": 2,
+      "opp": "MIL",
+      "home": false,
+      "proj": 8.6
+     },
+     {
+      "round": 3,
+      "opp": "OLY",
+      "home": true,
+      "proj": 9.1
+     },
+     {
+      "round": 4,
+      "opp": "BAY",
+      "home": false,
+      "proj": 8.6
+     },
+     {
+      "round": 5,
+      "opp": "PBB",
+      "home": false,
+      "proj": 9.1
+     },
+     {
+      "round": 6,
+      "opp": "KBA",
+      "home": true,
+      "proj": 9.9
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Last season he banked 9.1 fantasy points per round across 33 games \u2014 that record carries 60% of this projection",
+     "Projected 17 min/game at 0.49 PIR per minute",
+     "Moderate sample: 64 games, 69% confidence",
+     "VIR is a thin roster (1.20x) \u2014 minutes are easier to come by",
+     "29% win probability vs Fenerbahce Tarfin Istanbul (away), which carries the +10% team-win bonus"
+    ],
+    "in_squad": false
+   }
+  ],
+  "Head Coach": [
+   {
+    "id": 3897,
+    "name": "Saras Jasikevicius",
+    "position": "Head Coach",
+    "team": "FBT",
+    "team_full": "Fenerbahce Tarfin Istanbul",
+    "opponent": "Virtus Bologna",
+    "home": true,
+    "turn": 2,
+    "date": "2026-09-25",
+    "own": 0.123,
+    "price": 9.0,
+    "proj": 9.8,
+    "value": 1.09,
+    "minutes": 0.0,
+    "pir_per_min": 0.0,
+    "confidence": 0.0,
+    "last_pir": null,
+    "last_games": null,
+    "appearances": 0,
+    "p_win": 0.0,
+    "crowding": 1.49,
+    "horizon": 7.9,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "VIR",
+      "home": true,
+      "proj": 9.8
+     },
+     {
+      "round": 2,
+      "opp": "BAY",
+      "home": true,
+      "proj": 9.6
+     },
+     {
+      "round": 3,
+      "opp": "DUB",
+      "home": true,
+      "proj": 5.3
+     },
+     {
+      "round": 4,
+      "opp": "PAO",
+      "home": false,
+      "proj": -0.4
+     },
+     {
+      "round": 5,
+      "opp": "ZAL",
+      "home": true,
+      "proj": 8.4
+     },
+     {
+      "round": 6,
+      "opp": "PAR",
+      "home": true,
+      "proj": 9.6
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Expected 9.8 pts at 9.0cr (1.09 per credit)"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3885,
+    "name": "Georgios Bartzokas",
+    "position": "Head Coach",
+    "team": "OLY",
+    "team_full": "Olympiacos Piraeus",
+    "opponent": "Kosner Baskonia Vitoria-Gasteiz",
+    "home": false,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.054,
+    "price": 10.0,
+    "proj": 7.4,
+    "value": 0.74,
+    "minutes": 0.0,
+    "pir_per_min": 0.0,
+    "confidence": 0.0,
+    "last_pir": null,
+    "last_games": null,
+    "appearances": 0,
+    "p_win": 0.0,
+    "crowding": 1.55,
+    "horizon": 6.9,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "KBA",
+      "home": false,
+      "proj": 7.4
+     },
+     {
+      "round": 2,
+      "opp": "ZAL",
+      "home": false,
+      "proj": 5.6
+     },
+     {
+      "round": 3,
+      "opp": "VIR",
+      "home": false,
+      "proj": 7.1
+     },
+     {
+      "round": 4,
+      "opp": "EFS",
+      "home": true,
+      "proj": 10.3
+     },
+     {
+      "round": 5,
+      "opp": "VBC",
+      "home": false,
+      "proj": 4.3
+     },
+     {
+      "round": 6,
+      "opp": "BAR",
+      "home": false,
+      "proj": 3.8
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Expected 7.4 pts at 10.0cr (0.74 per credit)"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3938,
+    "name": "Ibon Navarro",
+    "position": "Head Coach",
+    "team": "CZV",
+    "team_full": "Crvena Zvezda Meridianbet Belgrade",
+    "opponent": "Zalgiris Kaunas",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.097,
+    "price": 7.0,
+    "proj": 7.4,
+    "value": 1.05,
+    "minutes": 0.0,
+    "pir_per_min": 0.0,
+    "confidence": 0.0,
+    "last_pir": null,
+    "last_games": null,
+    "appearances": 0,
+    "p_win": 0.0,
+    "crowding": 1.45,
+    "horizon": 4.8,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "ZAL",
+      "home": true,
+      "proj": 7.4
+     },
+     {
+      "round": 2,
+      "opp": "HTA",
+      "home": true,
+      "proj": 3.5
+     },
+     {
+      "round": 3,
+      "opp": "EFS",
+      "home": true,
+      "proj": 5.3
+     },
+     {
+      "round": 4,
+      "opp": "DUB",
+      "home": false,
+      "proj": -2.4
+     },
+     {
+      "round": 5,
+      "opp": "ASV",
+      "home": false,
+      "proj": 4.2
+     },
+     {
+      "round": 6,
+      "opp": "PBB",
+      "home": true,
+      "proj": 5.3
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Expected 7.4 pts at 7.0cr (1.05 per credit)"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3868,
+    "name": "Zeljko Obradovic",
+    "position": "Head Coach",
+    "team": "PAO",
+    "team_full": "Panathinaikos AKTOR Athens",
+    "opponent": "Paris Basketball",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.131,
+    "price": 10.0,
+    "proj": 6.6,
+    "value": 0.66,
+    "minutes": 0.0,
+    "pir_per_min": 0.0,
+    "confidence": 0.0,
+    "last_pir": null,
+    "last_games": null,
+    "appearances": 0,
+    "p_win": 0.0,
+    "crowding": 1.59,
+    "horizon": 8.0,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "PBB",
+      "home": true,
+      "proj": 6.6
+     },
+     {
+      "round": 2,
+      "opp": "ASV",
+      "home": true,
+      "proj": 12.1
+     },
+     {
+      "round": 3,
+      "opp": "MTA",
+      "home": true,
+      "proj": 8.1
+     },
+     {
+      "round": 4,
+      "opp": "FBT",
+      "home": true,
+      "proj": 7.0
+     },
+     {
+      "round": 5,
+      "opp": "PAR",
+      "home": false,
+      "proj": 3.2
+     },
+     {
+      "round": 6,
+      "opp": "HTA",
+      "home": true,
+      "proj": 4.9
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Expected 6.6 pts at 10.0cr (0.66 per credit)"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 3909,
+    "name": "Aleksander Sekulic",
+    "position": "Head Coach",
+    "team": "BAR",
+    "team_full": "FC Barcelona",
+    "opponent": "Anadolu Efes Istanbul",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.007,
+    "price": 8.0,
+    "proj": 6.5,
+    "value": 0.81,
+    "minutes": 0.0,
+    "pir_per_min": 0.0,
+    "confidence": 0.0,
+    "last_pir": null,
+    "last_games": null,
+    "appearances": 0,
+    "p_win": 0.0,
+    "crowding": 1.28,
+    "horizon": 4.0,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "EFS",
+      "home": true,
+      "proj": 6.5
+     },
+     {
+      "round": 2,
+      "opp": "DUB",
+      "home": false,
+      "proj": -1.3
+     },
+     {
+      "round": 3,
+      "opp": "BJK",
+      "home": false,
+      "proj": 2.0
+     },
+     {
+      "round": 4,
+      "opp": "ZAL",
+      "home": true,
+      "proj": 8.5
+     },
+     {
+      "round": 5,
+      "opp": "MTA",
+      "home": true,
+      "proj": 8.0
+     },
+     {
+      "round": 6,
+      "opp": "OLY",
+      "home": true,
+      "proj": 2.8
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Expected 6.5 pts at 8.0cr (0.81 per credit)"
+    ],
+    "in_squad": false
+   },
+   {
+    "id": 7235,
+    "name": "Xavi Pascual",
+    "position": "Head Coach",
+    "team": "DUB",
+    "team_full": "Dubai Basketball",
+    "opponent": "Real Madrid",
+    "home": true,
+    "turn": 1,
+    "date": "2026-09-24",
+    "own": 0.014,
+    "price": 8.0,
+    "proj": 5.7,
+    "value": 0.71,
+    "minutes": 0.0,
+    "pir_per_min": 0.0,
+    "confidence": 0.0,
+    "last_pir": null,
+    "last_games": null,
+    "appearances": 0,
+    "p_win": 0.0,
+    "crowding": 1.64,
+    "horizon": 5.7,
+    "fixtures": [
+     {
+      "round": 1,
+      "opp": "RMB",
+      "home": true,
+      "proj": 5.7
+     },
+     {
+      "round": 2,
+      "opp": "BAR",
+      "home": true,
+      "proj": 7.9
+     },
+     {
+      "round": 3,
+      "opp": "FBT",
+      "home": false,
+      "proj": 1.4
+     },
+     {
+      "round": 4,
+      "opp": "CZV",
+      "home": true,
+      "proj": 9.1
+     },
+     {
+      "round": 5,
+      "opp": "KBA",
+      "home": false,
+      "proj": 4.7
+     },
+     {
+      "round": 6,
+      "opp": "MIL",
+      "home": false,
+      "proj": 2.9
+     }
+    ],
+    "role": null,
+    "reasons": [
+     "Expected 5.7 pts at 8.0cr (0.71 per credit)"
+    ],
+    "in_squad": false
+   }
+  ]
+ },
+ "crowding": {
+  "HTA": 1.7,
+  "DUB": 1.64,
+  "PAO": 1.59,
+  "RMB": 1.57,
+  "OLY": 1.55,
+  "EFS": 1.53,
+  "PBB": 1.51,
+  "FBT": 1.49,
+  "CZV": 1.45,
+  "ZAL": 1.4,
+  "MTA": 1.36,
+  "BAY": 1.36,
+  "PAR": 1.28,
+  "MIL": 1.28,
+  "BAR": 1.28,
+  "ASV": 1.27,
+  "VIR": 1.2,
+  "VBC": 1.2,
+  "BJK": 1.17,
+  "KBA": 1.1
+ },
+ "turns": {
+  "T1": [
+   "ASV",
+   "BAR",
+   "BAY",
+   "CZV",
+   "DUB",
+   "EFS",
+   "HTA",
+   "KBA",
+   "MTA",
+   "OLY",
+   "PAO",
+   "PBB",
+   "RMB",
+   "ZAL"
+  ],
+  "T2": [
+   "BJK",
+   "FBT",
+   "MIL",
+   "PAR",
+   "VBC",
+   "VIR"
+  ]
+ },
+ "coach_board": [
+  {
+   "name": "Dimitris Itoudis",
+   "team": "HTA",
+   "price": 8.5,
+   "proj": 11.7,
+   "bands": {
+    "win 21+": 0.17255,
+    "win 11-20": 0.28791666666666665,
+    "win 1-10": 0.30943333333333334,
+    "loss 1-10": 0.17346666666666666,
+    "loss 11-20": 0.048216666666666665,
+    "loss 21+": 0.008416666666666666
+   },
+   "big_win": 0.46,
+   "held": true
+  },
+  {
+   "name": "Saras Jasikevicius",
+   "team": "FBT",
+   "price": 9.0,
+   "proj": 9.8,
+   "bands": {
+    "win 21+": 0.13133333333333333,
+    "win 11-20": 0.26161666666666666,
+    "win 1-10": 0.32051666666666667,
+    "loss 1-10": 0.20701666666666665,
+    "loss 11-20": 0.06646666666666666,
+    "loss 21+": 0.01305
+   },
+   "big_win": 0.393,
+   "held": false
+  },
+  {
+   "name": "Georgios Bartzokas",
+   "team": "OLY",
+   "price": 10.0,
+   "proj": 7.4,
+   "bands": {
+    "win 21+": 0.09178333333333333,
+    "win 11-20": 0.22291666666666668,
+    "win 1-10": 0.32415,
+    "loss 1-10": 0.24603333333333333,
+    "loss 11-20": 0.09395,
+    "loss 21+": 0.021166666666666667
+   },
+   "big_win": 0.315,
+   "held": false
+  },
+  {
+   "name": "Ibon Navarro",
+   "team": "CZV",
+   "price": 7.0,
+   "proj": 7.4,
+   "bands": {
+    "win 21+": 0.09123333333333333,
+    "win 11-20": 0.22226666666666667,
+    "win 1-10": 0.3241,
+    "loss 1-10": 0.24681666666666666,
+    "loss 11-20": 0.09428333333333333,
+    "loss 21+": 0.0213
+   },
+   "big_win": 0.314,
+   "held": false
+  },
+  {
+   "name": "Zeljko Obradovic",
+   "team": "PAO",
+   "price": 10.0,
+   "proj": 6.6,
+   "bands": {
+    "win 21+": 0.0803,
+    "win 11-20": 0.21023333333333333,
+    "win 1-10": 0.3216,
+    "loss 1-10": 0.25843333333333335,
+    "loss 11-20": 0.10468333333333334,
+    "loss 21+": 0.02475
+   },
+   "big_win": 0.291,
+   "held": false
+  },
+  {
+   "name": "Aleksander Sekulic",
+   "team": "BAR",
+   "price": 8.0,
+   "proj": 6.5,
+   "bands": {
+    "win 21+": 0.07868333333333333,
+    "win 11-20": 0.20768333333333333,
+    "win 1-10": 0.3203666666666667,
+    "loss 1-10": 0.26111666666666666,
+    "loss 11-20": 0.10655,
+    "loss 21+": 0.0256
+   },
+   "big_win": 0.286,
+   "held": false
+  }
+ ],
+ "undervalued": [
+  {
+   "id": 3887,
+   "name": "Sylvain Francisco",
+   "position": "Guard",
+   "team": "PAO",
+   "team_full": "Panathinaikos AKTOR Athens",
+   "opponent": "Paris Basketball",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.145,
+   "price": 14.8,
+   "proj": 20.0,
+   "value": 1.35,
+   "minutes": 24.9,
+   "pir_per_min": 0.61,
+   "confidence": 0.83,
+   "last_pir": 19.2,
+   "last_games": 42,
+   "appearances": 109,
+   "p_win": 0.61,
+   "crowding": 1.59,
+   "horizon": 19.4,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PBB",
+     "home": true,
+     "proj": 20.0
+    },
+    {
+     "round": 2,
+     "opp": "ASV",
+     "home": true,
+     "proj": 19.4
+    },
+    {
+     "round": 3,
+     "opp": "MTA",
+     "home": true,
+     "proj": 19.5
+    },
+    {
+     "round": 4,
+     "opp": "FBT",
+     "home": true,
+     "proj": 18.2
+    },
+    {
+     "round": 5,
+     "opp": "PAR",
+     "home": false,
+     "proj": 17.2
+    },
+    {
+     "round": 6,
+     "opp": "HTA",
+     "home": true,
+     "proj": 19.3
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Elite value at 1.35 pts/credit (league median 0.63)",
+    "Last season he banked 19.2 fantasy points per round across 42 games \u2014 that record carries 60% of this projection",
+    "Projected 25 min/game at 0.61 PIR per minute",
+    "Strong record: 109 EuroLeague games, 83% confidence",
+    "Warning: PAO is a crowded roster (1.59x the available minutes)",
+    "61% win probability vs Paris Basketball (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true,
+   "implied": 13.8,
+   "edge": 6.3
+  },
+  {
+   "id": 3934,
+   "name": "Isaac Bonga",
+   "position": "Forward",
+   "team": "PAO",
+   "team_full": "Panathinaikos AKTOR Athens",
+   "opponent": "Paris Basketball",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.119,
+   "price": 11.5,
+   "proj": 14.2,
+   "value": 1.24,
+   "minutes": 21.1,
+   "pir_per_min": 0.43,
+   "confidence": 0.84,
+   "last_pir": 14.3,
+   "last_games": 38,
+   "appearances": 129,
+   "p_win": 0.61,
+   "crowding": 1.59,
+   "horizon": 13.8,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PBB",
+     "home": true,
+     "proj": 14.2
+    },
+    {
+     "round": 2,
+     "opp": "ASV",
+     "home": true,
+     "proj": 13.8
+    },
+    {
+     "round": 3,
+     "opp": "MTA",
+     "home": true,
+     "proj": 13.8
+    },
+    {
+     "round": 4,
+     "opp": "FBT",
+     "home": true,
+     "proj": 13.0
+    },
+    {
+     "round": 5,
+     "opp": "PAR",
+     "home": false,
+     "proj": 12.2
+    },
+    {
+     "round": 6,
+     "opp": "HTA",
+     "home": true,
+     "proj": 13.7
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Good value at 1.24 pts/credit vs 0.63 median",
+    "Last season he banked 14.3 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+    "Projected 21 min/game at 0.43 PIR per minute",
+    "Strong record: 129 EuroLeague games, 84% confidence",
+    "Warning: PAO is a crowded roster (1.59x the available minutes)",
+    "61% win probability vs Paris Basketball (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true,
+   "implied": 9.8,
+   "edge": 4.4
+  },
+  {
+   "id": 3808,
+   "name": "Codi Miller-Mcintyre",
+   "position": "Guard",
+   "team": "OLY",
+   "team_full": "Olympiacos Piraeus",
+   "opponent": "Kosner Baskonia Vitoria-Gasteiz",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.099,
+   "price": 11.0,
+   "proj": 12.8,
+   "value": 1.16,
+   "minutes": 22.9,
+   "pir_per_min": 0.46,
+   "confidence": 0.87,
+   "last_pir": 15.0,
+   "last_games": 39,
+   "appearances": 164,
+   "p_win": 0.64,
+   "crowding": 1.55,
+   "horizon": 12.6,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "KBA",
+     "home": false,
+     "proj": 12.8
+    },
+    {
+     "round": 2,
+     "opp": "ZAL",
+     "home": false,
+     "proj": 12.1
+    },
+    {
+     "round": 3,
+     "opp": "VIR",
+     "home": false,
+     "proj": 12.7
+    },
+    {
+     "round": 4,
+     "opp": "EFS",
+     "home": true,
+     "proj": 13.6
+    },
+    {
+     "round": 5,
+     "opp": "VBC",
+     "home": false,
+     "proj": 12.5
+    },
+    {
+     "round": 6,
+     "opp": "BAR",
+     "home": false,
+     "proj": 12.0
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Good value at 1.16 pts/credit vs 0.63 median",
+    "Last season he banked 15.0 fantasy points per round across 39 games \u2014 that record carries 60% of this projection",
+    "Projected 23 min/game at 0.46 PIR per minute",
+    "Strong record: 164 EuroLeague games, 87% confidence",
+    "Warning: OLY is a crowded roster (1.55x the available minutes)",
+    "64% win probability vs Kosner Baskonia Vitoria-Gasteiz (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true,
+   "implied": 9.2,
+   "edge": 3.6
+  },
+  {
+   "id": 7202,
+   "name": "Justin Robinson",
+   "position": "Guard",
+   "team": "BAR",
+   "team_full": "FC Barcelona",
+   "opponent": "Anadolu Efes Istanbul",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.032,
+   "price": 12.2,
+   "proj": 14.1,
+   "value": 1.16,
+   "minutes": 21.2,
+   "pir_per_min": 0.63,
+   "confidence": 0.59,
+   "last_pir": 13.6,
+   "last_games": 36,
+   "appearances": 36,
+   "p_win": 0.61,
+   "crowding": 1.28,
+   "horizon": 13.8,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "EFS",
+     "home": true,
+     "proj": 14.1
+    },
+    {
+     "round": 2,
+     "opp": "DUB",
+     "home": false,
+     "proj": 13.5
+    },
+    {
+     "round": 3,
+     "opp": "BJK",
+     "home": false,
+     "proj": 12.8
+    },
+    {
+     "round": 4,
+     "opp": "ZAL",
+     "home": true,
+     "proj": 14.0
+    },
+    {
+     "round": 5,
+     "opp": "MTA",
+     "home": true,
+     "proj": 14.8
+    },
+    {
+     "round": 6,
+     "opp": "OLY",
+     "home": true,
+     "proj": 13.6
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Good value at 1.16 pts/credit vs 0.63 median",
+    "Last season he banked 13.6 fantasy points per round across 36 games \u2014 that record carries 60% of this projection",
+    "Projected 21 min/game at 0.63 PIR per minute",
+    "Moderate sample: 36 games, 59% confidence",
+    "A differential: only 3.2% of squads hold him at this projection",
+    "61% win probability vs Anadolu Efes Istanbul (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 10.6,
+   "edge": 3.5
+  },
+  {
+   "id": 4252,
+   "name": "Jean Montero",
+   "position": "Guard",
+   "team": "OLY",
+   "team_full": "Olympiacos Piraeus",
+   "opponent": "Kosner Baskonia Vitoria-Gasteiz",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.179,
+   "price": 12.8,
+   "proj": 14.5,
+   "value": 1.14,
+   "minutes": 18.8,
+   "pir_per_min": 0.63,
+   "confidence": 0.7,
+   "last_pir": 15.4,
+   "last_games": 38,
+   "appearances": 59,
+   "p_win": 0.64,
+   "crowding": 1.55,
+   "horizon": 14.4,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "KBA",
+     "home": false,
+     "proj": 14.5
+    },
+    {
+     "round": 2,
+     "opp": "ZAL",
+     "home": false,
+     "proj": 13.7
+    },
+    {
+     "round": 3,
+     "opp": "VIR",
+     "home": false,
+     "proj": 14.5
+    },
+    {
+     "round": 4,
+     "opp": "EFS",
+     "home": true,
+     "proj": 15.5
+    },
+    {
+     "round": 5,
+     "opp": "VBC",
+     "home": false,
+     "proj": 14.2
+    },
+    {
+     "round": 6,
+     "opp": "BAR",
+     "home": false,
+     "proj": 13.6
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Good value at 1.14 pts/credit vs 0.63 median",
+    "Last season he banked 15.4 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+    "Projected 19 min/game at 0.63 PIR per minute",
+    "Moderate sample: 59 games, 70% confidence",
+    "Heavily owned (18% of squads) \u2014 he wins you little ground on the field",
+    "Warning: OLY is a crowded roster (1.55x the available minutes)",
+    "64% win probability vs Kosner Baskonia Vitoria-Gasteiz (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true,
+   "implied": 11.4,
+   "edge": 3.2
+  },
+  {
+   "id": 3843,
+   "name": "Moses Wright",
+   "position": "Center",
+   "team": "MIL",
+   "team_full": "Armani Olimpia Milan",
+   "opponent": "Partizan Mozzart Bet Belgrade",
+   "home": false,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.083,
+   "price": 14.0,
+   "proj": 16.0,
+   "value": 1.14,
+   "minutes": 23.6,
+   "pir_per_min": 0.64,
+   "confidence": 0.74,
+   "last_pir": 17.1,
+   "last_games": 42,
+   "appearances": 77,
+   "p_win": 0.43,
+   "crowding": 1.28,
+   "horizon": 16.7,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PAR",
+     "home": false,
+     "proj": 16.0
+    },
+    {
+     "round": 2,
+     "opp": "VIR",
+     "home": true,
+     "proj": 18.0
+    },
+    {
+     "round": 3,
+     "opp": "KBA",
+     "home": false,
+     "proj": 16.2
+    },
+    {
+     "round": 4,
+     "opp": "MTA",
+     "home": false,
+     "proj": 16.2
+    },
+    {
+     "round": 5,
+     "opp": "RMB",
+     "home": true,
+     "proj": 16.9
+    },
+    {
+     "round": 6,
+     "opp": "DUB",
+     "home": true,
+     "proj": 18.4
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Good value at 1.14 pts/credit vs 0.63 median",
+    "Last season he banked 17.1 fantasy points per round across 42 games \u2014 that record carries 60% of this projection",
+    "Projected 24 min/game at 0.64 PIR per minute",
+    "Moderate sample: 77 games, 74% confidence",
+    "43% win probability vs Partizan Mozzart Bet Belgrade (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true,
+   "implied": 12.8,
+   "edge": 3.2
+  },
+  {
+   "id": 3850,
+   "name": "Theo Maledon",
+   "position": "Guard",
+   "team": "RMB",
+   "team_full": "Real Madrid",
+   "opponent": "Dubai Basketball",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.077,
+   "price": 9.8,
+   "proj": 10.9,
+   "value": 1.11,
+   "minutes": 18.8,
+   "pir_per_min": 0.6,
+   "confidence": 0.78,
+   "last_pir": 9.7,
+   "last_games": 38,
+   "appearances": 111,
+   "p_win": 0.42,
+   "crowding": 1.57,
+   "horizon": 10.7,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "DUB",
+     "home": false,
+     "proj": 10.9
+    },
+    {
+     "round": 2,
+     "opp": "EFS",
+     "home": false,
+     "proj": 10.2
+    },
+    {
+     "round": 3,
+     "opp": "HTA",
+     "home": false,
+     "proj": 10.6
+    },
+    {
+     "round": 4,
+     "opp": "PAR",
+     "home": true,
+     "proj": 11.8
+    },
+    {
+     "round": 5,
+     "opp": "MIL",
+     "home": false,
+     "proj": 10.3
+    },
+    {
+     "round": 6,
+     "opp": "ASV",
+     "home": true,
+     "proj": 11.8
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Good value at 1.11 pts/credit vs 0.63 median",
+    "Last season he banked 9.7 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+    "Projected 19 min/game at 0.60 PIR per minute",
+    "Moderate sample: 111 games, 78% confidence",
+    "Warning: RMB is a crowded roster (1.57x the available minutes)",
+    "42% win probability vs Dubai Basketball (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true,
+   "implied": 7.7,
+   "edge": 3.1
+  },
+  {
+   "id": 3825,
+   "name": "Juancho Hernangomez",
+   "position": "Forward",
+   "team": "PAO",
+   "team_full": "Panathinaikos AKTOR Athens",
+   "opponent": "Paris Basketball",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.025,
+   "price": 11.4,
+   "proj": 12.6,
+   "value": 1.1,
+   "minutes": 20.1,
+   "pir_per_min": 0.49,
+   "confidence": 0.83,
+   "last_pir": 12.3,
+   "last_games": 44,
+   "appearances": 115,
+   "p_win": 0.61,
+   "crowding": 1.59,
+   "horizon": 12.2,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PBB",
+     "home": true,
+     "proj": 12.6
+    },
+    {
+     "round": 2,
+     "opp": "ASV",
+     "home": true,
+     "proj": 12.2
+    },
+    {
+     "round": 3,
+     "opp": "MTA",
+     "home": true,
+     "proj": 12.2
+    },
+    {
+     "round": 4,
+     "opp": "FBT",
+     "home": true,
+     "proj": 11.5
+    },
+    {
+     "round": 5,
+     "opp": "PAR",
+     "home": false,
+     "proj": 10.8
+    },
+    {
+     "round": 6,
+     "opp": "HTA",
+     "home": true,
+     "proj": 12.1
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Good value at 1.10 pts/credit vs 0.63 median",
+    "Last season he banked 12.3 fantasy points per round across 44 games \u2014 that record carries 60% of this projection",
+    "Projected 20 min/game at 0.49 PIR per minute",
+    "Strong record: 115 EuroLeague games, 83% confidence",
+    "A differential: only 2.5% of squads hold him at this projection",
+    "Warning: PAO is a crowded roster (1.59x the available minutes)",
+    "61% win probability vs Paris Basketball (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 9.7,
+   "edge": 2.9
+  }
+ ],
+ "overvalued": [
+  {
+   "id": 3768,
+   "name": "Mathias Lessort",
+   "position": "Center",
+   "team": "PAO",
+   "team_full": "Panathinaikos AKTOR Athens",
+   "opponent": "Paris Basketball",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.058,
+   "price": 14.4,
+   "proj": 6.8,
+   "value": 0.47,
+   "minutes": 17.2,
+   "pir_per_min": 0.6,
+   "confidence": 0.86,
+   "last_pir": 3.9,
+   "last_games": 14,
+   "appearances": 191,
+   "p_win": 0.61,
+   "crowding": 1.59,
+   "horizon": 6.5,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PBB",
+     "home": true,
+     "proj": 6.8
+    },
+    {
+     "round": 2,
+     "opp": "ASV",
+     "home": true,
+     "proj": 6.5
+    },
+    {
+     "round": 3,
+     "opp": "MTA",
+     "home": true,
+     "proj": 6.6
+    },
+    {
+     "round": 4,
+     "opp": "FBT",
+     "home": true,
+     "proj": 6.2
+    },
+    {
+     "round": 5,
+     "opp": "PAR",
+     "home": false,
+     "proj": 5.8
+    },
+    {
+     "round": 6,
+     "opp": "HTA",
+     "home": true,
+     "proj": 6.5
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 3.9 fantasy points per round across 14 games \u2014 that record carries 60% of this projection",
+    "Projected 17 min/game at 0.60 PIR per minute",
+    "Strong record: 191 EuroLeague games, 86% confidence",
+    "Warning: PAO is a crowded roster (1.59x the available minutes)",
+    "61% win probability vs Paris Basketball (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 13.3,
+   "edge": -6.5
+  },
+  {
+   "id": 3930,
+   "name": "Yam Madar",
+   "position": "Guard",
+   "team": "MTA",
+   "team_full": "Maccabi Rapyd Tel Aviv",
+   "opponent": "LDLC ASVEL Villeurbanne",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.045,
+   "price": 8.8,
+   "proj": 2.2,
+   "value": 0.25,
+   "minutes": 10.1,
+   "pir_per_min": 0.37,
+   "confidence": 0.71,
+   "last_pir": 1.2,
+   "last_games": 28,
+   "appearances": 121,
+   "p_win": 0.53,
+   "crowding": 1.36,
+   "horizon": 2.3,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "ASV",
+     "home": false,
+     "proj": 2.2
+    },
+    {
+     "round": 2,
+     "opp": "BJK",
+     "home": true,
+     "proj": 2.4
+    },
+    {
+     "round": 3,
+     "opp": "PAO",
+     "home": false,
+     "proj": 2.1
+    },
+    {
+     "round": 4,
+     "opp": "MIL",
+     "home": true,
+     "proj": 2.4
+    },
+    {
+     "round": 5,
+     "opp": "BAR",
+     "home": false,
+     "proj": 2.1
+    },
+    {
+     "round": 6,
+     "opp": "VBC",
+     "home": false,
+     "proj": 2.2
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 1.2 fantasy points per round across 28 games \u2014 that record carries 60% of this projection",
+    "Projected 10 min/game at 0.37 PIR per minute",
+    "Moderate sample: 121 games, 71% confidence",
+    "53% win probability vs LDLC ASVEL Villeurbanne (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 6.5,
+   "edge": -4.3
+  },
+  {
+   "id": 3767,
+   "name": "Shane Larkin",
+   "position": "Guard",
+   "team": "FBT",
+   "team_full": "Fenerbahce Tarfin Istanbul",
+   "opponent": "Virtus Bologna",
+   "home": true,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.018,
+   "price": 13.5,
+   "proj": 8.1,
+   "value": 0.6,
+   "minutes": 24.7,
+   "pir_per_min": 0.59,
+   "confidence": 0.89,
+   "last_pir": 4.8,
+   "last_games": 12,
+   "appearances": 226,
+   "p_win": 0.71,
+   "crowding": 1.49,
+   "horizon": 8.0,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "VIR",
+     "home": true,
+     "proj": 8.1
+    },
+    {
+     "round": 2,
+     "opp": "BAY",
+     "home": true,
+     "proj": 7.9
+    },
+    {
+     "round": 3,
+     "opp": "DUB",
+     "home": true,
+     "proj": 8.3
+    },
+    {
+     "round": 4,
+     "opp": "PAO",
+     "home": false,
+     "proj": 7.1
+    },
+    {
+     "round": 5,
+     "opp": "ZAL",
+     "home": true,
+     "proj": 7.7
+    },
+    {
+     "round": 6,
+     "opp": "PAR",
+     "home": true,
+     "proj": 8.1
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 4.8 fantasy points per round across 12 games \u2014 that record carries 60% of this projection",
+    "Projected 25 min/game at 0.59 PIR per minute",
+    "Strong record: 226 EuroLeague games, 89% confidence",
+    "71% win probability vs Virtus Bologna (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 12.2,
+   "edge": -4.1
+  },
+  {
+   "id": 3797,
+   "name": "Moustapha Fall",
+   "position": "Center",
+   "team": "PAO",
+   "team_full": "Panathinaikos AKTOR Athens",
+   "opponent": "Paris Basketball",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.018,
+   "price": 8.2,
+   "proj": 1.8,
+   "value": 0.22,
+   "minutes": 12.5,
+   "pir_per_min": 0.53,
+   "confidence": 0.84,
+   "last_pir": 0.3,
+   "last_games": 3,
+   "appearances": 191,
+   "p_win": 0.61,
+   "crowding": 1.59,
+   "horizon": 1.7,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PBB",
+     "home": true,
+     "proj": 1.8
+    },
+    {
+     "round": 2,
+     "opp": "ASV",
+     "home": true,
+     "proj": 1.7
+    },
+    {
+     "round": 3,
+     "opp": "MTA",
+     "home": true,
+     "proj": 1.7
+    },
+    {
+     "round": 4,
+     "opp": "FBT",
+     "home": true,
+     "proj": 1.6
+    },
+    {
+     "round": 5,
+     "opp": "PAR",
+     "home": false,
+     "proj": 1.5
+    },
+    {
+     "round": 6,
+     "opp": "HTA",
+     "home": true,
+     "proj": 1.7
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 0.3 fantasy points per round across 3 games \u2014 that record carries 60% of this projection",
+    "Projected 12 min/game at 0.53 PIR per minute",
+    "Strong record: 191 EuroLeague games, 84% confidence",
+    "Warning: PAO is a crowded roster (1.59x the available minutes)",
+    "61% win probability vs Paris Basketball (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 5.8,
+   "edge": -4.0
+  },
+  {
+   "id": 3822,
+   "name": "Joel Bolomboy",
+   "position": "Center",
+   "team": "ASV",
+   "team_full": "LDLC ASVEL Villeurbanne",
+   "opponent": "Maccabi Rapyd Tel Aviv",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.09,
+   "price": 10.4,
+   "proj": 4.6,
+   "value": 0.45,
+   "minutes": 18.7,
+   "pir_per_min": 0.51,
+   "confidence": 0.81,
+   "last_pir": 2.9,
+   "last_games": 15,
+   "appearances": 204,
+   "p_win": 0.47,
+   "crowding": 1.27,
+   "horizon": 4.4,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "MTA",
+     "home": true,
+     "proj": 4.6
+    },
+    {
+     "round": 2,
+     "opp": "PAO",
+     "home": false,
+     "proj": 4.0
+    },
+    {
+     "round": 3,
+     "opp": "VBC",
+     "home": true,
+     "proj": 4.6
+    },
+    {
+     "round": 4,
+     "opp": "PBB",
+     "home": false,
+     "proj": 4.3
+    },
+    {
+     "round": 5,
+     "opp": "CZV",
+     "home": true,
+     "proj": 4.4
+    },
+    {
+     "round": 6,
+     "opp": "RMB",
+     "home": false,
+     "proj": 3.9
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 2.9 fantasy points per round across 15 games \u2014 that record carries 60% of this projection",
+    "Projected 19 min/game at 0.51 PIR per minute",
+    "Strong record: 204 EuroLeague games, 81% confidence",
+    "47% win probability vs Maccabi Rapyd Tel Aviv (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 8.5,
+   "edge": -3.8
+  },
+  {
+   "id": 3795,
+   "name": "TJ Shorts",
+   "position": "Guard",
+   "team": "VBC",
+   "team_full": "Valencia Basket",
+   "opponent": "Besiktas Istanbul",
+   "home": false,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.065,
+   "price": 14.9,
+   "proj": 10.2,
+   "value": 0.68,
+   "minutes": 24.7,
+   "pir_per_min": 0.64,
+   "confidence": 0.8,
+   "last_pir": 7.8,
+   "last_games": 44,
+   "appearances": 103,
+   "p_win": 0.44,
+   "crowding": 1.2,
+   "horizon": 10.8,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "BJK",
+     "home": false,
+     "proj": 10.2
+    },
+    {
+     "round": 2,
+     "opp": "KBA",
+     "home": true,
+     "proj": 11.7
+    },
+    {
+     "round": 3,
+     "opp": "ASV",
+     "home": false,
+     "proj": 10.4
+    },
+    {
+     "round": 4,
+     "opp": "HTA",
+     "home": true,
+     "proj": 11.6
+    },
+    {
+     "round": 5,
+     "opp": "OLY",
+     "home": true,
+     "proj": 10.7
+    },
+    {
+     "round": 6,
+     "opp": "MTA",
+     "home": true,
+     "proj": 11.7
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 7.8 fantasy points per round across 44 games \u2014 that record carries 60% of this projection",
+    "Projected 25 min/game at 0.64 PIR per minute",
+    "Moderate sample: 103 games, 80% confidence",
+    "VBC is a thin roster (1.20x) \u2014 minutes are easier to come by",
+    "44% win probability vs Besiktas Istanbul (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 13.9,
+   "edge": -3.7
+  },
+  {
+   "id": 4081,
+   "name": "Conor Morgan",
+   "position": "Forward",
+   "team": "BJK",
+   "team_full": "Besiktas Istanbul",
+   "opponent": "Valencia Basket",
+   "home": true,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.004,
+   "price": 8.5,
+   "proj": 2.5,
+   "value": 0.3,
+   "minutes": 11.1,
+   "pir_per_min": 0.32,
+   "confidence": 0.72,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 118,
+   "p_win": 0.56,
+   "crowding": 1.17,
+   "horizon": 2.4,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "VBC",
+     "home": true,
+     "proj": 2.5
+    },
+    {
+     "round": 2,
+     "opp": "MTA",
+     "home": false,
+     "proj": 2.3
+    },
+    {
+     "round": 3,
+     "opp": "BAR",
+     "home": true,
+     "proj": 2.4
+    },
+    {
+     "round": 4,
+     "opp": "KBA",
+     "home": false,
+     "proj": 2.3
+    },
+    {
+     "round": 5,
+     "opp": "HTA",
+     "home": false,
+     "proj": 2.3
+    },
+    {
+     "round": 6,
+     "opp": "BAY",
+     "home": true,
+     "proj": 2.5
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 11 min/game at 0.32 PIR per minute",
+    "Moderate sample: 118 games, 72% confidence",
+    "BJK is a thin roster (1.17x) \u2014 minutes are easier to come by",
+    "56% win probability vs Valencia Basket (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 6.2,
+   "edge": -3.6
+  },
+  {
+   "id": 4124,
+   "name": "Kevin Kokila",
+   "position": "Center",
+   "team": "VIR",
+   "team_full": "Virtus Bologna",
+   "opponent": "Fenerbahce Tarfin Istanbul",
+   "home": false,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.002,
+   "price": 8.9,
+   "proj": 3.4,
+   "value": 0.38,
+   "minutes": 10.8,
+   "pir_per_min": 0.33,
+   "confidence": 0.66,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 83,
+   "p_win": 0.29,
+   "crowding": 1.2,
+   "horizon": 3.5,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "FBT",
+     "home": false,
+     "proj": 3.4
+    },
+    {
+     "round": 2,
+     "opp": "MIL",
+     "home": false,
+     "proj": 3.4
+    },
+    {
+     "round": 3,
+     "opp": "OLY",
+     "home": true,
+     "proj": 3.7
+    },
+    {
+     "round": 4,
+     "opp": "BAY",
+     "home": false,
+     "proj": 3.5
+    },
+    {
+     "round": 5,
+     "opp": "PBB",
+     "home": false,
+     "proj": 3.7
+    },
+    {
+     "round": 6,
+     "opp": "KBA",
+     "home": true,
+     "proj": 4.0
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 11 min/game at 0.33 PIR per minute",
+    "Moderate sample: 83 games, 66% confidence",
+    "VIR is a thin roster (1.20x) \u2014 minutes are easier to come by",
+    "29% win probability vs Fenerbahce Tarfin Istanbul (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 6.6,
+   "edge": -3.3
+  }
+ ],
+ "unverifiable": [
+  {
+   "id": 11549,
+   "name": "Jonas Valanciunas",
+   "position": "Center",
+   "team": "ZAL",
+   "team_full": "Zalgiris Kaunas",
+   "opponent": "Crvena Zvezda Meridianbet Belgrade",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.27,
+   "price": 15.5,
+   "proj": 10.6,
+   "value": 0.68,
+   "minutes": 24.2,
+   "pir_per_min": 0.47,
+   "confidence": 0.0,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 0,
+   "p_win": 0.36,
+   "crowding": 1.4,
+   "horizon": 10.9,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "CZV",
+     "home": false,
+     "proj": 10.6
+    },
+    {
+     "round": 2,
+     "opp": "OLY",
+     "home": true,
+     "proj": 11.3
+    },
+    {
+     "round": 3,
+     "opp": "PBB",
+     "home": false,
+     "proj": 11.3
+    },
+    {
+     "round": 4,
+     "opp": "BAR",
+     "home": false,
+     "proj": 10.3
+    },
+    {
+     "round": 5,
+     "opp": "FBT",
+     "home": false,
+     "proj": 10.3
+    },
+    {
+     "round": 6,
+     "opp": "EFS",
+     "home": true,
+     "proj": 11.8
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 24 min/game at 0.47 PIR per minute",
+    "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+    "Heavily owned (27% of squads) \u2014 he wins you little ground on the field",
+    "36% win probability vs Crvena Zvezda Meridianbet Belgrade (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 14.6,
+   "edge": -4.0
+  },
+  {
+   "id": 11487,
+   "name": "Dario Saric",
+   "position": "Forward",
+   "team": "EFS",
+   "team_full": "Anadolu Efes Istanbul",
+   "opponent": "FC Barcelona",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.027,
+   "price": 14.5,
+   "proj": 8.9,
+   "value": 0.61,
+   "minutes": 21.9,
+   "pir_per_min": 0.45,
+   "confidence": 0.0,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 0,
+   "p_win": 0.39,
+   "crowding": 1.53,
+   "horizon": 9.2,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "BAR",
+     "home": false,
+     "proj": 8.9
+    },
+    {
+     "round": 2,
+     "opp": "RMB",
+     "home": true,
+     "proj": 9.9
+    },
+    {
+     "round": 3,
+     "opp": "CZV",
+     "home": false,
+     "proj": 9.0
+    },
+    {
+     "round": 4,
+     "opp": "OLY",
+     "home": false,
+     "proj": 8.7
+    },
+    {
+     "round": 5,
+     "opp": "BAY",
+     "home": true,
+     "proj": 10.3
+    },
+    {
+     "round": 6,
+     "opp": "ZAL",
+     "home": false,
+     "proj": 8.9
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 22 min/game at 0.45 PIR per minute",
+    "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+    "39% win probability vs FC Barcelona (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 13.4,
+   "edge": -4.5
+  },
+  {
+   "id": 11507,
+   "name": "Amir Coffey",
+   "position": "Forward",
+   "team": "HTA",
+   "team_full": "Hapoel IBI Tel Aviv",
+   "opponent": "FC Bayern Munich",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.007,
+   "price": 12.5,
+   "proj": 8.3,
+   "value": 0.66,
+   "minutes": 19.0,
+   "pir_per_min": 0.41,
+   "confidence": 0.0,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 0,
+   "p_win": 0.77,
+   "crowding": 1.7,
+   "horizon": 7.9,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "BAY",
+     "home": true,
+     "proj": 8.3
+    },
+    {
+     "round": 2,
+     "opp": "CZV",
+     "home": false,
+     "proj": 7.3
+    },
+    {
+     "round": 3,
+     "opp": "RMB",
+     "home": true,
+     "proj": 8.0
+    },
+    {
+     "round": 4,
+     "opp": "VBC",
+     "home": false,
+     "proj": 7.5
+    },
+    {
+     "round": 5,
+     "opp": "BJK",
+     "home": true,
+     "proj": 8.3
+    },
+    {
+     "round": 6,
+     "opp": "PAO",
+     "home": false,
+     "proj": 7.4
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 19 min/game at 0.41 PIR per minute",
+    "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+    "Warning: HTA is a crowded roster (1.70x the available minutes)",
+    "77% win probability vs FC Bayern Munich (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 11.0,
+   "edge": -2.7
+  },
+  {
+   "id": 11514,
+   "name": "Patty Mills",
+   "position": "Guard",
+   "team": "ASV",
+   "team_full": "LDLC ASVEL Villeurbanne",
+   "opponent": "Maccabi Rapyd Tel Aviv",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.043,
+   "price": 12.3,
+   "proj": 13.2,
+   "value": 1.08,
+   "minutes": 25.4,
+   "pir_per_min": 0.49,
+   "confidence": 0.0,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 0,
+   "p_win": 0.47,
+   "crowding": 1.27,
+   "horizon": 12.5,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "MTA",
+     "home": true,
+     "proj": 13.2
+    },
+    {
+     "round": 2,
+     "opp": "PAO",
+     "home": false,
+     "proj": 11.4
+    },
+    {
+     "round": 3,
+     "opp": "VBC",
+     "home": true,
+     "proj": 13.0
+    },
+    {
+     "round": 4,
+     "opp": "PBB",
+     "home": false,
+     "proj": 12.2
+    },
+    {
+     "round": 5,
+     "opp": "CZV",
+     "home": true,
+     "proj": 12.7
+    },
+    {
+     "round": 6,
+     "opp": "RMB",
+     "home": false,
+     "proj": 11.1
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 25 min/game at 0.49 PIR per minute",
+    "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+    "A differential: only 4.3% of squads hold him at this projection",
+    "47% win probability vs Maccabi Rapyd Tel Aviv (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 10.8,
+   "edge": 2.5
+  },
+  {
+   "id": 11527,
+   "name": "Tj Warren",
+   "position": "Forward",
+   "team": "PBB",
+   "team_full": "Paris Basketball",
+   "opponent": "Panathinaikos AKTOR Athens",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.029,
+   "price": 11.5,
+   "proj": 9.2,
+   "value": 0.8,
+   "minutes": 22.0,
+   "pir_per_min": 0.45,
+   "confidence": 0.0,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 0,
+   "p_win": 0.39,
+   "crowding": 1.51,
+   "horizon": 9.9,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PAO",
+     "home": false,
+     "proj": 9.2
+    },
+    {
+     "round": 2,
+     "opp": "PAR",
+     "home": true,
+     "proj": 10.5
+    },
+    {
+     "round": 3,
+     "opp": "ZAL",
+     "home": true,
+     "proj": 10.1
+    },
+    {
+     "round": 4,
+     "opp": "ASV",
+     "home": true,
+     "proj": 10.6
+    },
+    {
+     "round": 5,
+     "opp": "VIR",
+     "home": true,
+     "proj": 10.6
+    },
+    {
+     "round": 6,
+     "opp": "CZV",
+     "home": false,
+     "proj": 9.1
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 22 min/game at 0.45 PIR per minute",
+    "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+    "A differential: only 2.9% of squads hold him at this projection",
+    "39% win probability vs Panathinaikos AKTOR Athens (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 9.8,
+   "edge": -0.6
+  },
+  {
+   "id": 4712,
+   "name": "Marcus Bingham",
+   "position": "Center",
+   "team": "FBT",
+   "team_full": "Fenerbahce Tarfin Istanbul",
+   "opponent": "Virtus Bologna",
+   "home": true,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.013,
+   "price": 11.3,
+   "proj": 4.3,
+   "value": 0.38,
+   "minutes": 12.1,
+   "pir_per_min": 0.33,
+   "confidence": 0.1,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 9,
+   "p_win": 0.71,
+   "crowding": 1.49,
+   "horizon": 4.3,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "VIR",
+     "home": true,
+     "proj": 4.3
+    },
+    {
+     "round": 2,
+     "opp": "BAY",
+     "home": true,
+     "proj": 4.2
+    },
+    {
+     "round": 3,
+     "opp": "DUB",
+     "home": true,
+     "proj": 4.5
+    },
+    {
+     "round": 4,
+     "opp": "PAO",
+     "home": false,
+     "proj": 3.8
+    },
+    {
+     "round": 5,
+     "opp": "ZAL",
+     "home": true,
+     "proj": 4.1
+    },
+    {
+     "round": 6,
+     "opp": "PAR",
+     "home": true,
+     "proj": 4.3
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 12 min/game at 0.33 PIR per minute",
+    "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+    "71% win probability vs Virtus Bologna (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 9.5,
+   "edge": -5.2
+  },
+  {
+   "id": 11503,
+   "name": "Marjon Beauchamp",
+   "position": "Forward",
+   "team": "BAY",
+   "team_full": "FC Bayern Munich",
+   "opponent": "Hapoel IBI Tel Aviv",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.014,
+   "price": 11.3,
+   "proj": 9.5,
+   "value": 0.84,
+   "minutes": 22.3,
+   "pir_per_min": 0.45,
+   "confidence": 0.0,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 0,
+   "p_win": 0.23,
+   "crowding": 1.36,
+   "horizon": 9.7,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "HTA",
+     "home": false,
+     "proj": 9.5
+    },
+    {
+     "round": 2,
+     "opp": "FBT",
+     "home": false,
+     "proj": 9.0
+    },
+    {
+     "round": 3,
+     "opp": "PAR",
+     "home": true,
+     "proj": 10.6
+    },
+    {
+     "round": 4,
+     "opp": "VIR",
+     "home": true,
+     "proj": 10.7
+    },
+    {
+     "round": 5,
+     "opp": "EFS",
+     "home": false,
+     "proj": 9.2
+    },
+    {
+     "round": 6,
+     "opp": "BJK",
+     "home": false,
+     "proj": 9.3
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 22 min/game at 0.45 PIR per minute",
+    "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+    "A differential: only 1.4% of squads hold him at this projection",
+    "23% win probability vs Hapoel IBI Tel Aviv (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 9.5,
+   "edge": -0.0
+  },
+  {
+   "id": 11528,
+   "name": "Tyson Etienne",
+   "position": "Guard",
+   "team": "PBB",
+   "team_full": "Paris Basketball",
+   "opponent": "Panathinaikos AKTOR Athens",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.004,
+   "price": 11.1,
+   "proj": 8.5,
+   "value": 0.76,
+   "minutes": 20.8,
+   "pir_per_min": 0.43,
+   "confidence": 0.0,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 0,
+   "p_win": 0.39,
+   "crowding": 1.51,
+   "horizon": 9.1,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PAO",
+     "home": false,
+     "proj": 8.5
+    },
+    {
+     "round": 2,
+     "opp": "PAR",
+     "home": true,
+     "proj": 9.7
+    },
+    {
+     "round": 3,
+     "opp": "ZAL",
+     "home": true,
+     "proj": 9.3
+    },
+    {
+     "round": 4,
+     "opp": "ASV",
+     "home": true,
+     "proj": 9.8
+    },
+    {
+     "round": 5,
+     "opp": "VIR",
+     "home": true,
+     "proj": 9.7
+    },
+    {
+     "round": 6,
+     "opp": "CZV",
+     "home": false,
+     "proj": 8.4
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 21 min/game at 0.43 PIR per minute",
+    "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+    "39% win probability vs Panathinaikos AKTOR Athens (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 9.3,
+   "edge": -0.8
+  },
+  {
+   "id": 11543,
+   "name": "Rasheed Bello",
+   "position": "Guard",
+   "team": "VIR",
+   "team_full": "Virtus Bologna",
+   "opponent": "Fenerbahce Tarfin Istanbul",
+   "home": false,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.003,
+   "price": 11.0,
+   "proj": 11.0,
+   "value": 1.0,
+   "minutes": 25.1,
+   "pir_per_min": 0.49,
+   "confidence": 0.0,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 0,
+   "p_win": 0.29,
+   "crowding": 1.2,
+   "horizon": 11.4,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "FBT",
+     "home": false,
+     "proj": 11.0
+    },
+    {
+     "round": 2,
+     "opp": "MIL",
+     "home": false,
+     "proj": 11.2
+    },
+    {
+     "round": 3,
+     "opp": "OLY",
+     "home": true,
+     "proj": 12.0
+    },
+    {
+     "round": 4,
+     "opp": "BAY",
+     "home": false,
+     "proj": 11.3
+    },
+    {
+     "round": 5,
+     "opp": "PBB",
+     "home": false,
+     "proj": 12.0
+    },
+    {
+     "round": 6,
+     "opp": "KBA",
+     "home": true,
+     "proj": 13.1
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 25 min/game at 0.49 PIR per minute",
+    "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+    "A differential: only 0.3% of squads hold him at this projection",
+    "VIR is a thin roster (1.20x) \u2014 minutes are easier to come by",
+    "29% win probability vs Fenerbahce Tarfin Istanbul (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 9.2,
+   "edge": 1.8
+  },
+  {
+   "id": 11522,
+   "name": "Keaton Wallace",
+   "position": "Guard",
+   "team": "MTA",
+   "team_full": "Maccabi Rapyd Tel Aviv",
+   "opponent": "LDLC ASVEL Villeurbanne",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.031,
+   "price": 10.8,
+   "proj": 6.6,
+   "value": 0.61,
+   "minutes": 17.5,
+   "pir_per_min": 0.39,
+   "confidence": 0.0,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 0,
+   "p_win": 0.53,
+   "crowding": 1.36,
+   "horizon": 6.7,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "ASV",
+     "home": false,
+     "proj": 6.6
+    },
+    {
+     "round": 2,
+     "opp": "BJK",
+     "home": true,
+     "proj": 7.2
+    },
+    {
+     "round": 3,
+     "opp": "PAO",
+     "home": false,
+     "proj": 6.4
+    },
+    {
+     "round": 4,
+     "opp": "MIL",
+     "home": true,
+     "proj": 7.1
+    },
+    {
+     "round": 5,
+     "opp": "BAR",
+     "home": false,
+     "proj": 6.2
+    },
+    {
+     "round": 6,
+     "opp": "VBC",
+     "home": false,
+     "proj": 6.5
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 17 min/game at 0.39 PIR per minute",
+    "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+    "53% win probability vs LDLC ASVEL Villeurbanne (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "implied": 8.9,
+   "edge": -2.3
+  }
+ ],
+ "price_curve": [
+  [
+   4.0,
+   0.7
+  ],
+  [
+   6.0,
+   3.1
+  ],
+  [
+   8.0,
+   5.6
+  ],
+  [
+   10.0,
+   8.0
+  ],
+  [
+   12.0,
+   10.4
+  ],
+  [
+   14.0,
+   12.8
+  ],
+  [
+   16.0,
+   15.2
+  ]
+ ],
+ "field_average": 71.7,
+ "ownership_live": true,
+ "differentials": [
+  {
+   "id": 3770,
+   "name": "Chima Moneke",
+   "position": "Forward",
+   "team": "CZV",
+   "team_full": "Crvena Zvezda Meridianbet Belgrade",
+   "opponent": "Zalgiris Kaunas",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.035,
+   "price": 15.5,
+   "proj": 16.4,
+   "value": 1.05,
+   "minutes": 24.1,
+   "pir_per_min": 0.64,
+   "confidence": 0.84,
+   "last_pir": 16.6,
+   "last_games": 36,
+   "appearances": 118,
+   "p_win": 0.64,
+   "crowding": 1.45,
+   "horizon": 16.5,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "ZAL",
+     "home": true,
+     "proj": 16.4
+    },
+    {
+     "round": 2,
+     "opp": "HTA",
+     "home": true,
+     "proj": 17.1
+    },
+    {
+     "round": 3,
+     "opp": "EFS",
+     "home": true,
+     "proj": 16.5
+    },
+    {
+     "round": 4,
+     "opp": "DUB",
+     "home": false,
+     "proj": 15.8
+    },
+    {
+     "round": 5,
+     "opp": "ASV",
+     "home": false,
+     "proj": 15.4
+    },
+    {
+     "round": 6,
+     "opp": "PBB",
+     "home": true,
+     "proj": 17.8
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 16.6 fantasy points per round across 36 games \u2014 that record carries 60% of this projection",
+    "Projected 24 min/game at 0.64 PIR per minute",
+    "Strong record: 118 EuroLeague games, 84% confidence",
+    "A differential: only 3.5% of squads hold him at this projection",
+    "64% win probability vs Zalgiris Kaunas (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 16.4
+  },
+  {
+   "id": 3903,
+   "name": "Elijah Bryant",
+   "position": "Guard",
+   "team": "HTA",
+   "team_full": "Hapoel IBI Tel Aviv",
+   "opponent": "FC Bayern Munich",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.057,
+   "price": 15.5,
+   "proj": 16.0,
+   "value": 1.03,
+   "minutes": 22.1,
+   "pir_per_min": 0.51,
+   "confidence": 0.89,
+   "last_pir": 17.7,
+   "last_games": 38,
+   "appearances": 231,
+   "p_win": 0.77,
+   "crowding": 1.7,
+   "horizon": 15.2,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "BAY",
+     "home": true,
+     "proj": 16.0
+    },
+    {
+     "round": 2,
+     "opp": "CZV",
+     "home": false,
+     "proj": 14.1
+    },
+    {
+     "round": 3,
+     "opp": "RMB",
+     "home": true,
+     "proj": 15.4
+    },
+    {
+     "round": 4,
+     "opp": "VBC",
+     "home": false,
+     "proj": 14.4
+    },
+    {
+     "round": 5,
+     "opp": "BJK",
+     "home": true,
+     "proj": 16.0
+    },
+    {
+     "round": 6,
+     "opp": "PAO",
+     "home": false,
+     "proj": 14.2
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 17.7 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+    "Projected 22 min/game at 0.51 PIR per minute",
+    "Strong record: 231 EuroLeague games, 89% confidence",
+    "Warning: HTA is a crowded roster (1.70x the available minutes)",
+    "77% win probability vs FC Bayern Munich (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 16.0
+  },
+  {
+   "id": 3834,
+   "name": "Nadir Hifi",
+   "position": "Guard",
+   "team": "PBB",
+   "team_full": "Paris Basketball",
+   "opponent": "Panathinaikos AKTOR Athens",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.021,
+   "price": 14.8,
+   "proj": 15.6,
+   "value": 1.06,
+   "minutes": 22.8,
+   "pir_per_min": 0.6,
+   "confidence": 0.79,
+   "last_pir": 17.1,
+   "last_games": 37,
+   "appearances": 98,
+   "p_win": 0.39,
+   "crowding": 1.51,
+   "horizon": 16.8,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PAO",
+     "home": false,
+     "proj": 15.6
+    },
+    {
+     "round": 2,
+     "opp": "PAR",
+     "home": true,
+     "proj": 17.9
+    },
+    {
+     "round": 3,
+     "opp": "ZAL",
+     "home": true,
+     "proj": 17.1
+    },
+    {
+     "round": 4,
+     "opp": "ASV",
+     "home": true,
+     "proj": 18.0
+    },
+    {
+     "round": 5,
+     "opp": "VIR",
+     "home": true,
+     "proj": 18.0
+    },
+    {
+     "round": 6,
+     "opp": "CZV",
+     "home": false,
+     "proj": 15.5
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 17.1 fantasy points per round across 37 games \u2014 that record carries 60% of this projection",
+    "Projected 23 min/game at 0.60 PIR per minute",
+    "Moderate sample: 98 games, 79% confidence",
+    "A differential: only 2.1% of squads hold him at this projection",
+    "39% win probability vs Panathinaikos AKTOR Athens (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 15.6
+  },
+  {
+   "id": 3771,
+   "name": "Wade Baldwin",
+   "position": "Guard",
+   "team": "FBT",
+   "team_full": "Fenerbahce Tarfin Istanbul",
+   "opponent": "Virtus Bologna",
+   "home": true,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.026,
+   "price": 14.3,
+   "proj": 15.6,
+   "value": 1.09,
+   "minutes": 21.6,
+   "pir_per_min": 0.56,
+   "confidence": 0.89,
+   "last_pir": 16.0,
+   "last_games": 42,
+   "appearances": 226,
+   "p_win": 0.71,
+   "crowding": 1.49,
+   "horizon": 15.3,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "VIR",
+     "home": true,
+     "proj": 15.6
+    },
+    {
+     "round": 2,
+     "opp": "BAY",
+     "home": true,
+     "proj": 15.2
+    },
+    {
+     "round": 3,
+     "opp": "DUB",
+     "home": true,
+     "proj": 16.0
+    },
+    {
+     "round": 4,
+     "opp": "PAO",
+     "home": false,
+     "proj": 13.6
+    },
+    {
+     "round": 5,
+     "opp": "ZAL",
+     "home": true,
+     "proj": 14.8
+    },
+    {
+     "round": 6,
+     "opp": "PAR",
+     "home": true,
+     "proj": 15.5
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 16.0 fantasy points per round across 42 games \u2014 that record carries 60% of this projection",
+    "Projected 22 min/game at 0.56 PIR per minute",
+    "Strong record: 226 EuroLeague games, 89% confidence",
+    "A differential: only 2.6% of squads hold him at this projection",
+    "71% win probability vs Virtus Bologna (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 15.6
+  },
+  {
+   "id": 3812,
+   "name": "Jaylen Hoard",
+   "position": "Forward",
+   "team": "MTA",
+   "team_full": "Maccabi Rapyd Tel Aviv",
+   "opponent": "LDLC ASVEL Villeurbanne",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.02,
+   "price": 14.8,
+   "proj": 15.0,
+   "value": 1.01,
+   "minutes": 28.0,
+   "pir_per_min": 0.55,
+   "confidence": 0.81,
+   "last_pir": 14.9,
+   "last_games": 36,
+   "appearances": 90,
+   "p_win": 0.53,
+   "crowding": 1.36,
+   "horizon": 15.3,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "ASV",
+     "home": false,
+     "proj": 15.0
+    },
+    {
+     "round": 2,
+     "opp": "BJK",
+     "home": true,
+     "proj": 16.3
+    },
+    {
+     "round": 3,
+     "opp": "PAO",
+     "home": false,
+     "proj": 14.5
+    },
+    {
+     "round": 4,
+     "opp": "MIL",
+     "home": true,
+     "proj": 16.2
+    },
+    {
+     "round": 5,
+     "opp": "BAR",
+     "home": false,
+     "proj": 14.1
+    },
+    {
+     "round": 6,
+     "opp": "VBC",
+     "home": false,
+     "proj": 14.7
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 14.9 fantasy points per round across 36 games \u2014 that record carries 60% of this projection",
+    "Projected 28 min/game at 0.55 PIR per minute",
+    "Strong record: 90 EuroLeague games, 81% confidence",
+    "A differential: only 2.0% of squads hold him at this projection",
+    "53% win probability vs LDLC ASVEL Villeurbanne (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 15.0
+  },
+  {
+   "id": 4233,
+   "name": "Mfiondu Kabengele",
+   "position": "Center",
+   "team": "DUB",
+   "team_full": "Dubai Basketball",
+   "opponent": "Real Madrid",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.036,
+   "price": 14.6,
+   "proj": 15.0,
+   "value": 1.03,
+   "minutes": 17.8,
+   "pir_per_min": 0.64,
+   "confidence": 0.7,
+   "last_pir": 16.4,
+   "last_games": 36,
+   "appearances": 56,
+   "p_win": 0.58,
+   "crowding": 1.64,
+   "horizon": 14.7,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "RMB",
+     "home": true,
+     "proj": 15.0
+    },
+    {
+     "round": 2,
+     "opp": "BAR",
+     "home": true,
+     "proj": 15.0
+    },
+    {
+     "round": 3,
+     "opp": "FBT",
+     "home": false,
+     "proj": 13.4
+    },
+    {
+     "round": 4,
+     "opp": "CZV",
+     "home": true,
+     "proj": 15.3
+    },
+    {
+     "round": 5,
+     "opp": "KBA",
+     "home": false,
+     "proj": 14.3
+    },
+    {
+     "round": 6,
+     "opp": "MIL",
+     "home": false,
+     "proj": 13.8
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 16.4 fantasy points per round across 36 games \u2014 that record carries 60% of this projection",
+    "Projected 18 min/game at 0.64 PIR per minute",
+    "Moderate sample: 56 games, 70% confidence",
+    "A differential: only 3.6% of squads hold him at this projection",
+    "Warning: DUB is a crowded roster (1.64x the available minutes)",
+    "58% win probability vs Real Madrid (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 15.0
+  },
+  {
+   "id": 7202,
+   "name": "Justin Robinson",
+   "position": "Guard",
+   "team": "BAR",
+   "team_full": "FC Barcelona",
+   "opponent": "Anadolu Efes Istanbul",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.032,
+   "price": 12.2,
+   "proj": 14.1,
+   "value": 1.16,
+   "minutes": 21.2,
+   "pir_per_min": 0.63,
+   "confidence": 0.59,
+   "last_pir": 13.6,
+   "last_games": 36,
+   "appearances": 36,
+   "p_win": 0.61,
+   "crowding": 1.28,
+   "horizon": 13.8,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "EFS",
+     "home": true,
+     "proj": 14.1
+    },
+    {
+     "round": 2,
+     "opp": "DUB",
+     "home": false,
+     "proj": 13.5
+    },
+    {
+     "round": 3,
+     "opp": "BJK",
+     "home": false,
+     "proj": 12.8
+    },
+    {
+     "round": 4,
+     "opp": "ZAL",
+     "home": true,
+     "proj": 14.0
+    },
+    {
+     "round": 5,
+     "opp": "MTA",
+     "home": true,
+     "proj": 14.8
+    },
+    {
+     "round": 6,
+     "opp": "OLY",
+     "home": true,
+     "proj": 13.6
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Good value at 1.16 pts/credit vs 0.63 median",
+    "Last season he banked 13.6 fantasy points per round across 36 games \u2014 that record carries 60% of this projection",
+    "Projected 21 min/game at 0.63 PIR per minute",
+    "Moderate sample: 36 games, 59% confidence",
+    "A differential: only 3.2% of squads hold him at this projection",
+    "61% win probability vs Anadolu Efes Istanbul (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 14.1
+  },
+  {
+   "id": 3765,
+   "name": "Mike James",
+   "position": "Guard",
+   "team": "EFS",
+   "team_full": "Anadolu Efes Istanbul",
+   "opponent": "FC Barcelona",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.019,
+   "price": 16.0,
+   "proj": 13.9,
+   "value": 0.87,
+   "minutes": 25.4,
+   "pir_per_min": 0.6,
+   "confidence": 0.92,
+   "last_pir": 17.3,
+   "last_games": 39,
+   "appearances": 280,
+   "p_win": 0.39,
+   "crowding": 1.53,
+   "horizon": 14.5,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "BAR",
+     "home": false,
+     "proj": 13.9
+    },
+    {
+     "round": 2,
+     "opp": "RMB",
+     "home": true,
+     "proj": 15.5
+    },
+    {
+     "round": 3,
+     "opp": "CZV",
+     "home": false,
+     "proj": 14.2
+    },
+    {
+     "round": 4,
+     "opp": "OLY",
+     "home": false,
+     "proj": 13.6
+    },
+    {
+     "round": 5,
+     "opp": "BAY",
+     "home": true,
+     "proj": 16.1
+    },
+    {
+     "round": 6,
+     "opp": "ZAL",
+     "home": false,
+     "proj": 14.0
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 17.3 fantasy points per round across 39 games \u2014 that record carries 60% of this projection",
+    "Projected 25 min/game at 0.60 PIR per minute",
+    "Strong record: 280 EuroLeague games, 92% confidence",
+    "A differential: only 1.9% of squads hold him at this projection",
+    "39% win probability vs FC Barcelona (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 13.9
+  }
+ ],
+ "crowded": [
+  {
+   "id": 3766,
+   "name": "Sasha Vezenkov",
+   "position": "Forward",
+   "team": "OLY",
+   "team_full": "Olympiacos Piraeus",
+   "opponent": "Kosner Baskonia Vitoria-Gasteiz",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.4,
+   "price": 17.0,
+   "proj": 18.2,
+   "value": 1.07,
+   "minutes": 24.0,
+   "pir_per_min": 0.69,
+   "confidence": 0.89,
+   "last_pir": 20.1,
+   "last_games": 39,
+   "appearances": 240,
+   "p_win": 0.64,
+   "crowding": 1.55,
+   "horizon": 18.0,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "KBA",
+     "home": false,
+     "proj": 18.2
+    },
+    {
+     "round": 2,
+     "opp": "ZAL",
+     "home": false,
+     "proj": 17.2
+    },
+    {
+     "round": 3,
+     "opp": "VIR",
+     "home": false,
+     "proj": 18.1
+    },
+    {
+     "round": 4,
+     "opp": "EFS",
+     "home": true,
+     "proj": 19.4
+    },
+    {
+     "round": 5,
+     "opp": "VBC",
+     "home": false,
+     "proj": 17.8
+    },
+    {
+     "round": 6,
+     "opp": "BAR",
+     "home": false,
+     "proj": 17.0
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 20.1 fantasy points per round across 39 games \u2014 that record carries 60% of this projection",
+    "Projected 24 min/game at 0.69 PIR per minute",
+    "Strong record: 240 EuroLeague games, 89% confidence",
+    "Heavily owned (40% of squads) \u2014 he wins you little ground on the field",
+    "Warning: OLY is a crowded roster (1.55x the available minutes)",
+    "64% win probability vs Kosner Baskonia Vitoria-Gasteiz (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 18.2
+  },
+  {
+   "id": 3791,
+   "name": "Carlik Jones",
+   "position": "Guard",
+   "team": "PAR",
+   "team_full": "Partizan Mozzart Bet Belgrade",
+   "opponent": "Armani Olimpia Milan",
+   "home": true,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.271,
+   "price": 13.6,
+   "proj": 10.4,
+   "value": 0.77,
+   "minutes": 26.4,
+   "pir_per_min": 0.59,
+   "confidence": 0.72,
+   "last_pir": 6.6,
+   "last_games": 15,
+   "appearances": 49,
+   "p_win": 0.57,
+   "crowding": 1.28,
+   "horizon": 10.0,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "MIL",
+     "home": true,
+     "proj": 10.4
+    },
+    {
+     "round": 2,
+     "opp": "PBB",
+     "home": false,
+     "proj": 10.0
+    },
+    {
+     "round": 3,
+     "opp": "BAY",
+     "home": false,
+     "proj": 9.4
+    },
+    {
+     "round": 4,
+     "opp": "RMB",
+     "home": false,
+     "proj": 9.1
+    },
+    {
+     "round": 5,
+     "opp": "PAO",
+     "home": true,
+     "proj": 10.5
+    },
+    {
+     "round": 6,
+     "opp": "FBT",
+     "home": false,
+     "proj": 9.1
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 6.6 fantasy points per round across 15 games \u2014 that record carries 60% of this projection",
+    "Projected 26 min/game at 0.59 PIR per minute",
+    "Moderate sample: 49 games, 72% confidence",
+    "Heavily owned (27% of squads) \u2014 he wins you little ground on the field",
+    "57% win probability vs Armani Olimpia Milan (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 10.4
+  },
+  {
+   "id": 11549,
+   "name": "Jonas Valanciunas",
+   "position": "Center",
+   "team": "ZAL",
+   "team_full": "Zalgiris Kaunas",
+   "opponent": "Crvena Zvezda Meridianbet Belgrade",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.27,
+   "price": 15.5,
+   "proj": 10.6,
+   "value": 0.68,
+   "minutes": 24.2,
+   "pir_per_min": 0.47,
+   "confidence": 0.0,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 0,
+   "p_win": 0.36,
+   "crowding": 1.4,
+   "horizon": 10.9,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "CZV",
+     "home": false,
+     "proj": 10.6
+    },
+    {
+     "round": 2,
+     "opp": "OLY",
+     "home": true,
+     "proj": 11.3
+    },
+    {
+     "round": 3,
+     "opp": "PBB",
+     "home": false,
+     "proj": 11.3
+    },
+    {
+     "round": 4,
+     "opp": "BAR",
+     "home": false,
+     "proj": 10.3
+    },
+    {
+     "round": 5,
+     "opp": "FBT",
+     "home": false,
+     "proj": 10.3
+    },
+    {
+     "round": 6,
+     "opp": "EFS",
+     "home": true,
+     "proj": 11.8
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 24 min/game at 0.47 PIR per minute",
+    "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+    "Heavily owned (27% of squads) \u2014 he wins you little ground on the field",
+    "36% win probability vs Crvena Zvezda Meridianbet Belgrade (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 10.6
+  },
+  {
+   "id": 3976,
+   "name": "Arijan Lakic",
+   "position": "Forward",
+   "team": "PAR",
+   "team_full": "Partizan Mozzart Bet Belgrade",
+   "opponent": "Armani Olimpia Milan",
+   "home": true,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.256,
+   "price": 4.0,
+   "proj": 1.5,
+   "value": 0.39,
+   "minutes": 4.3,
+   "pir_per_min": 0.22,
+   "confidence": 0.48,
+   "last_pir": 1.8,
+   "last_games": 32,
+   "appearances": 36,
+   "p_win": 0.57,
+   "crowding": 1.28,
+   "horizon": 1.5,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "MIL",
+     "home": true,
+     "proj": 1.5
+    },
+    {
+     "round": 2,
+     "opp": "PBB",
+     "home": false,
+     "proj": 1.5
+    },
+    {
+     "round": 3,
+     "opp": "BAY",
+     "home": false,
+     "proj": 1.4
+    },
+    {
+     "round": 4,
+     "opp": "RMB",
+     "home": false,
+     "proj": 1.3
+    },
+    {
+     "round": 5,
+     "opp": "PAO",
+     "home": true,
+     "proj": 1.6
+    },
+    {
+     "round": 6,
+     "opp": "FBT",
+     "home": false,
+     "proj": 1.3
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 1.8 fantasy points per round across 32 games \u2014 that record carries 60% of this projection",
+    "Projected 4 min/game at 0.22 PIR per minute",
+    "Moderate sample: 36 games, 48% confidence",
+    "Heavily owned (26% of squads) \u2014 he wins you little ground on the field",
+    "57% win probability vs Armani Olimpia Milan (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 1.5
+  },
+  {
+   "id": 3820,
+   "name": "Alec Peters",
+   "position": "Forward",
+   "team": "MIL",
+   "team_full": "Armani Olimpia Milan",
+   "opponent": "Partizan Mozzart Bet Belgrade",
+   "home": false,
+   "turn": 2,
+   "date": "2026-09-25",
+   "own": 0.207,
+   "price": 11.7,
+   "proj": 7.5,
+   "value": 0.64,
+   "minutes": 17.4,
+   "pir_per_min": 0.49,
+   "confidence": 0.87,
+   "last_pir": 8.5,
+   "last_games": 43,
+   "appearances": 268,
+   "p_win": 0.43,
+   "crowding": 1.28,
+   "horizon": 7.8,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PAR",
+     "home": false,
+     "proj": 7.5
+    },
+    {
+     "round": 2,
+     "opp": "VIR",
+     "home": true,
+     "proj": 8.4
+    },
+    {
+     "round": 3,
+     "opp": "KBA",
+     "home": false,
+     "proj": 7.5
+    },
+    {
+     "round": 4,
+     "opp": "MTA",
+     "home": false,
+     "proj": 7.5
+    },
+    {
+     "round": 5,
+     "opp": "RMB",
+     "home": true,
+     "proj": 7.9
+    },
+    {
+     "round": 6,
+     "opp": "DUB",
+     "home": true,
+     "proj": 8.6
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 8.5 fantasy points per round across 43 games \u2014 that record carries 60% of this projection",
+    "Projected 17 min/game at 0.49 PIR per minute",
+    "Strong record: 268 EuroLeague games, 87% confidence",
+    "Heavily owned (21% of squads) \u2014 he wins you little ground on the field",
+    "43% win probability vs Partizan Mozzart Bet Belgrade (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 7.5
+  },
+  {
+   "id": 3936,
+   "name": "Nikos Rogkavopoulos",
+   "position": "Forward",
+   "team": "PAO",
+   "team_full": "Panathinaikos AKTOR Athens",
+   "opponent": "Paris Basketball",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.207,
+   "price": 4.5,
+   "proj": 1.5,
+   "value": 0.33,
+   "minutes": 5.6,
+   "pir_per_min": 0.25,
+   "confidence": 0.0,
+   "last_pir": null,
+   "last_games": null,
+   "appearances": 0,
+   "p_win": 0.61,
+   "crowding": 1.59,
+   "horizon": 1.4,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "PBB",
+     "home": true,
+     "proj": 1.5
+    },
+    {
+     "round": 2,
+     "opp": "ASV",
+     "home": true,
+     "proj": 1.4
+    },
+    {
+     "round": 3,
+     "opp": "MTA",
+     "home": true,
+     "proj": 1.5
+    },
+    {
+     "round": 4,
+     "opp": "FBT",
+     "home": true,
+     "proj": 1.4
+    },
+    {
+     "round": 5,
+     "opp": "PAR",
+     "home": false,
+     "proj": 1.3
+    },
+    {
+     "round": 6,
+     "opp": "HTA",
+     "home": true,
+     "proj": 1.4
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Projected 6 min/game at 0.25 PIR per minute",
+    "No EuroLeague history \u2014 projection leans on his price, treat as uncertain",
+    "Heavily owned (21% of squads) \u2014 he wins you little ground on the field",
+    "Warning: PAO is a crowded roster (1.59x the available minutes)",
+    "61% win probability vs Paris Basketball (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 1.5
+  },
+  {
+   "id": 4252,
+   "name": "Jean Montero",
+   "position": "Guard",
+   "team": "OLY",
+   "team_full": "Olympiacos Piraeus",
+   "opponent": "Kosner Baskonia Vitoria-Gasteiz",
+   "home": false,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.179,
+   "price": 12.8,
+   "proj": 14.5,
+   "value": 1.14,
+   "minutes": 18.8,
+   "pir_per_min": 0.63,
+   "confidence": 0.7,
+   "last_pir": 15.4,
+   "last_games": 38,
+   "appearances": 59,
+   "p_win": 0.64,
+   "crowding": 1.55,
+   "horizon": 14.4,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "KBA",
+     "home": false,
+     "proj": 14.5
+    },
+    {
+     "round": 2,
+     "opp": "ZAL",
+     "home": false,
+     "proj": 13.7
+    },
+    {
+     "round": 3,
+     "opp": "VIR",
+     "home": false,
+     "proj": 14.5
+    },
+    {
+     "round": 4,
+     "opp": "EFS",
+     "home": true,
+     "proj": 15.5
+    },
+    {
+     "round": 5,
+     "opp": "VBC",
+     "home": false,
+     "proj": 14.2
+    },
+    {
+     "round": 6,
+     "opp": "BAR",
+     "home": false,
+     "proj": 13.6
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Good value at 1.14 pts/credit vs 0.63 median",
+    "Last season he banked 15.4 fantasy points per round across 38 games \u2014 that record carries 60% of this projection",
+    "Projected 19 min/game at 0.63 PIR per minute",
+    "Moderate sample: 59 games, 70% confidence",
+    "Heavily owned (18% of squads) \u2014 he wins you little ground on the field",
+    "Warning: OLY is a crowded roster (1.55x the available minutes)",
+    "64% win probability vs Kosner Baskonia Vitoria-Gasteiz (away), which carries the +10% team-win bonus"
+   ],
+   "in_squad": true,
+   "edge": 14.5
+  },
+  {
+   "id": 8721,
+   "name": "Jared Butler",
+   "position": "Guard",
+   "team": "CZV",
+   "team_full": "Crvena Zvezda Meridianbet Belgrade",
+   "opponent": "Zalgiris Kaunas",
+   "home": true,
+   "turn": 1,
+   "date": "2026-09-24",
+   "own": 0.172,
+   "price": 10.1,
+   "proj": 9.2,
+   "value": 0.91,
+   "minutes": 17.1,
+   "pir_per_min": 0.48,
+   "confidence": 0.58,
+   "last_pir": 8.9,
+   "last_games": 32,
+   "appearances": 32,
+   "p_win": 0.64,
+   "crowding": 1.45,
+   "horizon": 9.3,
+   "fixtures": [
+    {
+     "round": 1,
+     "opp": "ZAL",
+     "home": true,
+     "proj": 9.2
+    },
+    {
+     "round": 2,
+     "opp": "HTA",
+     "home": true,
+     "proj": 9.6
+    },
+    {
+     "round": 3,
+     "opp": "EFS",
+     "home": true,
+     "proj": 9.3
+    },
+    {
+     "round": 4,
+     "opp": "DUB",
+     "home": false,
+     "proj": 8.9
+    },
+    {
+     "round": 5,
+     "opp": "ASV",
+     "home": false,
+     "proj": 8.7
+    },
+    {
+     "round": 6,
+     "opp": "PBB",
+     "home": true,
+     "proj": 10.0
+    }
+   ],
+   "role": null,
+   "reasons": [
+    "Last season he banked 8.9 fantasy points per round across 32 games \u2014 that record carries 60% of this projection",
+    "Projected 17 min/game at 0.48 PIR per minute",
+    "Moderate sample: 32 games, 58% confidence",
+    "Heavily owned (17% of squads) \u2014 he wins you little ground on the field",
+    "64% win probability vs Zalgiris Kaunas (home), which carries the +10% team-win bonus"
+   ],
+   "in_squad": false,
+   "edge": 9.2
+  }
+ ],
+ "ownership_note": "Ownership is live now. It sums to 10 across the pool because every manager fills ten outfield slots, so a 40% figure means two squads in five hold him. Multiplying every player's ownership by his projection gives what the average manager will score from his outfield ten this round: 72 points. Beating the field means beating that, and you only gain ground where you differ from it.",
+ "schedule": [
+  {
+   "team": "CZV",
+   "opp": 1.025,
+   "p_win": 0.52
+  },
+  {
+   "team": "PAO",
+   "opp": 1.023,
+   "p_win": 0.62
+  },
+  {
+   "team": "MIL",
+   "opp": 1.022,
+   "p_win": 0.48
+  },
+  {
+   "team": "RMB",
+   "opp": 1.019,
+   "p_win": 0.57
+  },
+  {
+   "team": "ASV",
+   "opp": 1.014,
+   "p_win": 0.33
+  },
+  {
+   "team": "BJK",
+   "opp": 1.013,
+   "p_win": 0.47
+  },
+  {
+   "team": "VBC",
+   "opp": 1.012,
+   "p_win": 0.56
+  },
+  {
+   "team": "FBT",
+   "opp": 1.012,
+   "p_win": 0.62
+  },
+  {
+   "team": "KBA",
+   "opp": 1.009,
+   "p_win": 0.43
+  },
+  {
+   "team": "BAY",
+   "opp": 1.005,
+   "p_win": 0.4
+  },
+  {
+   "team": "BAR",
+   "opp": 1.004,
+   "p_win": 0.54
+  },
+  {
+   "team": "VIR",
+   "opp": 1.003,
+   "p_win": 0.38
+  },
+  {
+   "team": "PBB",
+   "opp": 1.003,
+   "p_win": 0.62
+  },
+  {
+   "team": "PAR",
+   "opp": 1.002,
+   "p_win": 0.38
+  },
+  {
+   "team": "OLY",
+   "opp": 1.0,
+   "p_win": 0.6
+  },
+  {
+   "team": "MTA",
+   "opp": 1.0,
+   "p_win": 0.47
+  },
+  {
+   "team": "HTA",
+   "opp": 0.997,
+   "p_win": 0.59
+  },
+  {
+   "team": "ZAL",
+   "opp": 0.993,
+   "p_win": 0.38
+  },
+  {
+   "team": "DUB",
+   "opp": 0.988,
+   "p_win": 0.57
+  },
+  {
+   "team": "EFS",
+   "opp": 0.979,
+   "p_win": 0.47
+  }
+ ],
+ "horizon_note": "Squad membership is valued across Rounds 1-6, the run up to the first unlimited-transfer window. Each round is weighted by the chance you still hold the player: with four trades a round out of eleven slots that is (7/11) per round, so Round 1 counts fully and Round 6 about 7%.",
+ "tiers": [
+  {
+   "label": "Premium",
+   "range": "13.0-17.0cr. Thirty players. You can afford two, maybe three.",
+   "n": 30,
+   "by_proj": [
+    {
+     "name": "Sylvain Francisco",
+     "pos": "Guard",
+     "team": "PAO",
+     "price": 14.8,
+     "proj": 20.0,
+     "ls_mpg": 27.8,
+     "ls_pir": 19.2,
+     "vacated": 20.0,
+     "competition": 106.0,
+     "role": 1.17,
+     "opp": -0.18,
+     "breakout": 0.92,
+     "continuity": 1,
+     "own": 0.145
+    },
+    {
+     "name": "Sasha Vezenkov",
+     "pos": "Forward",
+     "team": "OLY",
+     "price": 17.0,
+     "proj": 18.2,
+     "ls_mpg": 25.2,
+     "ls_pir": 20.1,
+     "vacated": 15.0,
+     "competition": 58.0,
+     "role": 1.85,
+     "opp": 0.29,
+     "breakout": 1.71,
+     "continuity": 3,
+     "own": 0.4
+    },
+    {
+     "name": "Chima Moneke",
+     "pos": "Forward",
+     "team": "CZV",
+     "price": 15.5,
+     "proj": 16.4,
+     "ls_mpg": 24.1,
+     "ls_pir": 16.6,
+     "vacated": 23.0,
+     "competition": 80.0,
+     "role": 1.2,
+     "opp": 0.14,
+     "breakout": 1.41,
+     "continuity": 2,
+     "own": 0.035
+    },
+    {
+     "name": "Nikola Milutinov",
+     "pos": "Center",
+     "team": "OLY",
+     "price": 15.3,
+     "proj": 16.3,
+     "ls_mpg": 20.0,
+     "ls_pir": 18.1,
+     "vacated": 1.0,
+     "competition": 52.0,
+     "role": 0.54,
+     "opp": -0.75,
+     "breakout": 0.88,
+     "continuity": 3,
+     "own": 0.078
+    },
+    {
+     "name": "Elijah Bryant",
+     "pos": "Guard",
+     "team": "HTA",
+     "price": 15.5,
+     "proj": 16.0,
+     "ls_mpg": 26.7,
+     "ls_pir": 17.7,
+     "vacated": 24.0,
+     "competition": 164.0,
+     "role": 0.32,
+     "opp": -1.09,
+     "breakout": 0.02,
+     "continuity": 3,
+     "own": 0.057
+    },
+    {
+     "name": "Moses Wright",
+     "pos": "Center",
+     "team": "MIL",
+     "price": 14.0,
+     "proj": 16.0,
+     "ls_mpg": 23.6,
+     "ls_pir": 17.1,
+     "vacated": 20.0,
+     "competition": 30.0,
+     "role": 0.92,
+     "opp": 0.44,
+     "breakout": 1.04,
+     "continuity": 2,
+     "own": 0.083
+    },
+    {
+     "name": "Nadir Hifi",
+     "pos": "Guard",
+     "team": "PBB",
+     "price": 14.8,
+     "proj": 15.6,
+     "ls_mpg": 21.7,
+     "ls_pir": 17.1,
+     "vacated": 18.0,
+     "competition": 104.0,
+     "role": 0.73,
+     "opp": -0.27,
+     "breakout": 0.8,
+     "continuity": 2,
+     "own": 0.021
+    },
+    {
+     "name": "Wade Baldwin",
+     "pos": "Guard",
+     "team": "FBT",
+     "price": 14.3,
+     "proj": 15.6,
+     "ls_mpg": 25.2,
+     "ls_pir": 16.0,
+     "vacated": 39.0,
+     "competition": 105.0,
+     "role": 1.21,
+     "opp": 0.27,
+     "breakout": 0.92,
+     "continuity": 3,
+     "own": 0.026
+    }
+   ],
+   "by_value": [
+    {
+     "name": "Sylvain Francisco",
+     "pos": "Guard",
+     "team": "PAO",
+     "price": 14.8,
+     "proj": 20.0,
+     "ls_mpg": 27.8,
+     "ls_pir": 19.2,
+     "vacated": 20.0,
+     "competition": 106.0,
+     "role": 1.17,
+     "opp": -0.18,
+     "breakout": 0.92,
+     "continuity": 1,
+     "own": 0.145
+    },
+    {
+     "name": "Moses Wright",
+     "pos": "Center",
+     "team": "MIL",
+     "price": 14.0,
+     "proj": 16.0,
+     "ls_mpg": 23.6,
+     "ls_pir": 17.1,
+     "vacated": 20.0,
+     "competition": 30.0,
+     "role": 0.92,
+     "opp": 0.44,
+     "breakout": 1.04,
+     "continuity": 2,
+     "own": 0.083
+    },
+    {
+     "name": "Wade Baldwin",
+     "pos": "Guard",
+     "team": "FBT",
+     "price": 14.3,
+     "proj": 15.6,
+     "ls_mpg": 25.2,
+     "ls_pir": 16.0,
+     "vacated": 39.0,
+     "competition": 105.0,
+     "role": 1.21,
+     "opp": 0.27,
+     "breakout": 0.92,
+     "continuity": 3,
+     "own": 0.026
+    },
+    {
+     "name": "Dan Oturu",
+     "pos": "Center",
+     "team": "HTA",
+     "price": 14.2,
+     "proj": 15.5,
+     "ls_mpg": 23.9,
+     "ls_pir": 16.8,
+     "vacated": 12.0,
+     "competition": 22.0,
+     "role": 1.21,
+     "opp": 0.43,
+     "breakout": 0.95,
+     "continuity": 3,
+     "own": 0.083
+    },
+    {
+     "name": "Sasha Vezenkov",
+     "pos": "Forward",
+     "team": "OLY",
+     "price": 17.0,
+     "proj": 18.2,
+     "ls_mpg": 25.2,
+     "ls_pir": 20.1,
+     "vacated": 15.0,
+     "competition": 58.0,
+     "role": 1.85,
+     "opp": 0.29,
+     "breakout": 1.71,
+     "continuity": 3,
+     "own": 0.4
+    }
+   ]
+  },
+  {
+   "label": "Mid",
+   "range": "10.0-12.9cr. Sixty-three players \u2014 where most rounds are won or lost.",
+   "n": 63,
+   "by_proj": [
+    {
+     "name": "Jean Montero",
+     "pos": "Guard",
+     "team": "OLY",
+     "price": 12.8,
+     "proj": 14.5,
+     "ls_mpg": 19.9,
+     "ls_pir": 15.4,
+     "vacated": 22.0,
+     "competition": 132.0,
+     "role": 0.24,
+     "opp": -0.68,
+     "breakout": 0.72,
+     "continuity": 2,
+     "own": 0.179
+    },
+    {
+     "name": "Isaac Bonga",
+     "pos": "Forward",
+     "team": "PAO",
+     "price": 11.5,
+     "proj": 14.2,
+     "ls_mpg": 27.8,
+     "ls_pir": 14.3,
+     "vacated": 36.0,
+     "competition": 120.0,
+     "role": 0.52,
+     "opp": -0.15,
+     "breakout": 0.27,
+     "continuity": 1,
+     "own": 0.119
+    },
+    {
+     "name": "Justin Robinson",
+     "pos": "Guard",
+     "team": "BAR",
+     "price": 12.2,
+     "proj": 14.1,
+     "ls_mpg": 18.0,
+     "ls_pir": 13.6,
+     "vacated": 38.0,
+     "competition": 105.0,
+     "role": 0.56,
+     "opp": 0.16,
+     "breakout": 1.14,
+     "continuity": 1,
+     "own": 0.032
+    },
+    {
+     "name": "Talen Horton-Tucker",
+     "pos": "Guard",
+     "team": "FBT",
+     "price": 12.7,
+     "proj": 14.1,
+     "ls_mpg": 22.7,
+     "ls_pir": 13.9,
+     "vacated": 39.0,
+     "competition": 107.0,
+     "role": 0.9,
+     "opp": 0.2,
+     "breakout": 0.82,
+     "continuity": 3,
+     "own": 0.09
+    },
+    {
+     "name": "Filip Petrusev",
+     "pos": "Forward",
+     "team": "DUB",
+     "price": 12.7,
+     "proj": 13.4,
+     "ls_mpg": 23.5,
+     "ls_pir": 15.4,
+     "vacated": 0.0,
+     "competition": 132.0,
+     "role": -0.09,
+     "opp": -1.21,
+     "breakout": 0.46,
+     "continuity": 2,
+     "own": 0.029
+    },
+    {
+     "name": "Timoth\u00e9 Luwawu-Cabarrot",
+     "pos": "Forward",
+     "team": "RMB",
+     "price": 12.8,
+     "proj": 13.3,
+     "ls_mpg": 24.1,
+     "ls_pir": 15.5,
+     "vacated": 46.0,
+     "competition": 121.0,
+     "role": 0.67,
+     "opp": 0.11,
+     "breakout": 0.5,
+     "continuity": 1,
+     "own": 0.06
+    },
+    {
+     "name": "Patty Mills",
+     "pos": "Guard",
+     "team": "ASV",
+     "price": 12.3,
+     "proj": 13.2,
+     "ls_mpg": null,
+     "ls_pir": null,
+     "vacated": 48.0,
+     "competition": 84.0,
+     "role": NaN,
+     "opp": 0.79,
+     "breakout": 0.89,
+     "continuity": 1,
+     "own": 0.043
+    },
+    {
+     "name": "Codi Miller-Mcintyre",
+     "pos": "Guard",
+     "team": "OLY",
+     "price": 11.0,
+     "proj": 12.8,
+     "ls_mpg": 30.9,
+     "ls_pir": 15.0,
+     "vacated": 22.0,
+     "competition": 127.0,
+     "role": 0.92,
+     "opp": -0.49,
+     "breakout": 0.12,
+     "continuity": 2,
+     "own": 0.099
+    }
+   ],
+   "by_value": [
+    {
+     "name": "Isaac Bonga",
+     "pos": "Forward",
+     "team": "PAO",
+     "price": 11.5,
+     "proj": 14.2,
+     "ls_mpg": 27.8,
+     "ls_pir": 14.3,
+     "vacated": 36.0,
+     "competition": 120.0,
+     "role": 0.52,
+     "opp": -0.15,
+     "breakout": 0.27,
+     "continuity": 1,
+     "own": 0.119
+    },
+    {
+     "name": "Codi Miller-Mcintyre",
+     "pos": "Guard",
+     "team": "OLY",
+     "price": 11.0,
+     "proj": 12.8,
+     "ls_mpg": 30.9,
+     "ls_pir": 15.0,
+     "vacated": 22.0,
+     "competition": 127.0,
+     "role": 0.92,
+     "opp": -0.49,
+     "breakout": 0.12,
+     "continuity": 2,
+     "own": 0.099
+    },
+    {
+     "name": "Justin Robinson",
+     "pos": "Guard",
+     "team": "BAR",
+     "price": 12.2,
+     "proj": 14.1,
+     "ls_mpg": 18.0,
+     "ls_pir": 13.6,
+     "vacated": 38.0,
+     "competition": 105.0,
+     "role": 0.56,
+     "opp": 0.16,
+     "breakout": 1.14,
+     "continuity": 1,
+     "own": 0.032
+    },
+    {
+     "name": "Jean Montero",
+     "pos": "Guard",
+     "team": "OLY",
+     "price": 12.8,
+     "proj": 14.5,
+     "ls_mpg": 19.9,
+     "ls_pir": 15.4,
+     "vacated": 22.0,
+     "competition": 132.0,
+     "role": 0.24,
+     "opp": -0.68,
+     "breakout": 0.72,
+     "continuity": 2,
+     "own": 0.179
+    },
+    {
+     "name": "Talen Horton-Tucker",
+     "pos": "Guard",
+     "team": "FBT",
+     "price": 12.7,
+     "proj": 14.1,
+     "ls_mpg": 22.7,
+     "ls_pir": 13.9,
+     "vacated": 39.0,
+     "competition": 107.0,
+     "role": 0.9,
+     "opp": 0.2,
+     "breakout": 0.82,
+     "continuity": 3,
+     "own": 0.09
+    }
+   ]
+  },
+  {
+   "label": "Value",
+   "range": "9.0-9.9cr. Forty-one players, the band your tiering left open.",
+   "n": 41,
+   "by_proj": [
+    {
+     "name": "Theo Maledon",
+     "pos": "Guard",
+     "team": "RMB",
+     "price": 9.8,
+     "proj": 10.9,
+     "ls_mpg": 14.7,
+     "ls_pir": 9.7,
+     "vacated": 0.0,
+     "competition": 73.0,
+     "role": 1.04,
+     "opp": -0.2,
+     "breakout": 0.86,
+     "continuity": 1,
+     "own": 0.077
+    },
+    {
+     "name": "Tremont Waters",
+     "pos": "Guard",
+     "team": "ASV",
+     "price": 9.9,
+     "proj": 10.8,
+     "ls_mpg": null,
+     "ls_pir": null,
+     "vacated": 48.0,
+     "competition": 87.0,
+     "role": NaN,
+     "opp": 0.7,
+     "breakout": 0.72,
+     "continuity": 1,
+     "own": 0.003
+    },
+    {
+     "name": "Kobi Simmons",
+     "pos": "Guard",
+     "team": "KBA",
+     "price": 9.6,
+     "proj": 9.9,
+     "ls_mpg": 18.1,
+     "ls_pir": 8.8,
+     "vacated": 44.0,
+     "competition": 114.0,
+     "role": 0.42,
+     "opp": 0.16,
+     "breakout": 0.56,
+     "continuity": 3,
+     "own": 0.006
+    },
+    {
+     "name": "Jae Crowder",
+     "pos": "Forward",
+     "team": "ASV",
+     "price": 9.5,
+     "proj": 9.8,
+     "ls_mpg": null,
+     "ls_pir": null,
+     "vacated": 39.0,
+     "competition": 111.0,
+     "role": NaN,
+     "opp": -0.04,
+     "breakout": 0.39,
+     "continuity": 1,
+     "own": 0.023
+    },
+    {
+     "name": "Marko Guduric",
+     "pos": "Guard",
+     "team": "MIL",
+     "price": 9.6,
+     "proj": 9.6,
+     "ls_mpg": 20.3,
+     "ls_pir": 10.3,
+     "vacated": 58.0,
+     "competition": 124.0,
+     "role": 0.39,
+     "opp": 0.34,
+     "breakout": 0.66,
+     "continuity": 3,
+     "own": 0.039
+    },
+    {
+     "name": "Tomas Satoransky",
+     "pos": "Guard",
+     "team": "HTA",
+     "price": 9.6,
+     "proj": 9.5,
+     "ls_mpg": 23.0,
+     "ls_pir": 10.1,
+     "vacated": 24.0,
+     "competition": 165.0,
+     "role": 0.07,
+     "opp": -1.12,
+     "breakout": -0.25,
+     "continuity": 2,
+     "own": 0.004
+    },
+    {
+     "name": "Antonio Blakeney",
+     "pos": "Guard",
+     "team": "HTA",
+     "price": 9.6,
+     "proj": 9.4,
+     "ls_mpg": 22.1,
+     "ls_pir": 10.2,
+     "vacated": 24.0,
+     "competition": 169.0,
+     "role": -0.36,
+     "opp": -1.25,
+     "breakout": -0.37,
+     "continuity": 3,
+     "own": 0.011
+    },
+    {
+     "name": "Tyty Washington",
+     "pos": "Guard",
+     "team": "ASV",
+     "price": 9.3,
+     "proj": 9.0,
+     "ls_mpg": null,
+     "ls_pir": null,
+     "vacated": 48.0,
+     "competition": 88.0,
+     "role": NaN,
+     "opp": 0.67,
+     "breakout": 0.59,
+     "continuity": 1,
+     "own": 0.008
+    }
+   ],
+   "by_value": [
+    {
+     "name": "Theo Maledon",
+     "pos": "Guard",
+     "team": "RMB",
+     "price": 9.8,
+     "proj": 10.9,
+     "ls_mpg": 14.7,
+     "ls_pir": 9.7,
+     "vacated": 0.0,
+     "competition": 73.0,
+     "role": 1.04,
+     "opp": -0.2,
+     "breakout": 0.86,
+     "continuity": 1,
+     "own": 0.077
+    },
+    {
+     "name": "Tremont Waters",
+     "pos": "Guard",
+     "team": "ASV",
+     "price": 9.9,
+     "proj": 10.8,
+     "ls_mpg": null,
+     "ls_pir": null,
+     "vacated": 48.0,
+     "competition": 87.0,
+     "role": NaN,
+     "opp": 0.7,
+     "breakout": 0.72,
+     "continuity": 1,
+     "own": 0.003
+    },
+    {
+     "name": "Jae Crowder",
+     "pos": "Forward",
+     "team": "ASV",
+     "price": 9.5,
+     "proj": 9.8,
+     "ls_mpg": null,
+     "ls_pir": null,
+     "vacated": 39.0,
+     "competition": 111.0,
+     "role": NaN,
+     "opp": -0.04,
+     "breakout": 0.39,
+     "continuity": 1,
+     "own": 0.023
+    },
+    {
+     "name": "Kobi Simmons",
+     "pos": "Guard",
+     "team": "KBA",
+     "price": 9.6,
+     "proj": 9.9,
+     "ls_mpg": 18.1,
+     "ls_pir": 8.8,
+     "vacated": 44.0,
+     "competition": 114.0,
+     "role": 0.42,
+     "opp": 0.16,
+     "breakout": 0.56,
+     "continuity": 3,
+     "own": 0.006
+    },
+    {
+     "name": "Marko Guduric",
+     "pos": "Guard",
+     "team": "MIL",
+     "price": 9.6,
+     "proj": 9.6,
+     "ls_mpg": 20.3,
+     "ls_pir": 10.3,
+     "vacated": 58.0,
+     "competition": 124.0,
+     "role": 0.39,
+     "opp": 0.34,
+     "breakout": 0.66,
+     "continuity": 3,
+     "own": 0.039
+    }
+   ]
+  },
+  {
+   "label": "Budget",
+   "range": "Under 9.0cr. Bench filler, plus the occasional real starter.",
+   "n": 192,
+   "by_proj": [
+    {
+     "name": "Darius Thompson",
+     "pos": "Guard",
+     "team": "MIL",
+     "price": 8.7,
+     "proj": 9.2,
+     "ls_mpg": 18.8,
+     "ls_pir": 9.9,
+     "vacated": 58.0,
+     "competition": 123.0,
+     "role": 0.51,
+     "opp": 0.37,
+     "breakout": 0.63,
+     "continuity": 2,
+     "own": 0.016
+    },
+    {
+     "name": "Brancou Badio",
+     "pos": "Guard",
+     "team": "PAO",
+     "price": 8.3,
+     "proj": 8.7,
+     "ls_mpg": 18.6,
+     "ls_pir": 8.7,
+     "vacated": 20.0,
+     "competition": 112.0,
+     "role": 0.1,
+     "opp": -0.41,
+     "breakout": -0.01,
+     "continuity": 1,
+     "own": 0.126
+    },
+    {
+     "name": "Jerian Grant",
+     "pos": "Guard",
+     "team": "PAO",
+     "price": 8.8,
+     "proj": 8.0,
+     "ls_mpg": 22.6,
+     "ls_pir": 7.9,
+     "vacated": 20.0,
+     "competition": 108.0,
+     "role": 0.71,
+     "opp": -0.25,
+     "breakout": -0.11,
+     "continuity": 2,
+     "own": 0.015
+    },
+    {
+     "name": "Derrick Alston Jr.",
+     "pos": "Forward",
+     "team": "VIR",
+     "price": 8.4,
+     "proj": 7.6,
+     "ls_mpg": 21.8,
+     "ls_pir": 8.5,
+     "vacated": 63.0,
+     "competition": 28.0,
+     "role": 1.75,
+     "opp": 1.7,
+     "breakout": 1.07,
+     "continuity": 2,
+     "own": 0.016
+    },
+    {
+     "name": "Nicolo Melli",
+     "pos": "Forward",
+     "team": "FBT",
+     "price": 8.2,
+     "proj": 7.6,
+     "ls_mpg": 19.3,
+     "ls_pir": 8.2,
+     "vacated": 61.0,
+     "competition": 102.0,
+     "role": 0.45,
+     "opp": 0.66,
+     "breakout": 0.62,
+     "continuity": 3,
+     "own": 0.037
+    },
+    {
+     "name": "Tamir Blatt",
+     "pos": "Guard",
+     "team": "HTA",
+     "price": 7.7,
+     "proj": 7.5,
+     "ls_mpg": 19.4,
+     "ls_pir": 8.8,
+     "vacated": 24.0,
+     "competition": 170.0,
+     "role": -0.49,
+     "opp": -1.28,
+     "breakout": -0.45,
+     "continuity": 2,
+     "own": 0.01
+    },
+    {
+     "name": "Luca Vildoza",
+     "pos": "Guard",
+     "team": "PAR",
+     "price": 7.7,
+     "proj": 7.5,
+     "ls_mpg": 17.4,
+     "ls_pir": 8.1,
+     "vacated": 46.0,
+     "competition": 105.0,
+     "role": 0.35,
+     "opp": 0.35,
+     "breakout": 0.31,
+     "continuity": 2,
+     "own": 0.05
+    },
+    {
+     "name": "Jaime Pradilla",
+     "pos": "Forward",
+     "team": "RMB",
+     "price": 8.7,
+     "proj": 7.4,
+     "ls_mpg": 19.5,
+     "ls_pir": 9.3,
+     "vacated": 46.0,
+     "competition": 131.0,
+     "role": -0.64,
+     "opp": -0.22,
+     "breakout": 0.06,
+     "continuity": 1,
+     "own": 0.014
+    }
+   ],
+   "by_value": [
+    {
+     "name": "Darius Thompson",
+     "pos": "Guard",
+     "team": "MIL",
+     "price": 8.7,
+     "proj": 9.2,
+     "ls_mpg": 18.8,
+     "ls_pir": 9.9,
+     "vacated": 58.0,
+     "competition": 123.0,
+     "role": 0.51,
+     "opp": 0.37,
+     "breakout": 0.63,
+     "continuity": 2,
+     "own": 0.016
+    },
+    {
+     "name": "Brancou Badio",
+     "pos": "Guard",
+     "team": "PAO",
+     "price": 8.3,
+     "proj": 8.7,
+     "ls_mpg": 18.6,
+     "ls_pir": 8.7,
+     "vacated": 20.0,
+     "competition": 112.0,
+     "role": 0.1,
+     "opp": -0.41,
+     "breakout": -0.01,
+     "continuity": 1,
+     "own": 0.126
+    },
+    {
+     "name": "Tamir Blatt",
+     "pos": "Guard",
+     "team": "HTA",
+     "price": 7.7,
+     "proj": 7.5,
+     "ls_mpg": 19.4,
+     "ls_pir": 8.8,
+     "vacated": 24.0,
+     "competition": 170.0,
+     "role": -0.49,
+     "opp": -1.28,
+     "breakout": -0.45,
+     "continuity": 2,
+     "own": 0.01
+    },
+    {
+     "name": "Luca Vildoza",
+     "pos": "Guard",
+     "team": "PAR",
+     "price": 7.7,
+     "proj": 7.5,
+     "ls_mpg": 17.4,
+     "ls_pir": 8.1,
+     "vacated": 46.0,
+     "competition": 105.0,
+     "role": 0.35,
+     "opp": 0.35,
+     "breakout": 0.31,
+     "continuity": 2,
+     "own": 0.05
+    },
+    {
+     "name": "Semi Ojeleye",
+     "pos": "Forward",
+     "team": "CZV",
+     "price": 7.5,
+     "proj": 7.3,
+     "ls_mpg": 22.9,
+     "ls_pir": 7.8,
+     "vacated": 23.0,
+     "competition": 84.0,
+     "role": 0.45,
+     "opp": -0.0,
+     "breakout": 0.28,
+     "continuity": 2,
+     "own": 0.037
+    }
+   ]
+  }
+ ],
+ "boards": {
+  "role": [
+   {
+    "name": "Joel Bolomboy",
+    "pos": "Center",
+    "team": "ASV",
+    "price": 10.4,
+    "proj": 4.6,
+    "ls_mpg": 5.6,
+    "ls_pir": 2.9,
+    "vacated": 76.0,
+    "competition": 0.0,
+    "role": 1.87,
+    "opp": 2.92,
+    "breakout": 1.79,
+    "continuity": 0,
+    "own": 0.09
+   },
+   {
+    "name": "Sasha Vezenkov",
+    "pos": "Forward",
+    "team": "OLY",
+    "price": 17.0,
+    "proj": 18.2,
+    "ls_mpg": 25.2,
+    "ls_pir": 20.1,
+    "vacated": 15.0,
+    "competition": 58.0,
+    "role": 1.85,
+    "opp": 0.29,
+    "breakout": 1.71,
+    "continuity": 3,
+    "own": 0.4
+   },
+   {
+    "name": "Facundo Campazzo",
+    "pos": "Guard",
+    "team": "RMB",
+    "price": 13.7,
+    "proj": 13.3,
+    "ls_mpg": 24.4,
+    "ls_pir": 14.4,
+    "vacated": 0.0,
+    "competition": 69.0,
+    "role": 1.77,
+    "opp": -0.04,
+    "breakout": 0.97,
+    "continuity": 2,
+    "own": 0.017
+   },
+   {
+    "name": "Derrick Alston Jr.",
+    "pos": "Forward",
+    "team": "VIR",
+    "price": 8.4,
+    "proj": 7.6,
+    "ls_mpg": 21.8,
+    "ls_pir": 8.5,
+    "vacated": 63.0,
+    "competition": 28.0,
+    "role": 1.75,
+    "opp": 1.7,
+    "breakout": 1.07,
+    "continuity": 2,
+    "own": 0.016
+   },
+   {
+    "name": "Mike James",
+    "pos": "Guard",
+    "team": "EFS",
+    "price": 16.0,
+    "proj": 13.9,
+    "ls_mpg": 27.2,
+    "ls_pir": 17.3,
+    "vacated": 80.0,
+    "competition": 115.0,
+    "role": 1.54,
+    "opp": 1.14,
+    "breakout": 1.51,
+    "continuity": 3,
+    "own": 0.019
+   },
+   {
+    "name": "Kendrick Nunn",
+    "pos": "Guard",
+    "team": "PAO",
+    "price": 14.6,
+    "proj": 0.0,
+    "ls_mpg": 25.0,
+    "ls_pir": 13.2,
+    "vacated": 20.0,
+    "competition": 102.0,
+    "role": 1.53,
+    "opp": -0.05,
+    "breakout": 0.44,
+    "continuity": 2,
+    "own": 0.006
+   },
+   {
+    "name": "Mathias Lessort",
+    "pos": "Center",
+    "team": "PAO",
+    "price": 14.4,
+    "proj": 6.8,
+    "ls_mpg": 7.2,
+    "ls_pir": 3.9,
+    "vacated": 24.0,
+    "competition": 20.0,
+    "role": 1.47,
+    "opp": 0.94,
+    "breakout": 1.15,
+    "continuity": 1,
+    "own": 0.058
+   },
+   {
+    "name": "Elie Okobo",
+    "pos": "Guard",
+    "team": "DUB",
+    "price": 12.2,
+    "proj": 11.2,
+    "ls_mpg": 25.0,
+    "ls_pir": 11.5,
+    "vacated": 13.0,
+    "competition": 85.0,
+    "role": 1.41,
+    "opp": 0.0,
+    "breakout": 0.4,
+    "continuity": 2,
+    "own": 0.012
+   }
+  ],
+  "breakout": [
+   {
+    "name": "Joel Bolomboy",
+    "pos": "Center",
+    "team": "ASV",
+    "price": 10.4,
+    "proj": 4.6,
+    "ls_mpg": 5.6,
+    "ls_pir": 2.9,
+    "vacated": 76.0,
+    "competition": 0.0,
+    "role": 1.87,
+    "opp": 2.92,
+    "breakout": 1.79,
+    "continuity": 0,
+    "own": 0.09
+   },
+   {
+    "name": "Sasha Vezenkov",
+    "pos": "Forward",
+    "team": "OLY",
+    "price": 17.0,
+    "proj": 18.2,
+    "ls_mpg": 25.2,
+    "ls_pir": 20.1,
+    "vacated": 15.0,
+    "competition": 58.0,
+    "role": 1.85,
+    "opp": 0.29,
+    "breakout": 1.71,
+    "continuity": 3,
+    "own": 0.4
+   },
+   {
+    "name": "Josh Nebo",
+    "pos": "Center",
+    "team": "BAR",
+    "price": 12.5,
+    "proj": 11.5,
+    "ls_mpg": 14.7,
+    "ls_pir": 9.4,
+    "vacated": 59.0,
+    "competition": 22.0,
+    "role": 1.32,
+    "opp": 1.92,
+    "breakout": 1.61,
+    "continuity": 0,
+    "own": 0.039
+   },
+   {
+    "name": "TJ Shorts",
+    "pos": "Guard",
+    "team": "VBC",
+    "price": 14.9,
+    "proj": 10.2,
+    "ls_mpg": 15.7,
+    "ls_pir": 7.8,
+    "vacated": 69.0,
+    "competition": 100.0,
+    "role": 0.61,
+    "opp": 0.98,
+    "breakout": 1.59,
+    "continuity": 1,
+    "own": 0.065
+   },
+   {
+    "name": "Mike James",
+    "pos": "Guard",
+    "team": "EFS",
+    "price": 16.0,
+    "proj": 13.9,
+    "ls_mpg": 27.2,
+    "ls_pir": 17.3,
+    "vacated": 80.0,
+    "competition": 115.0,
+    "role": 1.54,
+    "opp": 1.14,
+    "breakout": 1.51,
+    "continuity": 3,
+    "own": 0.019
+   },
+   {
+    "name": "Chima Moneke",
+    "pos": "Forward",
+    "team": "CZV",
+    "price": 15.5,
+    "proj": 16.4,
+    "ls_mpg": 24.1,
+    "ls_pir": 16.6,
+    "vacated": 23.0,
+    "competition": 80.0,
+    "role": 1.2,
+    "opp": 0.14,
+    "breakout": 1.41,
+    "continuity": 2,
+    "own": 0.035
+   },
+   {
+    "name": "Will Clyburn",
+    "pos": "Forward",
+    "team": "FBT",
+    "price": 12.4,
+    "proj": 12.1,
+    "ls_mpg": 21.1,
+    "ls_pir": 12.1,
+    "vacated": 61.0,
+    "competition": 97.0,
+    "role": 1.14,
+    "opp": 0.82,
+    "breakout": 1.32,
+    "continuity": 2,
+    "own": 0.038
+   },
+   {
+    "name": "Derek  Willis",
+    "pos": "Forward",
+    "team": "PAR",
+    "price": 8.1,
+    "proj": 5.2,
+    "ls_mpg": 12.0,
+    "ls_pir": 5.9,
+    "vacated": 92.0,
+    "competition": 44.0,
+    "role": 0.52,
+    "opp": 2.05,
+    "breakout": 1.23,
+    "continuity": 1,
+    "own": 0.011
+   }
+  ]
+ },
+ "clubs": [
+  {
+   "team": "PAR",
+   "vacated": 92.0,
+   "n_over_10": 2,
+   "star_power": 28.5
+  },
+  {
+   "team": "EFS",
+   "vacated": 80.0,
+   "n_over_10": 1,
+   "star_power": 31.7
+  },
+  {
+   "team": "ASV",
+   "vacated": 76.0,
+   "n_over_10": 2,
+   "star_power": 33.8
+  },
+  {
+   "team": "VIR",
+   "vacated": 74.0,
+   "n_over_10": 1,
+   "star_power": 29.5
+  },
+  {
+   "team": "VBC",
+   "vacated": 69.0,
+   "n_over_10": 2,
+   "star_power": 30.8
+  },
+  {
+   "team": "FBT",
+   "vacated": 61.0,
+   "n_over_10": 5,
+   "star_power": 41.8
+  },
+  {
+   "team": "BAR",
+   "vacated": 59.0,
+   "n_over_10": 3,
+   "star_power": 38.5
+  },
+  {
+   "team": "MIL",
+   "vacated": 58.0,
+   "n_over_10": 1,
+   "star_power": 34.7
+  },
+  {
+   "team": "RMB",
+   "vacated": 46.0,
+   "n_over_10": 4,
+   "star_power": 39.5
+  },
+  {
+   "team": "MTA",
+   "vacated": 45.0,
+   "n_over_10": 3,
+   "star_power": 36.7
+  },
+  {
+   "team": "KBA",
+   "vacated": 44.0,
+   "n_over_10": 1,
+   "star_power": 27.0
+  },
+  {
+   "team": "CZV",
+   "vacated": 40.0,
+   "n_over_10": 3,
+   "star_power": 40.8
+  },
+  {
+   "team": "BAY",
+   "vacated": 38.0,
+   "n_over_10": 0,
+   "star_power": 27.4
+  },
+  {
+   "team": "PAO",
+   "vacated": 36.0,
+   "n_over_10": 5,
+   "star_power": 46.8
+  },
+  {
+   "team": "ZAL",
+   "vacated": 33.0,
+   "n_over_10": 2,
+   "star_power": 31.5
+  },
+  {
+   "team": "HTA",
+   "vacated": 31.0,
+   "n_over_10": 4,
+   "star_power": 43.5
+  },
+  {
+   "team": "PBB",
+   "vacated": 24.0,
+   "n_over_10": 1,
+   "star_power": 33.3
+  },
+  {
+   "team": "OLY",
+   "vacated": 22.0,
+   "n_over_10": 5,
+   "star_power": 49.0
+  },
+  {
+   "team": "DUB",
+   "vacated": 13.0,
+   "n_over_10": 6,
+   "star_power": 42.2
+  },
+  {
+   "team": "BJK",
+   "vacated": 0.0,
+   "n_over_10": 0,
+   "star_power": 27.4
+  }
+ ]
+}

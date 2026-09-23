@@ -1,0 +1,10 @@
+# --- secrets: never commit ---
+.env
+accessToThePlayerAPI
+Rules
+data/.token.json
+
+.venv/
+__pycache__/
+*.pyc
+data/raw/
