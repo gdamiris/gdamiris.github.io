@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A virtual date in one button. Draw a question, answer it honestly, then ask one back.">
+<meta name="color-scheme" content="light dark">
+<title>Table for Two</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: one narrow column. The question is the largest thing on the page, topic filters sit above it and the history below. */
+:root {
+  --bg: #eef0f5;
+  --surface: #ffffff;
+  --fg: #1d2233;
+  --muted: #5c6378;
+  --line: #d5d9e4;
+  --accent: #8c2f5e;
+  --accent-fg: #ffffff;
+  --accent-soft: #f2dde8;
+  --display: "Fraunces", Georgia, "Times New Roman", serif;
+  --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15131c; --surface: #1e1b28; --fg: #ece9f3; --muted: #a29fb4;
+    --line: #342f45; --accent: #e88db5; --accent-fg: #2a0f1d; --accent-soft: #3a2233;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.5;
+  padding-block: 32px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+[hidden] { display: none !important; }
+main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+header { display: flex; flex-direction: column; gap: 6px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: 2rem; line-height: 1.1; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.sub { color: var(--muted); margin: 0; max-width: 52ch; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font: inherit; font-size: 0.875rem; font-weight: 500; color: var(--fg); background: transparent;
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.chip:hover { border-color: var(--accent); }
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 28px 24px; min-height: 300px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px;
+}
+.meta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.meta .cat { color: var(--accent); font-weight: 700; }
+.words { display: flex; flex-direction: column; gap: 14px; }
+.question {
+  font-family: var(--display); font-weight: 400; font-size: clamp(1.6rem, 5.2vw, 2.4rem); line-height: 1.2;
+  margin: 0; text-wrap: balance; overflow-wrap: anywhere;
+}
+.question.intro { font-style: italic; color: var(--muted); font-size: clamp(1.3rem, 4.2vw, 1.8rem); }
+.note { margin: 0; color: var(--muted); font-size: 1.0625rem; max-width: 56ch; }
+.actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.btn {
+  font: inherit; font-weight: 700; font-size: 1rem; background: var(--accent); color: var(--accent-fg);
+  border: 0; border-radius: 8px; padding: 14px 26px; cursor: pointer;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+.link {
+  font: inherit; font-size: 0.875rem; color: var(--muted); background: none; border: 0; padding: 4px 0;
+  text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+}
+.link:hover { color: var(--fg); }
+.hint { font-size: 0.8125rem; color: var(--muted); }
+.fade { animation: rise 0.28s ease-out; }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .fade { animation: none; } }
+.progress { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.progress > span { display: block; height: 100%; background: var(--accent); width: 0; transition: width 0.3s; }
+details { border-top: 1px solid var(--line); padding-top: 16px; }
+summary { cursor: pointer; font-weight: 500; }
+ol.history { margin: 14px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+ol.history li { display: flex; gap: 12px; min-width: 0; }
+ol.history .tag { flex: none; width: 6.5rem; font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); padding-top: 4px; }
+ol.history .txt { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 460px) { .card { padding: 22px 18px; } ol.history .tag { width: 5rem; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Table for Two</h1>
+    <p class="sub">A virtual date in one button. Draw a question, answer it honestly, then ask one back.</p>
+  </header>
+
+  <section class="chips" id="chips" aria-label="Question topics"></section>
+
+  <section class="card" aria-live="polite">
+    <div class="meta"><span class="cat" id="cat">Ready</span><span id="count"></span></div>
+    <div class="words">
+      <p class="question intro" id="q">Press the button for your first question. Take your time with the answer.</p>
+      <p class="note" id="note" hidden></p>
+    </div>
+    <div class="actions">
+      <button class="btn" id="draw" type="button">Ask a question</button>
+      <button class="link" id="reset" type="button">Start over</button>
+      <span class="hint">or press Space</span>
+    </div>
+  </section>
+
+  <div class="progress" aria-hidden="true"><span id="bar"></span></div>
+
+  <details id="histBox" hidden>
+    <summary>Questions so far (<span id="histN">0</span>)</summary>
+    <ol class="history" id="hist"></ol>
+  </details>
+</main>
+
+<script>
+(function () {
+  var CATS = [
+    { id: "Q", label: "Quirks & Habits" },
+    { id: "M", label: "Memories & Stories" },
+    { id: "G", label: "Opinions & Growth" },
+    { id: "E", label: "Everyday Life" },
+    { id: "P", label: "Dating & People" },
+    { id: "D", label: "Dreams & What-ifs" }
+  ];
+
+  // [category, question, optional explanation or example]
+  var Q = [
+    ["Q", "What's something you do completely differently from everyone you know?"],
+    ["G", "What did you believe at 20 that you've since changed your mind about?"],
+    ["P", "What small thing makes you like someone almost instantly?"],
+    ["Q", "What was the last thing you got obsessed with, and are you still?"],
+    ["Q", "What would your friends say is your most “you” habit?"],
+    ["Q", "What are you weirdly good at that you never talk about?"],
+    ["M", "What's the most spontaneous thing you've ever done?"],
+    ["P", "Who makes you laugh the hardest, and what do they do?"],
+    ["M", "What compliment do you still remember years later?"],
+    ["G", "What were you sure you'd hate but ended up loving?"],
+    ["Q", "What's a tiny thing that annoys you far more than it should?", "Something you know is petty, but it still gets to you every time. For example, someone chewing loudly, a slow walker in front of you, or a dishwasher loaded the “wrong” way."],
+    ["D", "What would you do with a completely free Tuesday and nobody to answer to?"],
+    ["G", "What's the best advice you ignored?"],
+    ["Q", "What's a rule you follow that most people would find strange?"],
+    ["Q", "What do you know a surprising amount about, even though it's completely useless in daily life?", "A rabbit hole you fell down once and could now talk about for an hour. For example, the history of a video game, how elevators work, or every detail of a TV show nobody else watched."],
+    ["M", "What's a place you went to once and still think about?"],
+    ["Q", "What are you a little too competitive about?"],
+    ["G", "What's something you've changed your mind about in the last year?"],
+    ["M", "What's the strangest job or task you've ever had to do?", "It could be a real job, a favor for someone, or something you got talked into once. It doesn't have to be impressive, just weird. For example, dressing up as a mascot, counting cars for a traffic study, or helping a friend move a piano up four flights of stairs."],
+    ["E", "What do you always order, no matter where you eat?"],
+    ["Q", "What's a tradition you made up yourself?", "For example, a yearly dinner with the same friends, a ritual before every trip, or a silly rule whenever you watch a certain movie."],
+    ["G", "What's the most surprising thing you've learned about yourself as an adult?"],
+    ["D", "What would you do every day if nobody ever judged you for it?"],
+    ["E", "What's a hobby or interest you got into by accident?", "For example, a friend dragged you to a climbing gym once and now you go every week."],
+    ["E", "What's something you're not good at but love doing anyway?", "For example, singing in the car, cooking elaborate meals that rarely turn out right, or playing a sport badly but happily."],
+    ["E", "What's a movie, show or book you keep coming back to, and what pulls you back?"],
+    ["M", "What's the best surprise anyone has ever pulled off for you, or that you've pulled off for someone else?"],
+    ["E", "What's your go-to dish when you want to impress someone, and how does it usually go?"],
+    ["D", "What's a skill you wish you had learned as a kid?"],
+    ["E", "What's your comfort routine after a bad day?"],
+    ["D", "If you could save one object from a fire, apart from people and pets, what would it be?"],
+    ["E", "What ordinary chore or errand do you secretly enjoy?"],
+    ["E", "What does a perfect lazy morning look like for you?"],
+    ["Q", "What's your most irrational fear?"],
+    ["Q", "What song do you know every word to but would never admit it in public?"],
+    ["M", "What's the best gift you've ever given someone?"],
+    ["M", "What's the worst haircut or fashion choice you ever made, and what were you thinking?"],
+    ["M", "What did you collect as a kid?"],
+    ["M", "What smell instantly takes you back somewhere?"],
+    ["M", "What's the most embarrassing thing you've done in front of a crowd?"],
+    ["G", "What are you secretly proud of that nobody ever notices?", "For example, always remembering birthdays, calming down an upset friend, or finally finishing something you started years ago."],
+    ["Q", "What's your most-used emoji, and what does it say about you?"],
+    ["M", "What's a lie you told as a kid that you got away with?"],
+    ["E", "What's the first thing you do when you get home?"],
+    ["E", "What's the most expensive thing you've bought on impulse?"],
+    ["E", "What do you do when you can't fall asleep?"],
+    ["Q", "What word or phrase do you say way too much?"],
+    ["M", "What's a day in your life you'd happily relive?"],
+    ["M", "What was your favorite subject at school, and what was your least favorite?"],
+    ["E", "What food could you eat every day for a month without getting bored?"],
+    ["E", "Where's your favorite spot to watch a sunset or sunrise?"],
+    ["M", "Who was your first celebrity crush?"],
+    ["E", "What's the longest you've gone without your phone, and how was it?"],
+    ["M", "What's the nicest thing a stranger has ever done for you?"],
+    ["E", "What small luxury would you never give up?", "For example, good coffee beans, fresh sheets, or taking a taxi when it rains."],
+    ["E", "What's your guilty pleasure TV show or genre?"],
+    ["D", "What would your autobiography be called?"],
+    ["D", "What's a decision you almost made differently, and how would life look now?"],
+    ["M", "What's a small memory that makes you smile every time you think of it?"],
+    ["D", "If you could instantly be fluent in any language, which one and why?"],
+    ["E", "What's a place in your city that you love and most people overlook?"],
+    ["G", "What's the most useful thing you've ever learned from a friend?"],
+    ["M", "What's the best concert, festival or live event you've been to?"],
+    ["Q", "What's your go-to karaoke song, and how does it go?"],
+    ["D", "If you had to teach a class on anything, what would you teach?"],
+    ["M", "What's your biggest travel disaster?"],
+    ["E", "What do you think about when you're alone in the car or on a long walk?"],
+    ["E", "What are you most likely to be doing at 2 a.m.?"],
+    ["G", "What's a trend you never understood?"],
+    ["E", "What's the weirdest thing in your fridge or bag right now?"],
+    ["E", "What's your favorite way to spend a rainy day?"],
+    ["D", "What do you want to try in the next year that scares you a little?"],
+    ["D", "Which fictional world would you move to, and what would you do there?"],
+    ["G", "What's the best piece of advice you've ever given?"],
+    ["G", "What quality do you admire in other people that you wish you had more of?"],
+    ["M", "What did you want to be when you grew up, and how close did you get?"],
+    ["P", "What's the best compliment you could receive that has nothing to do with looks?"],
+    ["G", "What did you used to love that you've outgrown?", "For example, a band, a video game, a hobby, a haircut, or even a group of friends."],
+    ["D", "Which person from history would be the most fun to get stuck in an elevator with?"],
+    ["Q", "What's your signature move at a party?"],
+    ["Q", "What's an unwritten rule in your family that outsiders would find funny?"],
+    ["D", "What's your ideal weekend trip: a city, nature, or doing nothing at all?"],
+    ["E", "What's your favorite day of the year, and why?"],
+    ["Q", "What do you do when you're proud of yourself and nobody's around to see it?", "For example, a little victory dance in the kitchen, treating yourself to a coffee, or telling your plant."],
+    ["D", "What would you love to be a beginner at again?"],
+    ["M", "What's the longest you've ever stayed up, and why?"],
+    ["Q", "What's the oddest thing you're attached to?", "For example, a chipped mug, a worn-out hoodie, or a keychain you've had since school."],
+    ["M", "What's your favorite thing about the place where you grew up?"],
+    ["G", "What's your most unpopular food opinion?"],
+    ["Q", "What habit of yours drives the people close to you a little crazy?"],
+    ["P", "What does a perfect first date look like to you?"],
+    ["P", "What's the best date you can imagine?"],
+    ["P", "What's a green flag you look for in someone?"],
+    ["P", "What small thing could someone do that would make you feel really cared for?"],
+    ["P", "How do you act when you're nervous about someone you like?", "For example, you go quiet, talk too much, make a lot of jokes, or keep checking your phone."],
+    ["M", "What was the last thing that made you laugh until you cried?"],
+    ["G", "What do you hope people say about you when you're not in the room?"],
+    ["Q", "What topic could you talk about for hours without noticing the time?"],
+    ["P", "What's one thing you hope someone gets to know about you early on?"],
+    ["E", "What's something that always makes you feel better, no matter what?"],
+    ["M", "What's the weirdest compliment you've ever received?", "For example, someone saying you have a trustworthy face, or that you look like someone who gives good directions."],
+    ["M", "What's your favorite memory with a friend?"],
+    ["D", "If you had to leave where you live now, which city would you move to?"],
+    ["M", "What's something from your childhood you wish still existed?"],
+    ["D", "What would you do if you won the lottery tomorrow?"],
+    ["G", "What's the best thing about being the age you are right now?"],
+    ["D", "What's your wildest “what if” that you think about sometimes?"],
+    ["E", "What's your favorite sound in the world?"],
+    ["D", "What are you looking forward to right now?"],
+    ["G", "What are you grateful for today?"]
+  ];
+
+  var KEY = "table-for-two-v2";
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { cats: CATS.map(function (c) { return c.id; }), used: [] };
+
+  function load() {
+    try {
+      var s = JSON.parse(localStorage.getItem(KEY) || "null");
+      if (!s) return;
+      if (Array.isArray(s.cats) && s.cats.length) state.cats = s.cats;
+      if (Array.isArray(s.used)) state.used = s.used.filter(function (i) { return Q[i]; });
+    } catch (e) {}
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  function label(id) { for (var i = 0; i < CATS.length; i++) if (CATS[i].id === id) return CATS[i].label; return ""; }
+  function inMix() {
+    var out = [];
+    Q.forEach(function (item, i) { if (state.cats.indexOf(item[0]) >= 0) out.push(i); });
+    return out;
+  }
+  function left() { return inMix().filter(function (i) { return state.used.indexOf(i) < 0; }); }
+
+  function showQuestion(i) {
+    var item = Q[i];
+    $("cat").textContent = label(item[0]);
+    var q = $("q"); q.className = "question fade"; q.textContent = item[1];
+    var n = $("note");
+    if (item[2]) { n.textContent = item[2]; n.hidden = false; } else { n.textContent = ""; n.hidden = true; }
+  }
+
+  function renderChips() {
+    var box = $("chips"); box.innerHTML = "";
+    CATS.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = c.label;
+      b.setAttribute("aria-pressed", state.cats.indexOf(c.id) >= 0 ? "true" : "false");
+      b.addEventListener("click", function () {
+        var k = state.cats.indexOf(c.id);
+        if (k >= 0) { if (state.cats.length === 1) return; state.cats.splice(k, 1); }
+        else state.cats.push(c.id);
+        save(); renderChips(); renderMeta();
+      });
+      box.appendChild(b);
+    });
+  }
+
+  function renderHistory() {
+    var list = $("hist"); list.innerHTML = "";
+    $("histBox").hidden = state.used.length === 0;
+    $("histN").textContent = state.used.length;
+    state.used.slice().reverse().forEach(function (i) {
+      var li = document.createElement("li");
+      var t = document.createElement("span"); t.className = "tag"; t.textContent = label(Q[i][0]);
+      var x = document.createElement("span"); x.className = "txt"; x.textContent = Q[i][1];
+      li.appendChild(t); li.appendChild(x); list.appendChild(li);
+    });
+  }
+
+  function renderMeta() {
+    var mix = inMix(), rest = left();
+    var done = mix.length - rest.length;
+    $("count").textContent = done + " of " + mix.length + " asked";
+    $("bar").style.width = (mix.length ? (done / mix.length) * 100 : 0) + "%";
+    $("draw").disabled = rest.length === 0;
+    if (rest.length === 0) {
+      $("cat").textContent = "All done";
+      var q = $("q"); q.className = "question intro"; q.textContent = "You have been through every question in this mix. Add another topic or start over.";
+      $("note").hidden = true;
+    }
+    renderHistory();
+  }
+
+  function draw() {
+    var rest = left();
+    if (!rest.length) return;
+    var i = rest[Math.floor(Math.random() * rest.length)];
+    state.used.push(i);
+    save();
+    showQuestion(i);
+    renderMeta();
+  }
+
+  function reset() {
+    state.used = []; save();
+    $("cat").textContent = "Ready";
+    var q = $("q"); q.className = "question intro fade"; q.textContent = "Press the button for your first question. Take your time with the answer.";
+    $("note").hidden = true;
+    renderMeta();
+  }
+
+  load();
+  $("draw").addEventListener("click", draw);
+  $("reset").addEventListener("click", reset);
+  document.addEventListener("keydown", function (e) {
+    var tag = (e.target && e.target.tagName) || "";
+    if (e.code === "Space" && tag !== "INPUT" && tag !== "BUTTON" && tag !== "SUMMARY" && tag !== "SELECT") { e.preventDefault(); draw(); }
+  });
+  renderChips();
+  renderMeta();
+  if (state.used.length && left().length) showQuestion(state.used[state.used.length - 1]);
+})();
+</script>
+</body>
+</html>
